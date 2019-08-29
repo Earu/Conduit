@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-image: url(../img/pattern.png);
+    background-size: 200px;
+    animation: background-slide 5s linear infinite;
+    overflow: hidden;
+    height: 100vh;
+    position: relative;
+}
+
+#root {
+    height: 100vh;
+}
+
+@keyframes background-slide {
+    0% {
+        background-position: 0px 0px;
+    }
+
+    100% {
+        background-position: 200px 200px;
+    }
+}
+
+/* login */
+#token-form {
+    background-color: #2c2f34;
+    width: 350px;
+    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -175px;
+    margin-top: -75px;
+    border-radius: 3px;
+    padding-bottom: 15px;
+}
+
+#token-form>span {
+    margin: 10px;
+    margin-bottom: 13px;
+    color: white;
+    font-weight: bolder;
+    text-align: center;
+    font-size: 30px;
+    display: block;
+}
+
+#token-input {
+    background-color: #4f545c;
+    border: none;
+    color: #b9bbbe;
+    border-radius: 2px;
+    padding: 0px;
+    margin: 0 auto;
+    display: block;
+    width: 95%;
+    height: 30px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#token-form>button {
+    background-color: #b9bbbe;
+    border-radius: 2px;
+    padding: 10px;
+    color: #2c2f34;
+    font-weight: bolder;
+    border: none;
+    display: block;
+    margin: 0 auto;
+    width: 95%;
+}
+
+#token-form>button:hover {
+    background-color: white;
+}
