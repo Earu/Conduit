@@ -27,8 +27,10 @@
     "webpack-cli": "^3.3.7"
   },
   "dependencies": {
+    "@types/react-router": "^5.0.3",
     "discord.js": "^11.5.1",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react-dom": "^16.9.0",
+    "react-router": "^5.0.1"
   }
 }
