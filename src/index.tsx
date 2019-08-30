@@ -1,9 +1,12 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as Discord from 'discord.js';
 
-import { Login } from "./components/Login";
+const client = new Discord.Client();
+
+import { Login } from './components/Login';
 
 ReactDOM.render(
-    <Login />,
-    document.getElementById("root")
+    <Login client={client}/>,
+    document.getElementById('root')
 );

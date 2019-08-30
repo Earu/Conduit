@@ -1,24 +1,32 @@
-import * as React from "react";
+import * as React from 'react';
+import * as Discord from 'discord.js';
 
-export class Login extends React.Component {
-    private onClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-        //e.preventDefault();
-        console.debug('test');
+export interface LoginProps { client: Discord.Client }
 
-        let input: HTMLElement = document.getElementById('token-input');
-        let token: string = input.textContent;
-        if (token) {
+export class Login extends React.Component<LoginProps, {}> {
+    onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+        e.preventDefault();
+
+        let input: HTMLInputElement = document.getElementById('token-input') as HTMLInputElement;
+        if (input.value) {
             let form = document.getElementById('token-form');
-            form.style.display = 'none';
-            console.debug('test');
+            //form.style.display = 'none';
+            this.props.client.login(input.value)
+                .then(_ => {
+                    let botUser: Discord.ClientUser = this.props.client.user;
+                    console.log('Logged in as ' + botUser.username + '#' + botUser.discriminator);
+                })
+                .catch(console.error);
+        } else {
+            input.style.border = '2px solid red';
         }
     }
 
-    public render(): JSX.Element {
+    render(): JSX.Element {
         return (<div id='token-form'>
             <span>CONDUIT</span>
-            <input id='token-input' type='password' placeholder='discord bot token...'/>
-            <button onClick={this.onClick}>Connect</button>
+            <input id='token-input' type='password' placeholder='discord bot token...' />
+            <button onClick={this.onConnect.bind(this)}>Connect</button>
         </div>);
     }
 }
