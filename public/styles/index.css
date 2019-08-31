@@ -51,7 +51,7 @@ body {
     padding-bottom: 15px;
 }
 
-#token-form>span {
+.title {
     margin: 10px;
     margin-bottom: 13px;
     color: white;
@@ -143,3 +143,73 @@ body {
 }
 
 /*dashboard*/
+#dashboard {
+    background-color: #2c2f34;
+    width: 90vw;
+    height: 100vh;
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    margin-left: -45vw;
+    margin-top: -50vh;
+    border-radius: 3px;
+    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
+    display: none;
+}
+
+.dashboard-header {
+    background-color: #232528;
+    padding: 5px;
+}
+
+.dashboard-header > .title {
+    text-align: left;
+    font-size: 15px;
+    margin: 0;
+}
+
+#bot-avatar {
+    border-radius: 99999px;
+    width: 64px;
+    height: 64px;
+}
+
+.dashboard-info {
+    background-color: #4f545c;
+    padding: 5px 10px 5px 10px;
+}
+
+.dashboard-info > .bot-edit-input {
+    display: inline-block;
+    position: absolute;
+    left: 84px;
+    color: white;
+    border: none;
+    border-bottom: 1px solid gray;
+    background: transparent;
+}
+
+.dashboard-info > #bot-tag {
+    top: 40px;
+}
+
+.dashboard-info > #bot-game {
+    top: 70px;
+}
+
+#disconnect-btn {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bolder;
+}
+
+#disconnect-btn:hover {
+    background-color: #f04747;
+}
