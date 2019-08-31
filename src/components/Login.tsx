@@ -1,8 +1,20 @@
 import * as React from 'react';
 import { ConduitProps } from '../interfaces/conduitprops';
+import { Notyf } from 'notyf';
 
 export class Login extends React.Component<ConduitProps, {}> {
-    onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    private notifications: Notyf;
+
+    constructor(props: any) {
+        super(props);
+
+        this.notifications = new Notyf({
+            duration: 5000,
+            ripple: true,
+        });
+    }
+
+    private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         e.preventDefault();
 
         let input: HTMLInputElement = document.getElementById('token-input') as HTMLInputElement;
@@ -15,23 +27,33 @@ export class Login extends React.Component<ConduitProps, {}> {
                 .then(_ => {
                     form.style.display = 'none';
                     loader.style.display = 'none';
-                    input.disabled = false;
+                    let dashboard = document.getElementById('dashboard');
+                    dashboard.style.display = 'block';
+                    this.notifications.success(`Logged in as ${this.props.client.user.tag}!`);
                 })
                 .catch(err => {
                     input.style.border = '2px solid red';
                     loader.style.display = 'none';
                     input.disabled = false;
-                    console.error(err);
+                    let error: Error = err as Error;
+                    console.log(error.message);
+                    this.notifications.error(error.message);
                 });
         } else {
             input.style.border = '2px solid red';
         }
     }
 
+    private onTokenChange(e: React.ChangeEvent<HTMLInputElement>): void {
+        if (!e.target.value) {
+            e.target.style.border = 'none';
+        }
+    }
+
     render(): JSX.Element {
         return (<div id='token-form'>
-            <span>CONDUIT</span>
-            <input id='token-input' type='password' placeholder='discord bot token...' />
+            <span className='title'>CONDUIT</span>
+            <input onChange={this.onTokenChange} id='token-input' type='password' placeholder='discord bot token...' />
             <button onClick={this.onConnect.bind(this)}>Connect</button>
         </div>);
     }
