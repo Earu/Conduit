@@ -1,19 +1,7 @@
 import * as React from 'react';
 import { ConduitProps } from '../interfaces/conduitprops';
-import { Notyf } from 'notyf';
 
 export class Login extends React.Component<ConduitProps, {}> {
-    private notifications: Notyf;
-
-    constructor(props: any) {
-        super(props);
-
-        this.notifications = new Notyf({
-            duration: 5000,
-            ripple: true,
-        });
-    }
-
     private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         e.preventDefault();
 
@@ -29,7 +17,7 @@ export class Login extends React.Component<ConduitProps, {}> {
                     loader.style.display = 'none';
                     let dashboard = document.getElementById('dashboard');
                     dashboard.style.display = 'block';
-                    this.notifications.success(`Logged in as ${this.props.client.user.tag}!`);
+                    this.props.logger.success(`Logged in as ${this.props.client.user.tag}!`);
                 })
                 .catch(err => {
                     input.style.border = '2px solid red';
@@ -37,7 +25,7 @@ export class Login extends React.Component<ConduitProps, {}> {
                     input.disabled = false;
                     let error: Error = err as Error;
                     console.log(error.message);
-                    this.notifications.error(error.message);
+                    this.props.logger.error(error.message);
                 });
         } else {
             input.style.border = '2px solid red';
