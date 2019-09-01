@@ -7,8 +7,8 @@ import { Loader } from './components/loader';
 import { Dashboard } from './components/dashboard';
 import { Logger } from './utils/logger';
 
-let client = new Discord.Client();
-let logger = new Logger();
+const client: Discord.Client = new Discord.Client();
+const logger: Logger = new Logger();
 
 ReactDOM.render(
     <div>
