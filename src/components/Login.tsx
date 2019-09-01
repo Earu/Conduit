@@ -8,24 +8,17 @@ export class Login extends React.Component<ConduitProps, {}> {
         let input: HTMLInputElement = document.getElementById('token-input') as HTMLInputElement;
         if (input.value) {
             let form: HTMLElement = document.getElementById('token-form');
-            let loader: HTMLElement = document.getElementById('loader');
-            loader.style.display = 'block';
             input.disabled = true;
-            this.props.client.login(input.value)
+            this.props.loader.load(this.props.client.login(input.value))
                 .then(_ => {
                     form.style.display = 'none';
-                    loader.style.display = 'none';
                     let dashboard: HTMLElement = document.getElementById('dashboard');
                     dashboard.style.display = 'block';
                     this.props.logger.success(`Logged in as ${this.props.client.user.tag}!`);
                 })
-                .catch(err => {
+                .catch(_ => {
                     input.style.border = '2px solid red';
-                    loader.style.display = 'none';
                     input.disabled = false;
-                    let error: Error = err as Error;
-                    console.log(error.message);
-                    this.props.logger.error(error.message);
                 });
         } else {
             input.style.border = '2px solid red';
