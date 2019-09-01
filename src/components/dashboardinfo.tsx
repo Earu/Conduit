@@ -3,6 +3,7 @@ import * as Discord from 'discord.js';
 import { ConduitProps } from "../interfaces/conduitprops";
 import { BotInput } from "./botinput";
 import { Select } from "./select";
+import { BotAvatar } from './botavatar';
 
 export class DashboardInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
@@ -10,16 +11,14 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
 
         this.props.client
             .on('ready', this.onReady.bind(this))
-            .on('userUpdate', this.onUserUpdate.bind(this))
+            .on('userUpdate', this.onUserUpdate.bind(this));
     }
 
     private onReady(): void {
         let user: Discord.ClientUser = this.props.client.user;
-        let avatar: HTMLImageElement = document.getElementById('bot-avatar') as HTMLImageElement;
         let name: HTMLInputElement = document.getElementById('bot-tag') as HTMLInputElement;
         let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
 
-        avatar.src = user.avatarURL;
         name.value = user.username;
         if (user.presence.game) {
             game.value = user.presence.game.name;
@@ -79,7 +78,7 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
     }
 
     private statusNameToDisplay(status: string): string {
-        switch(status) {
+        switch (status) {
             case 'online':
                 return 'Online';
             case 'idle':
@@ -107,7 +106,7 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return <div className='dashboard-info'>
-            <img id='bot-avatar' alt='avatar' />
+            <BotAvatar client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
             <BotInput placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />
             <BotInput placeholder='game...' id='bot-game' onValidated={this.onBotGameValidated.bind(this)} />
             <Select id='bot-activity' onSelected={this.onBotPresenceChanged.bind(this)} defaultValue='PLAYING' width='125px'>
