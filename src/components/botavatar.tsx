@@ -61,7 +61,12 @@ export class BotAvatar extends React.Component<ConduitProps, {}> {
                     this.props.logger.success('New avatar set');
                     this.updateAvatar();
                 } else {
-                    this.props.logger.error('Could not set new avatar')
+                    let obj = res.asObject();
+                    if (obj.avatar && obj.avatar[0]) {
+                        this.props.logger.error(obj.avatar[0]);
+                    } else {
+                        this.props.logger.error('Coult not set new avatar');
+                    }
                 }
             });
         };

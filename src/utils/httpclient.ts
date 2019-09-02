@@ -16,17 +16,17 @@ class HttpResult {
     }
 
     public get content(): string {
-        if (this.innerContent) {
+        if (!this.innerContent) {
             return "";
         }
 
         return this.innerContent;
     }
 
-    public readAs<T>(): T {
+    public asObject(): any {
         if (!this.content) return null;
 
-        return JSON.parse(this.content) as T;
+        return JSON.parse(this.content);
     }
 
     public isSuccess(): boolean {
