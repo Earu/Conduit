@@ -8,7 +8,7 @@ class HttpResult {
     }
 
     public get httpCode(): number {
-        if (!this.code) {
+        if (!this.code || (this.code && this.code < 1)) {
             return -1;
         }
 
@@ -30,7 +30,7 @@ class HttpResult {
     }
 
     public isSuccess(): boolean {
-        return this.code === 200;
+        return this.httpCode === 200;
     }
 }
 
@@ -45,13 +45,13 @@ export class HttpClient {
                     }
                 };
 
+                req.open(method, url);
+
                 if (headers) {
-                    for (let property in Object.keys(headers)) {
+                    for (let property in headers) {
                         req.setRequestHeader(property, headers[property]);
                     }
                 }
-
-                req.open(method, url);
 
                 if (body) {
                     req.send(body);
