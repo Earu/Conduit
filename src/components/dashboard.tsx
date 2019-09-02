@@ -20,12 +20,12 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div id='dashboard'>
+        return <div className='container' id='dashboard'>
             <div className='dashboard-header'>
                 <h1 className='title'>CONDUIT</h1>
                 <button onClick={this.onBotClose.bind(this)} id='disconnect-btn'>X</button>
             </div>
-            <DashboardInfo client={this.props.client} logger={this.props.logger} loader={this.props.loader}/>
-        </div>
+            <DashboardInfo client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
+        </div>;
     }
 }

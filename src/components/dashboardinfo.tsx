@@ -11,17 +11,28 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
 
         this.props.client
             .on('ready', this.onReady.bind(this))
-            .on('userUpdate', this.onUserUpdate.bind(this));
+            .on('userUpdate', this.onUserUpdate.bind(this))
     }
 
     private onReady(): void {
         let user: Discord.ClientUser = this.props.client.user;
         let name: HTMLInputElement = document.getElementById('bot-tag') as HTMLInputElement;
         let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
+        let shards: HTMLElement = document.getElementById('shard-count');
+        let guilds: HTMLElement = document.getElementById('guild-count');
+        let users: HTMLElement = document.getElementById('user-count');
 
         name.value = user.username;
+        guilds.innerText = this.props.client.guilds.size.toString();
+        users.innerText = this.props.client.users.size.toString();
         if (user.presence.game) {
             game.value = user.presence.game.name;
+        }
+
+        if (this.props.client.shard) {
+            shards.innerText = this.props.client.shard.count.toString();
+        } else {
+            shards.innerText = '1';
         }
     }
 
@@ -105,23 +116,34 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div className='dashboard-info'>
-            <BotAvatar client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
-            <BotInput placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />
-            <BotInput placeholder='game...' id='bot-game' onValidated={this.onBotGameValidated.bind(this)} />
-            <Select id='bot-activity' onSelected={this.onBotPresenceChanged.bind(this)} defaultValue='PLAYING' width='125px'>
-                <option value='PLAYING'>Playing</option>
-                <option value='PLAYING'>Playing</option>
-                <option value='STREAMING'>Streaming</option>
-                <option value='LISTENING'>Listening</option>
-                <option value='WATCHING'>Watching</option>
-            </Select>
-            <Select id='bot-status' onSelected={this.onBotStatusChanged.bind(this)} defaultValue='online' width='125px'>
-                <option value='online'>Online</option>
-                <option value='online'>Online</option>
-                <option value='idle'>Idle</option>
-                <option value='dnd'>Do Not Disturb</option>
-            </Select>
+        return <div className='row dashboard-info '>
+            <div className='col-md-1'>
+                <BotAvatar client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
+            </div>
+            <div className='col-md-2'>
+                <BotInput placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />
+                <BotInput placeholder='game...' id='bot-game' onValidated={this.onBotGameValidated.bind(this)} />
+            </div>
+            <div className='col-md-2'>
+                <Select id='bot-activity' onSelected={this.onBotPresenceChanged.bind(this)} defaultValue='PLAYING'>
+                    <option value='PLAYING'>Playing</option>
+                    <option value='PLAYING'>Playing</option>
+                    <option value='STREAMING'>Streaming</option>
+                    <option value='LISTENING'>Listening</option>
+                    <option value='WATCHING'>Watching</option>
+                </Select>
+                <Select id='bot-status' onSelected={this.onBotStatusChanged.bind(this)} defaultValue='online'>
+                    <option value='online'>Online</option>
+                    <option value='online'>Online</option>
+                    <option value='idle'>Idle</option>
+                    <option value='dnd'>Do Not Disturb</option>
+                </Select>
+            </div>
+            <div className='bot-stats col-md-2'>
+                Shards: <span id='shard-count'>0</span><br/>
+                Guilds: <span id='guild-count'>0</span><br/>
+                Users: <span id='user-count'>0</span>
+            </div>
         </div>
     }
 }
