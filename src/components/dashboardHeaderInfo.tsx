@@ -23,10 +23,15 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         let shards: HTMLElement = document.getElementById('shard-count');
         let guilds: HTMLElement = document.getElementById('guild-count');
         let users: HTMLElement = document.getElementById('user-count');
+        let botId: HTMLElement = document.getElementById('bot-id');
+        let botInvite: HTMLLinkElement = document.getElementById('bot-invite') as HTMLLinkElement;
 
         name.value = user.username;
         guilds.innerText = this.props.client.guilds.size.toString();
         users.innerText = this.props.client.users.size.toString();
+        botId.innerText = user.id;
+        botInvite.href = `https://discordapp.com/oauth2/authorize?client_id=${user.id}`;
+
         if (user.presence.game) {
             game.value = user.presence.game.name;
         }
@@ -50,7 +55,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onGuildX(guild: Discord.Guild): void {
+    private onGuildX(_: Discord.Guild): void {
         let shards: HTMLElement = document.getElementById('shard-count');
         let guilds: HTMLElement = document.getElementById('guild-count');
         let users: HTMLElement = document.getElementById('user-count');
@@ -131,6 +136,15 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             .then(_ => this.props.logger.success(`Changed status to "${this.statusNameToDisplay(status)}"`))
     }
 
+    private onBotClose(_: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+        this.props.loader.load(this.props.client.destroy())
+            .then(_ => this.props.logger.success('Disconnected'));
+        let dashboard: HTMLElement = document.getElementById('dashboard-header');
+        let form: HTMLElement = document.getElementById('token-form');
+        dashboard.style.display = 'none';
+        form.style.display = 'block';
+    }
+
     render(): JSX.Element {
         return <div className='row dashboard-info '>
             <div className='col-md-1'>
@@ -160,7 +174,12 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
                 Guilds: <span id='guild-count'>0</span><br/>
                 Users: <span id='user-count'>0</span>
             </div>
+            <div className='bot-stats col-md-3'>
+                ID: <span id='bot-id'>0</span><br />
+                <a id='bot-invite'>Bot Invite</a>
+            </div>
             <div className='col-md-2'>
+                <button onClick={this.onBotClose.bind(this)} id='disconnect-btn'>Disconnect</button>
             </div>
         </div>
     }
