@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../interfaces/conduitprops';
+import { ConduitProps } from '../interfaces/conduitProps';
 
 export class Login extends React.Component<ConduitProps, {}> {
     private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
@@ -12,7 +12,7 @@ export class Login extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.props.client.login(input.value))
                 .then(_ => {
                     form.style.display = 'none';
-                    let dashboard: HTMLElement = document.getElementById('dashboard');
+                    let dashboard: HTMLElement = document.getElementById('dashboard-header');
                     dashboard.style.display = 'block';
                     this.props.logger.success(`Logged in as ${this.props.client.user.tag}!`);
                 })
@@ -33,7 +33,7 @@ export class Login extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return (<div id='token-form'>
-            <span className='title'>CONDUIT</span>
+            <h1 className='title'>CONDUIT</h1>
             <input onChange={this.onTokenChange} id='token-input' type='password' placeholder='discord bot token...' />
             <button onClick={this.onConnect.bind(this)}>Connect</button>
         </div>);

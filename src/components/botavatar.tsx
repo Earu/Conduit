@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
-import { ConduitProps } from "../interfaces/conduitprops";
-import { HttpClient } from '../utils/httpclient';
+import { ConduitProps } from "../interfaces/conduitProps";
+import { HttpClient } from '../utils/httpClient';
 
 export class BotAvatar extends React.Component<ConduitProps, {}> {
     private httpClient: HttpClient;

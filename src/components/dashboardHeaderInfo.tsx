@@ -1,17 +1,19 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
 import { ConduitProps } from "../interfaces/conduitprops";
-import { BotInput } from "./botinput";
+import { BotInput } from "./botInput";
 import { Select } from "./select";
-import { BotAvatar } from './botavatar';
+import { BotAvatar } from './botAvatar';
 
-export class DashboardInfo extends React.Component<ConduitProps, {}> {
+export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
         super(props);
 
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('userUpdate', this.onUserUpdate.bind(this))
+            .on('guildCreate', this.onGuildX.bind(this))
+            .on('guildDelete', this.onGuildX.bind(this));
     }
 
     private onReady(): void {
@@ -45,6 +47,20 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
             if (user.presence.game) {
                 game.value = user.presence.game.name;
             }
+        }
+    }
+
+    private onGuildX(guild: Discord.Guild): void {
+        let shards: HTMLElement = document.getElementById('shard-count');
+        let guilds: HTMLElement = document.getElementById('guild-count');
+        let users: HTMLElement = document.getElementById('user-count');
+
+        guilds.innerText = this.props.client.guilds.size.toString();
+        users.innerText = this.props.client.users.size.toString();
+        if (this.props.client.shard) {
+            shards.innerText = this.props.client.shard.count.toString();
+        } else {
+            shards.innerText = '1';
         }
     }
 
@@ -143,6 +159,8 @@ export class DashboardInfo extends React.Component<ConduitProps, {}> {
                 Shards: <span id='shard-count'>0</span><br/>
                 Guilds: <span id='guild-count'>0</span><br/>
                 Users: <span id='user-count'>0</span>
+            </div>
+            <div className='col-md-2'>
             </div>
         </div>
     }

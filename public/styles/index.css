@@ -254,7 +254,7 @@ body {
 }
 
 /* dashboard */
-#dashboard {
+#dashboard-header {
     background-color: #2c2f34;
     border-radius: 3px;
     box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
@@ -295,19 +295,36 @@ body {
     color: white;
 }
 
-#disconnect-btn {
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    background: transparent;
-    color: white;
-    border: none;
+#bot-invite {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    background-color: #7289da;
     padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    font-weight: bolder;
+    border-radius: 3px;
+    color: white;
+    transition: 0.2s;
+    margin-top: 3%;
+    width: 100%;
+}
+
+#bot-invite:hover {
+    background-color: #677bc4;
+}
+
+#disconnect-btn {
+    display: block;
+    text-align: center;
+    background: transparent;
+    color: #f04747;
+    border: 1px solid rgba(240,71,71, 0.6);
+    border-radius: 3px;
+    padding: 15px 5px;
+    transition: 0.2s;
+    width: 100%;
+    margin-top: 3%;
 }
 
 #disconnect-btn:hover {
-    background-color: #f04747;
+    border: 1px solid rgba(240,71,71, 1);;
 }
