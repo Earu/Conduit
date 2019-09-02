@@ -1,36 +1,42 @@
 class HttpResult {
-    private code: number;
-    private innerContent: string;
+    public status: number;
+    public content: string;
+    public headers: any;
 
-    constructor(httpCode: number, content: string) {
-        this.code = httpCode;
-        this.innerContent = content;
+    constructor(req: XMLHttpRequest) {
+        this.status = req.status;
+        this.content = req.response;
+        this.headers = this.getResponseHeaders(req);
     }
 
-    public get httpCode(): number {
-        if (!this.code || (this.code && this.code < 1)) {
-            return -1;
+    private getResponseHeaders(req: XMLHttpRequest): any {
+        let headers: any = {};
+        let lines: string[] = req.getAllResponseHeaders().split('\r\n').filter(x => x.length > 0);
+        for (let line of lines)
+        {
+            let pos: number = line.indexOf(':');
+            let key: string = line.substring(0, pos + 1);
+            let value: string = line.substring(pos + 1, line.length).trim();
+            headers[key] = value;
         }
 
-        return this.code;
+        return headers;
     }
 
-    public get content(): string {
-        if (!this.innerContent) {
-            return "";
+    public asObject<T>(): T {
+        if (!this.content) {
+            return null;
         }
 
-        return this.innerContent;
-    }
-
-    public asObject(): any {
-        if (!this.content) return null;
-
-        return JSON.parse(this.content);
+        return JSON.parse(this.content) as T;
     }
 
     public isSuccess(): boolean {
-        return this.httpCode === 200;
+        if (!this.status) {
+            return false;
+        }
+
+        return this.status === 200;
     }
 }
 
@@ -39,9 +45,10 @@ export class HttpClient {
         return new Promise((resolve, reject) => {
             try {
                 let req = new XMLHttpRequest();
+                req.timeout = 5000;
                 req.onreadystatechange = () => {
                     if (req.readyState === 4) {
-                        resolve(new HttpResult(req.status, req.response));
+                        resolve(new HttpResult(req));
                     }
                 };
 

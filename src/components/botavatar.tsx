@@ -61,7 +61,7 @@ export class BotAvatar extends React.Component<ConduitProps, {}> {
                     this.props.logger.success('New avatar set');
                     this.updateAvatar();
                 } else {
-                    let obj = res.asObject();
+                    let obj = res.asObject<{ avatar: Array<string> }>();
                     if (obj.avatar && obj.avatar[0]) {
                         this.props.logger.error(obj.avatar[0]);
                     } else {
