@@ -37,14 +37,14 @@ export class BotAvatar extends React.Component<ConduitProps, {}> {
             let arrayBuffer: ArrayBuffer = fileReader.result as ArrayBuffer;
             let array: Uint8Array = new Uint8Array(arrayBuffer);
             let base64: string = btoa(String.fromCharCode.apply(null, array));
-            console.log(base64);
-            this.props.loader.load(this.props.client.user.setAvatar(base64))
+
+            /*this.props.loader.load(this.props.client.user.setAvatar(base64))
                 .then(_ => {
                     this.props.logger.success('New avatar set');
                     let avatar: HTMLElement = document.getElementById('bot-avatar');
                     let img: HTMLImageElement = avatar.children.item(0) as HTMLImageElement;
                     img.src = this.props.client.user.avatarURL;
-                })
+                });*/
         };
 
         fileReader.readAsArrayBuffer(e.target.files[0]);
