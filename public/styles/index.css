@@ -216,6 +216,7 @@ body {
     position: relative;
     overflow: hidden;
     transition: 0.2s;
+    margin: 0 auto;
 }
 
 #bot-avatar:hover {
@@ -253,7 +254,7 @@ body {
     color: white;
 }
 
-/* dashboard */
+/* dashboard header*/
 #dashboard-header {
     background-color: #2c2f34;
     border-radius: 3px;
