@@ -4,7 +4,6 @@ export interface SelectProps {
     id: string;
     defaultValue: string;
     onSelected: (value: string) => void;
-    width: string;
 }
 
 export class Select extends React.Component<SelectProps, {}> {
@@ -25,11 +24,10 @@ export class Select extends React.Component<SelectProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div className='custom-select'
+        return <div className='conduit-select'
             onClick={this.onClick.bind(this)}
             onMouseUp={this.onClick.bind(this)}
             onMouseDown={this.onClick.bind(this)}
-            style={{width: this.props.width}}
             id={`parent-${this.props.id}`}>
         <select id={this.props.id}
             defaultValue={this.props.defaultValue}>
