@@ -228,6 +228,10 @@ body {
 
 #bot-avatar > img {
     position: absolute;
+    line-height: 64px;
+    text-align: center;
+    color: white;
+    font-size: 20px;
     width: 64px;
     height: 64px;
 }
