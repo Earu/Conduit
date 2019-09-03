@@ -9,7 +9,7 @@ export interface BotInputProps {
 export class BotInput extends React.Component<BotInputProps, {}> {
     private onChange(e: React.ChangeEvent<HTMLInputElement>){
         if (!e.target.value) {
-            e.target.style.borderBottom = '1px solid gray';
+            e.target.style.border = null;
         }
     }
 
