@@ -23,6 +23,12 @@ body {
     position: relative;
 }
 
+@media only screen and (max-width: 990px) {
+    body {
+        overflow-y: scroll;
+    }
+}
+
 #root {
     height: 100vh;
 }
@@ -254,13 +260,9 @@ body {
     color: white;
 }
 
-/* dashboard header*/
-#dashboard-header {
-    background-color: #2c2f34;
-    border-radius: 3px;
-    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
+/* panels & dashboard*/
+#dashboard {
     display: none;
-    padding: 0;
 }
 
 .dashboard-header {
@@ -275,8 +277,25 @@ body {
     margin: 0;
 }
 
-.dashboard-info {
+.dashboard-panel {
+    margin-top: 15px;
+    color: white;
+    height: 25vh;
     background-color: #4f545c;
+}
+
+.dashboard-panel>.content{
+    padding: 5px;
+}
+
+.dashboard-panel, #dashboard-header {
+    border-radius: 3px;
+    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
+    padding: 0;
+}
+
+.dashboard-info {
+    background-color: #2c2f34;
     padding: 5px 10px 5px 10px;
     margin-left: 0;
     margin-right: 0;
@@ -284,12 +303,17 @@ body {
 
 .bot-edit-input {
     color: white;
-    border: none;
-    border-bottom: 1px solid gray;
-    background: transparent;
+    border: 1px solid black;
+    background: #232528;
     display: block;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    transition: 0.2s;
+    padding: 5px;
+}
+
+.bot-edit-input:focus {
+    border: 1px solid #7289da;
 }
 
 .bot-stats {

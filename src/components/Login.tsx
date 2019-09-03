@@ -12,7 +12,7 @@ export class Login extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.props.client.login(input.value))
                 .then(_ => {
                     form.style.display = 'none';
-                    let dashboard: HTMLElement = document.getElementById('dashboard-header');
+                    let dashboard: HTMLElement = document.getElementById('dashboard');
                     dashboard.style.display = 'block';
                     this.props.logger.success(`Logged in as ${this.props.client.user.tag}!`);
                 })

@@ -74,10 +74,10 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         if (name.value) {
             this.props.loader.load(this.props.client.user.setUsername(name.value))
                 .then(_ => {
-                    name.style.borderBottom = '1px solid gray';
+                    name.style.border = '1px solid black';
                     this.props.logger.success(`Changed username to "${name.value}"`)
                 })
-                .catch(_ => name.style.borderBottom = '2px solid red');
+                .catch(_ => name.style.border = '2px solid red');
         }
     }
 
@@ -139,7 +139,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     private onBotClose(_: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         this.props.loader.load(this.props.client.destroy())
             .then(_ => this.props.logger.success('Disconnected'));
-        let dashboard: HTMLElement = document.getElementById('dashboard-header');
+        let dashboard: HTMLElement = document.getElementById('dashboard');
         let form: HTMLElement = document.getElementById('token-form');
         dashboard.style.display = 'none';
         form.style.display = 'block';
@@ -148,6 +148,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     render(): JSX.Element {
         return <div className='row dashboard-info '>
             <div className='col-md-1'>
+                <div style={{ height: '5px' }} />
                 <BotAvatar client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
             </div>
             <div className='col-md-2'>
@@ -162,6 +163,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
                     <option value='LISTENING'>Listening</option>
                     <option value='WATCHING'>Watching</option>
                 </Select>
+                <div style={{ height: '5px' }} />
                 <Select id='bot-status' onSelected={this.onBotStatusChanged.bind(this)} defaultValue='online'>
                     <option value='online'>Online</option>
                     <option value='online'>Online</option>
@@ -170,15 +172,18 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
                 </Select>
             </div>
             <div className='bot-stats col-md-2'>
-                Shards: <span id='shard-count'>0</span><br/>
-                Guilds: <span id='guild-count'>0</span><br/>
+                <div style={{ height: '5px' }} />
+                Shards: <span id='shard-count'>0</span><br />
+                Guilds: <span id='guild-count'>0</span><br />
                 Users: <span id='user-count'>0</span>
             </div>
             <div className='bot-stats col-md-3'>
+                <div style={{ height: '5px' }} />
                 ID: <span id='bot-id'>0</span><br />
                 <a id='bot-invite'>Bot Invite</a>
             </div>
             <div className='col-md-2'>
+                <div style={{ height: '5px' }} />
                 <button onClick={this.onBotClose.bind(this)} id='disconnect-btn'>Disconnect</button>
             </div>
         </div>
