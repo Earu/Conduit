@@ -15,6 +15,7 @@ export class Login extends React.Component<ConduitProps, {}> {
                     let dashboard: HTMLElement = document.getElementById('dashboard');
                     dashboard.style.display = 'block';
                     this.props.logger.success(`Logged in as ${this.props.client.user.tag}!`);
+                    input.disabled = false;
                 })
                 .catch(_ => {
                     input.style.border = '2px solid red';
