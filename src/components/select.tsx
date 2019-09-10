@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export interface SelectProps {
     id: string;
-    defaultValue: string;
+    defaultValue?: string;
     onSelected: (value: string) => void;
 }
 
@@ -12,7 +12,11 @@ export class Select extends React.Component<SelectProps, {}> {
     constructor(props: any) {
         super(props);
 
-        this.lastValue = this.props.defaultValue;
+        if (this.props.defaultValue) {
+            this.lastValue = this.props.defaultValue;
+        } else {
+            this.lastValue = '';
+        }
     }
 
     private onClick(_: React.MouseEvent<HTMLSelectElement, MouseEvent>): void {

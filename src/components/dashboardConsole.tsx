@@ -1,7 +1,7 @@
-import React = require("react");
-import { ConduitProps } from "../interfaces/conduitProps";
-import { Channel, Emoji, Guild, User, RateLimitInfo, GuildMember, Role } from "discord.js";
-import { LogEventArgs, LogType } from "../utils/logger";
+import * as React from 'react';
+import { ConduitProps } from '../interfaces/conduitProps';
+import { Channel, Emoji, Guild, User, RateLimitInfo, GuildMember, Role } from 'discord.js';
+import { LogEventArgs, LogType } from '../utils/logger';
 
 export class DashboardConsole extends React.Component<ConduitProps, {}> {
     constructor(props: any) {

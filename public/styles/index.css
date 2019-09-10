@@ -16,7 +16,7 @@ div {
 
 body {
     background-image: url(../img/pattern.png);
-    background-size: 200px;
+    background-size: 400px;
     animation: background-slide 5s linear infinite;
     overflow: hidden;
     height: 100vh;
@@ -33,7 +33,7 @@ body {
     }
 
     100% {
-        background-position: 200px 200px;
+        background-position: 400px 400px;
     }
 }
 
@@ -76,6 +76,11 @@ body {
 }
 
 #token-form>button {
+    margin: 0 auto;
+    width: 95%;
+}
+
+.classic-btn {
     background-color: #b9bbbe;
     border-radius: 2px;
     padding: 10px;
@@ -83,11 +88,9 @@ body {
     font-weight: bolder;
     border: none;
     display: block;
-    margin: 0 auto;
-    width: 95%;
 }
 
-#token-form>button:hover {
+.classic-btn:hover {
     background-color: white;
 }
 

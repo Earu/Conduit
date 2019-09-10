@@ -4,6 +4,7 @@ export interface BotInputProps {
     placeholder: string;
     id: string;
     onValidated: () => void;
+    list?: string;
 }
 
 export class BotInput extends React.Component<BotInputProps, {}> {
@@ -25,6 +26,7 @@ export class BotInput extends React.Component<BotInputProps, {}> {
             id={this.props.id}
             type='text'
             onKeyPress={this.onKeyPress.bind(this)}
-            placeholder={this.props.placeholder}/>
+            placeholder={this.props.placeholder}
+            list={this.props.list}/>
     }
 }
