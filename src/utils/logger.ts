@@ -1,5 +1,5 @@
-import { Notyf } from "notyf";
-import { ConduitEvent, IConduitEvent } from "./conduitEvent";
+import { Notyf } from 'notyf';
+import { ConduitEvent, IConduitEvent } from './conduitEvent';
 
 export enum LogType {
     NORMAL,

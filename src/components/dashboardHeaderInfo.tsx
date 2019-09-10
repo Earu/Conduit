@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
-import { ConduitProps } from "../interfaces/conduitprops";
-import { BotInput } from "./botInput";
-import { Select } from "./select";
+import { ConduitProps } from '../interfaces/conduitprops';
+import { BotInput } from './botInput';
+import { Select } from './select';
 import { BotAvatar } from './botAvatar';
 
 export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
@@ -75,7 +75,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.props.client.user.setUsername(name.value))
                 .then(_ => {
                     name.style.border = '1px solid black';
-                    this.props.logger.success(`Changed username to "${name.value}"`)
+                    this.props.logger.success(`Changed username to '${name.value}'`)
                 })
                 .catch(_ => name.style.border = '2px solid red');
         }
@@ -87,10 +87,10 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         if (game.value) {
             let actNumber: number = this.activityNameToNum(activity.value);
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
-                .then(_ => this.props.logger.success(`Changed activity to "${activity.value.toLowerCase()} ${game.value}"`));
+                .then(_ => this.props.logger.success(`Changed activity to '${activity.value.toLowerCase()} ${game.value}'`));
         } else {
-            this.props.loader.load(this.props.client.user.setActivity(""))
-                .then(_ => this.props.logger.success("Removed the current game activity"));
+            this.props.loader.load(this.props.client.user.setActivity(''))
+                .then(_ => this.props.logger.success('Removed the current game activity'));
         }
     }
 
@@ -127,13 +127,13 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         if (game.value) {
             let actNumber: number = this.activityNameToNum(actName);
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
-                .then(_ => this.props.logger.success(`Changed activity to "${actName.toLowerCase()} ${game.value}"`));
+                .then(_ => this.props.logger.success(`Changed activity to '${actName.toLowerCase()} ${game.value}'`));
         }
     }
 
     private onBotStatusChanged(status: string): void {
         this.props.loader.load(this.props.client.user.setPresence({ status: status as Discord.PresenceStatus }))
-            .then(_ => this.props.logger.success(`Changed status to "${this.statusNameToDisplay(status)}"`))
+            .then(_ => this.props.logger.success(`Changed status to '${this.statusNameToDisplay(status)}'`))
     }
 
     private onBotClose(_: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
