@@ -12,7 +12,10 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         super(props);
 
         this.selectedGuild = null;
-        this.props.client.on('ready', this.onReady.bind(this));
+        this.props.client
+            .on('ready', this.onReady.bind(this))
+            .on('guildCreate', this.onGuildCreate.bind(this))
+            .on('guildDelete', this.onGuildDelete.bind(this));
     }
 
     private onReady(): void {
@@ -44,6 +47,30 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             this.updateGuildInfo();
             let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
             ReactDOM.render(opts, document.getElementById('guilds'));
+        }
+    }
+
+    private onGuildCreate(guild: Guild): void {
+        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+        let opt: HTMLOptionElement = document.createElement('option');
+        opt.value = guild.id;
+        opt.text = guild.name;
+        guilds.appendChild(opt);
+    }
+
+    private onGuildDelete(guild: Guild): void {
+        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+        let node: Node = null;
+        for (let child of guilds.childNodes) {
+            let opt: HTMLOptionElement = child as HTMLOptionElement;
+            if (opt.value === guild.id) {
+                node = opt;
+                break;
+            }
+        }
+
+        if (node) {
+            guilds.removeChild(node);
         }
     }
 
