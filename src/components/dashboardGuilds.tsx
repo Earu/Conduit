@@ -1,17 +1,27 @@
 import { ConduitProps } from '../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection } from 'discord.js';
+import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion } from 'discord.js';
 import { BotInput } from './botInput';
+import { Select } from './select';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
+    private selectedGuild: Guild;
+
     constructor(props: any) {
         super(props);
 
+        this.selectedGuild = null;
         this.props.client.on('ready', this.onReady.bind(this));
     }
 
     private onReady(): void {
+        this.props.client.fetchVoiceRegions().then(regions => {
+            let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
+            ReactDOM.render(opts, document.getElementById('guild-region'));
+            this.updateGuildInfo();
+        });
+
         let guilds: Array<Guild> = [];
         if (this.props.client.shard) {
             this.props.client.shard.broadcastEval('this.guilds')
@@ -21,15 +31,20 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         guilds = guilds.concat(gs.map((g: Guild) => g));
                     }
                     this.props.logger.success('Fetched all guilds');
+                    this.selectedGuild = guilds[0];
+                    this.updateGuildInfo();
+                    let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
+                    ReactDOM.render(opts, document.getElementById('guilds'));
                 })
                 .catch((err: Error) => this.props.logger.error(err.message));
         } else {
             guilds = this.props.client.guilds.map((g: Guild) => g);
             this.props.logger.success('Fetched all guilds');
+            this.selectedGuild = guilds[0];
+            this.updateGuildInfo();
+            let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
+            ReactDOM.render(opts, document.getElementById('guilds'));
         }
-
-        let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
-        ReactDOM.render(opts, document.getElementById('guilds'));
     }
 
     private async tryFindGuild(id: string): Promise<Guild> {
@@ -48,21 +63,68 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         return null;
     }
 
-    private onGuildSelected(): void {
-        let input: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
-        this.props.loader.load(this.tryFindGuild(input.value))
-            .then((guild: Guild) => {
-                this.props.logger.success(`Selected guild [ ${guild.name} | ${guild.id} ]`)
-                let guildImg: HTMLImageElement = document.getElementById('guild-avatar') as HTMLImageElement;
-                let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
+    private updateGuildInfo(): void {
+        if (!this.selectedGuild) return;
 
-                guildName.value = guild.name;
-                if (guild.iconURL) {
-                    guildImg.src = guild.iconURL;
-                } else {
-                    guildImg.alt = guild.name[0];
-                }
+        let guildImg: HTMLImageElement = document.getElementById('guild-avatar') as HTMLImageElement;
+        let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
+        let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
+
+        guildName.value = this.selectedGuild.name;
+        guildRegion.value = this.selectedGuild.region;
+        if (this.selectedGuild.iconURL) {
+            guildImg.src = this.selectedGuild.iconURL;
+        } else {
+            guildImg.alt = this.selectedGuild.name[0];
+        }
+    }
+
+    private onGuildSelected(): void {
+        let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
+        this.props.loader.load(this.tryFindGuild(guildSelect.value))
+            .then((guild: Guild) => {
+                this.props.logger.success(`Selected guild [ ${guild.name} | ${guild.id} ]`);
+                this.selectedGuild = guild;
+                this.updateGuildInfo();
             });
+    }
+
+    private hasPermissions(... perms: Array<PermissionResolvable>): boolean {
+        if (this.selectedGuild) {
+            let botMember: GuildMember = this.selectedGuild.member(this.props.client.user);
+            for (let perm of perms) {
+                if (!botMember.hasPermission(perm)) {
+                    this.props.logger.error(`You do not have the '${perm}' permission for the guild [ ${this.selectedGuild.name} | ${this.selectedGuild.id} ]`);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        this.props.logger.error(`Cannot check permissions for a nonexistent guild`);
+        return false;
+    }
+
+    private onGuildNameChange(): void {
+        let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
+        if (guildName.value) {
+            if (this.hasPermissions('MANAGE_GUILD')) {
+                this.props.loader.load(this.selectedGuild.setName(guildName.value))
+                    .then((g: Guild) => this.props.logger.success(`Changed selected guild's name to ${g.name}`))
+                    .catch(_ => guildName.style.border = '2px solid red');
+            } else {
+                guildName.style.border = '2px solid red';
+            }
+        }
+    }
+
+    private onGuildRegionChange(): void {
+        let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
+        if (guildRegion.value && this.hasPermissions('MANAGE_GUILD')) {
+            this.props.loader.load(this.selectedGuild.setRegion(guildRegion.value))
+                .then((g: Guild) => this.props.logger.success(`Changed selected guild's region to ${g.region}`));
+        }
     }
 
     render(): JSX.Element {
@@ -80,7 +142,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <img alt='g' id='guild-avatar' style={{ width: '64px', borderRadius: '9999px', textAlign: 'center' }} />
                     </div>
                     <div className='col-md-2'>
-                        <BotInput id='guild-name' onValidated={() => { }} placeholder='guild name...' />
+                        <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
+                        <Select id='guild-region' onSelected={this.onGuildRegionChange.bind(this)}>
+                        </Select>
                     </div>
                 </div>
             </div>
