@@ -18,13 +18,21 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('guildDelete', this.onGuildDelete.bind(this));
     }
 
-    private onReady(): void {
-        this.props.client.fetchVoiceRegions().then(regions => {
-            let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
-            ReactDOM.render(opts, document.getElementById('guild-region'));
-            this.updateGuildInfo();
-        });
+    private loadRegionSelect(): void {
+        this.props.loader.load(this.props.client.fetchVoiceRegions())
+            .then((regions: Collection<string, VoiceRegion>) => {
+                let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
+                ReactDOM.render(<Select id='guild-region' defaultValue={this.selectedGuild.region}  onSelected={this.onGuildRegionChange.bind(this)}>{opts}</Select>, document.getElementById('container-guild-region'));
+                this.updateGuildInfo();
+            });
+    }
 
+    private addGuildsToDatalist(guilds: Array<Guild>): void {
+        let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
+        ReactDOM.render(opts, document.getElementById('guilds'));
+    }
+
+    private onReady(): void {
         let guilds: Array<Guild> = [];
         if (this.props.client.shard) {
             this.props.client.shard.broadcastEval('this.guilds')
@@ -36,8 +44,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     this.props.logger.success('Fetched all guilds');
                     this.selectedGuild = guilds[0];
                     this.updateGuildInfo();
-                    let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
-                    ReactDOM.render(opts, document.getElementById('guilds'));
+                    this.addGuildsToDatalist(guilds);
+                    this.loadRegionSelect();
                 })
                 .catch((err: Error) => this.props.logger.error(err.message));
         } else {
@@ -45,8 +53,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             this.props.logger.success('Fetched all guilds');
             this.selectedGuild = guilds[0];
             this.updateGuildInfo();
-            let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
-            ReactDOM.render(opts, document.getElementById('guilds'));
+            this.addGuildsToDatalist(guilds);
+            this.loadRegionSelect();
         }
     }
 
@@ -98,7 +106,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
 
         guildName.value = this.selectedGuild.name;
-        guildRegion.value = this.selectedGuild.region;
+
+        if (guildRegion) {
+            guildRegion.value = this.selectedGuild.region;
+        }
+
         if (this.selectedGuild.iconURL) {
             guildImg.src = this.selectedGuild.iconURL;
         } else {
@@ -165,13 +177,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
                 <div className='row'>
-                    <div className='col-md-1' style={{ textAlign: 'center' }}>
+                    <div className='col-md-1' style={{ textAlign: 'center', paddingRight: '5px' }}>
                         <img alt='g' id='guild-avatar' style={{ width: '64px', borderRadius: '9999px', textAlign: 'center' }} />
                     </div>
                     <div className='col-md-2'>
                         <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
-                        <Select id='guild-region' onSelected={this.onGuildRegionChange.bind(this)}>
-                        </Select>
+                        <div id='container-guild-region'/>
                     </div>
                 </div>
             </div>
