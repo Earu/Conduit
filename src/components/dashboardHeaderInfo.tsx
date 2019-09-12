@@ -158,14 +158,12 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             <div className='col-md-2'>
                 <Select id='bot-activity' onSelected={this.onBotPresenceChanged.bind(this)} defaultValue='PLAYING'>
                     <option value='PLAYING'>Playing</option>
-                    <option value='PLAYING'>Playing</option>
                     <option value='STREAMING'>Streaming</option>
                     <option value='LISTENING'>Listening</option>
                     <option value='WATCHING'>Watching</option>
                 </Select>
                 <div style={{ height: '5px' }} />
                 <Select id='bot-status' onSelected={this.onBotStatusChanged.bind(this)} defaultValue='online'>
-                    <option value='online'>Online</option>
                     <option value='online'>Online</option>
                     <option value='idle'>Idle</option>
                     <option value='dnd'>Do Not Disturb</option>
