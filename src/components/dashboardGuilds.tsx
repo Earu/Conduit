@@ -177,10 +177,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
                 <div className='row'>
-                    <div className='col-md-1' style={{ textAlign: 'center', paddingRight: '5px' }}>
-                        <img alt='g' id='guild-avatar' style={{ width: '64px', borderRadius: '9999px', textAlign: 'center' }} />
+                    <div className='col-md-1'>
+                        <div style={{display: 'flex', textAlign: 'center', width: '100%', height: '100%'}}>
+                            <img alt='g' id='guild-avatar' style={{ width: '64px', borderRadius: '9999px', textAlign: 'center' }} />
+                        </div>
                     </div>
-                    <div className='col-md-2'>
+                    <div className='col-md-3'>
                         <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
                         <div id='container-guild-region'/>
                     </div>
