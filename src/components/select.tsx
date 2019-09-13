@@ -86,6 +86,7 @@ export class Select extends React.Component<SelectProps, {}> {
 
                 // fix for events
                 select.value = opt.value;
+                optRow.textContent = opt.text;
                 this.onSelected(opt.value);
             });
             b.appendChild(optRow);

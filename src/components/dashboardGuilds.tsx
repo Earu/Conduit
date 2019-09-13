@@ -103,17 +103,21 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         let guildImg: HTMLImageElement = document.getElementById('guild-avatar') as HTMLImageElement;
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
-        let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
+        let parentGuildRegion: HTMLDivElement = document.getElementById('parent-guild-region') as HTMLDivElement;
 
         guildName.value = this.selectedGuild.name;
 
-        if (guildRegion) {
+        if (parentGuildRegion) {
+            let guildRegion: HTMLSelectElement = parentGuildRegion.getElementsByTagName('select')[0];
+            let selected: HTMLDivElement = parentGuildRegion.getElementsByClassName('select-selected')[0] as HTMLDivElement;
             guildRegion.value = this.selectedGuild.region;
+            selected.textContent = guildRegion.options[guildRegion.selectedIndex].text;
         }
 
         if (this.selectedGuild.iconURL) {
             guildImg.src = this.selectedGuild.iconURL;
         } else {
+            guildImg.src = null;
             guildImg.alt = this.selectedGuild.name[0];
         }
     }
@@ -122,6 +126,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Guild) => {
+                if (!guild) return;
                 this.props.logger.success(`Selected guild [ ${guild.name} | ${guild.id} ]`);
                 this.selectedGuild = guild;
                 this.updateGuildInfo();
