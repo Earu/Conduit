@@ -162,6 +162,7 @@ body {
     background-color: #232528;
     border: 1px solid black;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 /* Style the arrow inside the select element: */

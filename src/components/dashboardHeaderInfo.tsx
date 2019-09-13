@@ -178,7 +178,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             <div className='bot-stats col-md-3'>
                 <div style={{ height: '5px' }} />
                 ID: <span id='bot-id'>0</span><br />
-                <a id='bot-invite'>Bot Invite</a>
+                <a id='bot-invite'>Bot Invite Link</a>
             </div>
             <div className='col-md-2'>
                 <div style={{ height: '5px' }} />
