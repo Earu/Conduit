@@ -143,6 +143,8 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         let form: HTMLElement = document.getElementById('token-form');
         dashboard.style.display = 'none';
         form.style.display = 'block';
+
+        location.reload();
     }
 
     render(): JSX.Element {
