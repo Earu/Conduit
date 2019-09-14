@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
 import { Avatar, AvatarProps } from './avatar';
-import { HttpClient } from '../../utils/httpClient';
+import { HttpClient, HttpResult } from '../../utils/httpClient';
 
 export class BotAvatar extends Avatar<AvatarProps> {
     private httpClient: HttpClient;
@@ -35,15 +35,15 @@ export class BotAvatar extends Avatar<AvatarProps> {
         }
     }
 
-    protected onValidated(hash: string): void {
+    protected onValidated(fileType: string, base64: string): void {
         let body: string = JSON.stringify({
             username: this.props.client.user.username,
-            avatar: hash,
+            avatar: `data:${fileType};base64,${base64}`,
         });
-        this.httpClient.patch('https://discordapp.com/api/users/@me', body, {
+        this.props.loader.load(this.httpClient.patch('https://discordapp.com/api/users/@me', body, {
             'Authorization': `Bot ${this.props.client.token}`,
             'Content-Type': 'application/json',
-        }).then(res => {
+        })).then((res: HttpResult) => {
             if (res.isSuccess()) {
                 this.props.logger.success('New avatar set');
                 this.updateAvatar();
