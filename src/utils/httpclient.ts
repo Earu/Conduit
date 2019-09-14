@@ -1,4 +1,4 @@
-class HttpResult {
+export class HttpResult {
     public status: number;
     public content: string;
     public headers: any;

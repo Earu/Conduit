@@ -1,5 +1,5 @@
 import { Avatar, AvatarProps } from './avatar';
-import { HttpClient } from '../../utils/httpClient';
+import { HttpClient, HttpResult } from '../../utils/httpClient';
 import { Guild, GuildMember } from 'discord.js';
 
 export interface GuildAvatarProps extends AvatarProps {
@@ -22,7 +22,7 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
     private updateAvatar(guild: Guild): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
         let img: HTMLImageElement = avatar.children[0] as HTMLImageElement;
-        let url = guild.iconURL;
+        let url = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
         if (url) {
             img.src = url;
         } else {
@@ -30,7 +30,7 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         }
     }
 
-    protected onValidated(hash: string): void {
+    protected onValidated(fileType: string, base64: string): void {
         let botMember: GuildMember = this.props.guild.member(this.props.client.user);
         if (!botMember.hasPermission('MANAGE_GUILD')) {
             this.props.logger.error(`You do not have the 'MANAGE_GUILD' permission for the guild [ ${this.props.guild.name} | ${this.props.guild.id} ]`);
@@ -38,12 +38,12 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         }
 
         let body: string = JSON.stringify({
-            icon: hash,
+            icon: `data:${fileType};base64,${base64}`,
         });
-        this.httpClient.patch(`https://discordapp.com/api/guilds/${this.props.guild.id}`, body, {
+        this.props.loader.load(this.httpClient.patch(`https://discordapp.com/api/guilds/${this.props.guild.id}`, body, {
             'Authorization': `Bot ${this.props.client.token}`,
             'Content-Type': 'application/json',
-        }).then(res => {
+        })).then((res: HttpResult) => {
             if (res.isSuccess()) {
                 this.props.logger.success('New guild icon set');
             } else {
