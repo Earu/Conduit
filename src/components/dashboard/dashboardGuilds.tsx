@@ -1,10 +1,10 @@
-import { ConduitProps } from '../interfaces/conduitProps';
+import { ConduitProps } from '../../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion } from 'discord.js';
-import { BotInput } from './controls/botInput';
-import { Select } from './select';
-import { GuildAvatar } from './controls/guildAvatar';
+import { BotInput } from '../controls/botInput';
+import { Select } from '../controls/select';
+import { GuildAvatar } from '../controls/guildAvatar';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;

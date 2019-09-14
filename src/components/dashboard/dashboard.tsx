@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../interfaces/conduitProps';
+import { ConduitProps } from '../../interfaces/conduitProps';
 import { DashboardHeader } from './dashboardHeader';
 import { DashboardPanel } from './dashboardPanel';
 import { DashboardConsole } from './dashboardConsole';
