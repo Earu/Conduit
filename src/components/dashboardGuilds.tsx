@@ -2,8 +2,9 @@ import { ConduitProps } from '../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion } from 'discord.js';
-import { BotInput } from './botInput';
+import { BotInput } from './controls/botInput';
 import { Select } from './select';
+import { GuildAvatar } from './controls/guildAvatar';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -101,7 +102,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private updateGuildInfo(): void {
         if (!this.selectedGuild) return;
 
-        let guildImg: HTMLImageElement = document.getElementById('guild-avatar') as HTMLImageElement;
+        let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
         let parentGuildRegion: HTMLDivElement = document.getElementById('parent-guild-region') as HTMLDivElement;
 
@@ -114,12 +115,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             selected.textContent = guildRegion.options[guildRegion.selectedIndex].text;
         }
 
-        if (this.selectedGuild.iconURL) {
-            guildImg.src = this.selectedGuild.iconURL;
-        } else {
-            guildImg.src = null;
-            guildImg.alt = this.selectedGuild.name[0];
-        }
+        ReactDOM.render(<GuildAvatar id='guild-avatar' guild={this.selectedGuild} client={this.props.client} logger={this.props.logger} loader={this.props.loader}/>, guildAvatar);
     }
 
     private onGuildSelected(): void {
@@ -146,7 +142,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             return true;
         }
 
-        this.props.logger.error(`Cannot check permissions for a nonexistent guild`);
+        this.props.logger.error('Cannot check permissions for a nonexistent guild');
         return false;
     }
 
@@ -182,10 +178,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
                 <div className='row'>
-                    <div className='col-md-1'>
-                        <div style={{display: 'flex', textAlign: 'center', width: '100%', height: '100%'}}>
-                            <img alt='g' id='guild-avatar' style={{ width: '64px', borderRadius: '9999px', textAlign: 'center' }} />
-                        </div>
+                    <div className='col-md-1 guild-avatar'>
+                        <div id='container-guild-avatar'/>
                     </div>
                     <div className='col-md-3'>
                         <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
