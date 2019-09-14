@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
 import { ConduitProps } from '../interfaces/conduitprops';
-import { BotInput } from './botInput';
+import { BotInput } from './controls/botInput';
 import { Select } from './select';
-import { BotAvatar } from './botAvatar';
+import { BotAvatar } from './controls/botAvatar';
 
 export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
@@ -151,7 +151,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         return <div className='row dashboard-info '>
             <div className='col-md-1'>
                 <div style={{ height: '5px' }} />
-                <BotAvatar client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
+                <BotAvatar id='bot-avatar' client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
             </div>
             <div className='col-md-2'>
                 <BotInput placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />

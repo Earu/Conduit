@@ -213,7 +213,7 @@ body {
 }
 
 /* bot avatar */
-#bot-avatar {
+.avatar-control {
     border-radius: 99999px;
     width: 64px;
     height: 64px;
@@ -223,11 +223,11 @@ body {
     margin: 0 auto;
 }
 
-#bot-avatar:hover {
+.avatar-control:hover {
     box-shadow: 0 0 5px black;
 }
 
-#bot-avatar>img {
+.avatar-control>img {
     position: absolute;
     line-height: 64px;
     text-align: center;
@@ -237,11 +237,11 @@ body {
     height: 64px;
 }
 
-#bot-avatar>input {
+.avatar-control>input {
     display: none;
 }
 
-#bot-avatar>button {
+.avatar-control>button {
     text-align: center;
     position: absolute;
     width: 64px;
@@ -253,7 +253,7 @@ body {
     font-weight: bolder;
 }
 
-#bot-avatar>button:hover {
+.avatar-control>button:hover {
     background-color: rgba(0, 0, 0, 0.3);
     color: white;
 }
@@ -314,6 +314,10 @@ body {
     color: white;
 }
 
+.guild-avatar {
+    margin-right: 25px;
+}
+
 #bot-invite {
     display: block;
     text-align: center;
@@ -369,14 +373,18 @@ body {
         overflow-y: scroll;
     }
 
-    #bot-avatar>img,
-    #bot-avatar>button,
-    #bot-avatar {
+    .avatar-control>img,
+    .avatar-control>button,
+    .avatar-control {
         width: 256px;
         height: 256px;
     }
 
-    #bot-avatar {
+    .avatar-control {
         margin-bottom: 10px;
+    }
+
+    .guild-avatar {
+        margin-right: 0px;
     }
 }
