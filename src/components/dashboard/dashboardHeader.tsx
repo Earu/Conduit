@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../interfaces/conduitProps';
+import { ConduitProps } from '../../interfaces/conduitProps';
 import { DashboardHeaderInfo } from './dashboardHeaderInfo';
 
 export class DashboardHeader extends React.Component<ConduitProps, {}> {
