@@ -193,6 +193,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                     <div className='col-md-3'>
                         <div id='container-guild-channel' />
+                        <button style={{marginTop: '5px', height: '30px', width: '100%', paddingTop: '5px'}} className='purple-btn'>Channel Permissions</button>
                     </div>
                 </div>
             </div>
