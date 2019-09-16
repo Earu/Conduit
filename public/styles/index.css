@@ -94,6 +94,21 @@ body {
     background-color: white;
 }
 
+.purple-btn {
+    display: block;
+    text-align: center;
+    background-color: #7289da;
+    padding: 5px;
+    border-radius: 3px;
+    color: white;
+    border: none;
+    transition: 0.2s;
+}
+
+.purple-btn:hover {
+    background-color: #677bc4;
+}
+
 /* loader */
 #loader {
     width: 100px;
@@ -319,20 +334,10 @@ body {
 }
 
 #bot-invite {
-    display: block;
-    text-align: center;
-    text-decoration: none;
-    background-color: #7289da;
-    padding: 5px;
-    border-radius: 3px;
     color: white;
-    transition: 0.2s;
+    text-decoration: none;
     margin-top: 3%;
     width: 100%;
-}
-
-#bot-invite:hover {
-    background-color: #677bc4;
 }
 
 #disconnect-btn {
