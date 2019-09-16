@@ -1,7 +1,7 @@
 import { ConduitProps } from '../../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion } from 'discord.js';
+import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel } from 'discord.js';
 import { BotInput } from '../controls/botInput';
 import { Select } from '../controls/select';
 import { GuildAvatar } from '../controls/guildAvatar';
@@ -23,9 +23,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.props.loader.load(this.props.client.fetchVoiceRegions())
             .then((regions: Collection<string, VoiceRegion>) => {
                 let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
-                ReactDOM.render(<Select id='guild-region' defaultValue={this.selectedGuild.region}  onSelected={this.onGuildRegionChange.bind(this)}>{opts}</Select>, document.getElementById('container-guild-region'));
+                ReactDOM.render(<Select id='guild-region' defaultValue={this.selectedGuild.region} onSelected={this.onGuildRegionChange.bind(this)}>{opts}</Select>, document.getElementById('container-guild-region'));
                 this.updateGuildInfo();
             });
+    }
+
+    private loadChannelSelect(): void {
+        let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={c.id} value={c.id}>{c.name} [ {c.type} ]</option>);
+        ReactDOM.render(<Select id='guild-channel' defaultValue={this.selectedGuild.channels.first().id} onSelected={() => { }}>{opts}</Select>, document.getElementById('container-guild-channel'));
     }
 
     private addGuildsToDatalist(guilds: Array<Guild>): void {
@@ -115,7 +120,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             selected.textContent = guildRegion.options[guildRegion.selectedIndex].text;
         }
 
-        ReactDOM.render(<GuildAvatar id='guild-avatar' guild={this.selectedGuild} client={this.props.client} logger={this.props.logger} loader={this.props.loader}/>, guildAvatar);
+        ReactDOM.render(<GuildAvatar id='guild-avatar' guild={this.selectedGuild} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
+        this.loadChannelSelect();
     }
 
     private onGuildSelected(): void {
@@ -129,7 +135,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private hasPermissions(... perms: Array<PermissionResolvable>): boolean {
+    private hasPermissions(...perms: Array<PermissionResolvable>): boolean {
         if (this.selectedGuild) {
             let botMember: GuildMember = this.selectedGuild.member(this.props.client.user);
             for (let perm of perms) {
@@ -179,11 +185,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 </div>
                 <div className='row'>
                     <div className='col-md-1 guild-avatar'>
-                        <div id='container-guild-avatar'/>
+                        <div id='container-guild-avatar' />
                     </div>
                     <div className='col-md-3'>
                         <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
-                        <div id='container-guild-region'/>
+                        <div id='container-guild-region' />
+                    </div>
+                    <div className='col-md-3'>
+                        <div id='container-guild-channel' />
                     </div>
                 </div>
             </div>
