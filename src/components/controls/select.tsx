@@ -49,7 +49,7 @@ export class Select extends React.Component<SelectProps, {}> {
         }
     }
 
-    componentDidMount(): void {
+    postRender(): void {
         let parent: HTMLDivElement = document.getElementById(`parent-${this.props.id}`) as HTMLDivElement;
         let select: HTMLSelectElement = document.getElementById(this.props.id) as HTMLSelectElement;
 
@@ -98,6 +98,26 @@ export class Select extends React.Component<SelectProps, {}> {
             this.closeSelect(a, parent.getElementsByClassName('select-items'), parent.getElementsByClassName('select-selected'));
             (a.nextSibling as HTMLElement).classList.toggle('select-hide');
         });
+    }
+
+    componentDidMount(): void {
+        this.postRender();
+    }
+
+    componentDidUpdate(): void {
+        let parent: HTMLDivElement = document.getElementById(`parent-${this.props.id}`) as HTMLDivElement;
+
+        let selecteds: HTMLCollectionOf<Element> = parent.getElementsByClassName('select-selected');
+        for (let e of selecteds) {
+            parent.removeChild(e);
+        }
+
+        let items: HTMLCollectionOf<Element> = parent.getElementsByClassName('select-items');
+        for (let e of items) {
+            parent.removeChild(e);
+        }
+
+        this.postRender();
     }
 
     render(): JSX.Element {
