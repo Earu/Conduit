@@ -24,6 +24,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .then((regions: Collection<string, VoiceRegion>) => {
                 let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
                 ReactDOM.render(<Select id='guild-region' defaultValue={this.selectedGuild.region} onSelected={this.onGuildRegionChange.bind(this)}>{opts}</Select>, document.getElementById('container-guild-region'));
+                let select: HTMLElement = document.getElementById('parent-guild-region');
+                select.style.marginBottom = '0px';
                 this.updateGuildInfo();
             });
     }
@@ -216,11 +218,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
-                        <div style={{ height: '5px' }} />
+                        <div style={{ height: '7px' }} />
                         <button style={{ height: '55px', width: '100%' }} className='purple-btn'>Guild Permissions</button>
                     </div>
                     <div className='col-md-3'>
-                        <div style={{ height: '5px' }} />
+                        <div style={{ height: '7px' }} />
                         <button className='red-btn' style={{ width: '100%', height: '55px' }}>
                             Leave Guild
                         </button>

@@ -34,7 +34,7 @@ export class Login extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return (<div id='token-form'>
-            <h1 className='title'>CONDUIT</h1>
+            <span className='title'>BOT LOGIN</span>
             <input onChange={this.onTokenChange} id='token-input' type='password' placeholder='discord bot token...' />
             <button className='classic-btn' onClick={this.onConnect.bind(this)}>Connect</button>
         </div>);
