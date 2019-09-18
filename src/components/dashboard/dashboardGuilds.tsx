@@ -1,7 +1,7 @@
 import { ConduitProps } from '../../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel } from 'discord.js';
+import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel } from 'discord.js';
 import { BotInput } from '../controls/botInput';
 import { Select } from '../controls/select';
 import { GuildAvatar } from '../controls/guildAvatar';
@@ -30,7 +30,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     private loadChannelSelect(): void {
         let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={c.id} value={c.id}>{c.name} [ {c.type} ]</option>);
-        ReactDOM.render(<Select id='guild-channel' defaultValue={this.selectedGuild.channels.first().id} onSelected={() => { }}>{opts}</Select>, document.getElementById('container-guild-channel'));
+        ReactDOM.render(<Select id='guild-channel'
+            defaultValue={this.selectedGuild.channels.first().id}
+            onSelected={this.onGuildChannelSelected.bind(this)}>
+                {opts}
+        </Select>, document.getElementById('container-guild-channel'));
     }
 
     private addGuildsToDatalist(guilds: Array<Guild>): void {
@@ -173,6 +177,26 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
+    private onGuildChannelSelected(chanId: string): void {
+        let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
+        if (!chan) return;
+
+        switch (chan.type) {
+            case 'category':
+                let catChan: CategoryChannel = chan as CategoryChannel;
+                break;
+            case 'text':
+                let txtChan: TextChannel = chan as TextChannel;
+                break;
+            case 'voice':
+                let voiceChan: VoiceChannel = chan as VoiceChannel;
+                break;
+            default:
+                // general channel stuff here cannot test
+                break;
+        }
+    }
+
     render(): JSX.Element {
         return <div>
             <div style={{ padding: '5px', backgroundColor: '#2c2f34' }}>
@@ -184,24 +208,28 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
                 <div className='row'>
-                    <div className='col-md-1 guild-avatar'>
+                    <div className='col-md-2 guild-avatar'>
                         <div id='container-guild-avatar' />
                     </div>
-                    <div className='col-md-3'>
+                    <div className='col-md-4'>
                         <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
+                        <div style={{ height: '5px' }} />
+                        <button style={{ height: '55px', width: '100%' }} className='purple-btn'>Guild Permissions</button>
+                    </div>
+                    <div className='col-md-3'>
+                        <div style={{ height: '5px' }} />
+                        <button className='red-btn' style={{ width: '100%', height: '55px' }}>
+                            Leave Guild
+                        </button>
+                    </div>
+                </div>
+                <div className='row'>
+                    <div className='col-md-12'>
+                        <hr style={{ borderTop: '1px solid gray', marginTop: '5px', marginBottom: '5px' }} />
                         <div id='container-guild-channel' />
-                        <button style={{marginTop: '5px', height: '30px', width: '100%', paddingTop: '5px'}} className='purple-btn'>Channel Permissions</button>
-                    </div>
-                    <div className='col-md-2'>
-                        Owner:<br/>
-                        Users:<br/>
-                        Invite:<br/>
-                    </div>
-                    <div className='col-md-2'>
-                        <button>Leave Guild</button>
                     </div>
                 </div>
             </div>

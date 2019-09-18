@@ -184,7 +184,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             </div>
             <div className='col-md-2'>
                 <div style={{ height: '5px' }} />
-                <button onClick={this.onBotClose.bind(this)} id='disconnect-btn'>Disconnect</button>
+                <button className='red-btn' onClick={this.onBotClose.bind(this)} id='disconnect-btn'>Disconnect</button>
             </div>
         </div>
     }
