@@ -97,7 +97,6 @@ body {
     font-weight: bolder;
     border: none;
     display: block;
-    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -114,12 +113,26 @@ body {
     color: white;
     border: none;
     transition: 0.2s;
-    white-space: nowrap;
     overflow: hidden;
 }
 
 .purple-btn:hover {
     background-color: #677bc4;
+}
+
+.red-btn {
+    display: block;
+    text-align: center;
+    background: transparent;
+    color: #f04747;
+    border: 1px solid rgba(240, 71, 71, 0.6);
+    border-radius: 3px;
+    padding: 15px 5px;
+    transition: 0.2s;
+}
+
+.red-btn:hover {
+    border: 1px solid rgba(240, 71, 71, 1);
 }
 
 /* loader */
@@ -349,10 +362,6 @@ body {
     color: white;
 }
 
-.guild-avatar {
-    margin-right: 25px;
-}
-
 #bot-invite {
     color: white;
     text-decoration: none;
@@ -361,20 +370,8 @@ body {
 }
 
 #disconnect-btn {
-    display: block;
-    text-align: center;
-    background: transparent;
-    color: #f04747;
-    border: 1px solid rgba(240, 71, 71, 0.6);
-    border-radius: 3px;
-    padding: 15px 5px;
-    transition: 0.2s;
     width: 100%;
     margin-top: 3%;
-}
-
-#disconnect-btn:hover {
-    border: 1px solid rgba(240, 71, 71, 1);
 }
 
 #console {
