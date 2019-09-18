@@ -24,9 +24,10 @@ div {
 }
 
 body {
-    background-image: url(../img/pattern.png);
+    /*background-image: url(../img/pattern.png);
     background-size: 400px;
-    animation: background-slide 5s linear infinite;
+    animation: background-slide 5s linear infinite;*/
+    background-color: #232528;
     overflow: hidden;
     height: 100vh;
     position: relative;
@@ -50,23 +51,24 @@ body {
 #token-form {
     background-color: #2c2f34;
     width: 350px;
-    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
     position: absolute;
     top: 50%;
     left: 50%;
     margin-left: -175px;
     margin-top: -75px;
-    border-radius: 3px;
-    padding-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+#token-form > .title {
+    background-color: #B51235;
+    padding: 5px;
+    margin: 0;
 }
 
 .title {
-    margin: 10px;
-    margin-bottom: 13px;
     color: white;
     font-weight: bolder;
-    text-align: center;
-    font-size: 30px;
+    font-size: 15px;
     display: block;
 }
 
@@ -74,12 +76,12 @@ body {
     background-color: #4f545c;
     border: none;
     color: #b9bbbe;
-    border-radius: 2px;
     padding: 0px;
     margin: 0 auto;
     display: block;
     width: 95%;
     height: 30px;
+    margin-top: 10px;
     margin-bottom: 10px;
     text-align: center;
 }
@@ -91,7 +93,6 @@ body {
 
 .classic-btn {
     background-color: #b9bbbe;
-    border-radius: 2px;
     padding: 10px;
     color: #2c2f34;
     font-weight: bolder;
@@ -109,7 +110,6 @@ body {
     text-align: center;
     background-color: #7289da;
     padding: 5px;
-    border-radius: 3px;
     color: white;
     border: none;
     transition: 0.2s;
@@ -126,7 +126,6 @@ body {
     background: transparent;
     color: #f04747;
     border: 1px solid rgba(240, 71, 71, 0.6);
-    border-radius: 3px;
     padding: 15px 5px;
     transition: 0.2s;
 }
@@ -146,7 +145,6 @@ body {
     color: white;
     display: none;
 }
-
 
 #loader:before,
 #loader:after {
@@ -192,6 +190,7 @@ body {
     display: block;
     position: relative;
     width: 100%;
+    margin-bottom: 5px;
 }
 
 .conduit-select select {
@@ -226,18 +225,22 @@ body {
 }
 
 /* style the items (options), including the selected item: */
-.select-items div,
+.select-items>div,
 .select-selected {
     color: #ffffff;
     padding: 5px 5px;
     cursor: pointer;
 }
 
+.select-items>div {
+    border-bottom: 1px solid #2a2c2e;
+}
+
 /* Style items (options): */
 .select-items {
     font-size: 13px;
     position: absolute;
-    background-color: #232528;
+    background-color: #2c2f34;
     top: 100%;
     left: 0;
     right: 0;
@@ -248,6 +251,8 @@ body {
     overflow-x: hidden;
     overflow-y: scroll;
     max-height: 400px;
+    border: 1px solid black;
+    border-top: none;
 }
 
 /* Hide the items when the select box is closed: */
@@ -312,7 +317,7 @@ body {
 }
 
 .dashboard-header {
-    background-color: #232528;
+    background-color: #B51235;
     padding: 5px;
     margin: 0;
 }
@@ -331,8 +336,6 @@ body {
 
 .dashboard-panel,
 #dashboard-header {
-    border-radius: 3px;
-    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.75);
     padding: 0;
 }
 
