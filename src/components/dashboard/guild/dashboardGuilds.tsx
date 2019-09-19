@@ -136,7 +136,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Guild) => {
                 if (!guild) return;
-                this.props.logger.success(`Selected guild [ ${guild.name} | ${guild.id} ]`);
+                this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
                 this.updateGuildInfo();
             });
@@ -147,7 +147,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             let botMember: GuildMember = this.selectedGuild.member(this.props.client.user);
             for (let perm of perms) {
                 if (!botMember.hasPermission(perm)) {
-                    this.props.logger.error(`You do not have the '${perm}' permission for the guild [ ${this.selectedGuild.name} | ${this.selectedGuild.id} ]`);
+                    this.props.logger.error(`You do not have the '${perm}' permission for the guild [ ${this.selectedGuild.id} ]`);
                     return false;
                 }
             }

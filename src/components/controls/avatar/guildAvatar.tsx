@@ -33,7 +33,7 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
     protected onValidated(fileType: string, base64: string): void {
         let botMember: GuildMember = this.props.guild.member(this.props.client.user);
         if (!botMember.hasPermission('MANAGE_GUILD')) {
-            this.props.logger.error(`You do not have the 'MANAGE_GUILD' permission for the guild [ ${this.props.guild.name} | ${this.props.guild.id} ]`);
+            this.props.logger.error(`You do not have the 'MANAGE_GUILD' permission for the guild [ ${this.props.guild.id} ]`);
             return;
         }
 
