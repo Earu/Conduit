@@ -1,10 +1,11 @@
-import { ConduitProps } from '../../interfaces/conduitProps';
+import { ConduitProps } from '../../../interfaces/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel } from 'discord.js';
-import { BotInput } from '../controls/botInput';
-import { Select } from '../controls/select';
-import { GuildAvatar } from '../controls/guildAvatar';
+import { BotInput } from '../../controls/botInput';
+import { Select } from '../../controls/select';
+import { GuildAvatar } from '../../controls/avatar/guildAvatar';
+import { DashboardTextChannel } from './dashboardTextChannel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -35,7 +36,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         ReactDOM.render(<Select id='guild-channel'
             defaultValue={this.selectedGuild.channels.first().id}
             onSelected={this.onGuildChannelSelected.bind(this)}>
-                {opts}
+            {opts}
         </Select>, document.getElementById('container-guild-channel'));
     }
 
@@ -183,12 +184,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
         if (!chan) return;
 
+        let jsx: JSX.Element = <div>UNKNOWN</div>
         switch (chan.type) {
             case 'category':
                 let catChan: CategoryChannel = chan as CategoryChannel;
                 break;
             case 'text':
                 let txtChan: TextChannel = chan as TextChannel;
+                jsx = <DashboardTextChannel channel={txtChan} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
                 break;
             case 'voice':
                 let voiceChan: VoiceChannel = chan as VoiceChannel;
@@ -197,6 +200,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 // general channel stuff here cannot test
                 break;
         }
+
+        ReactDOM.render(jsx, document.getElementById('channel'));
     }
 
     render(): JSX.Element {
@@ -235,7 +240,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
             </div>
-            awdawdawd
+            <div id='channel' style={{ padding: '5px' }} />
         </div>;
     }
 }

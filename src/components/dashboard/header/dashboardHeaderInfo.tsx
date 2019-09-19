@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
-import { ConduitProps } from '../../interfaces/conduitprops';
-import { BotInput } from '../controls/botInput';
-import { Select } from '../controls/select';
-import { BotAvatar } from '../controls/botAvatar';
+import { ConduitProps } from '../../../interfaces/conduitprops';
+import { BotInput } from '../../controls/botInput';
+import { Select } from '../../controls/select';
+import { BotAvatar } from '../../controls/avatar/botAvatar';
 
 export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
