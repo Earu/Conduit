@@ -5,5 +5,5 @@ import { Loader } from '../utils/loader';
 export interface ConduitProps {
     client: Discord.Client;
     logger: Logger;
-    loader: Loader
+    loader: Loader;
 }

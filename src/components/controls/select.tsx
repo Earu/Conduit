@@ -95,7 +95,7 @@ export class Select extends React.Component<SelectProps, {}> {
         parent.appendChild(b);
         a.addEventListener('click', (e: MouseEvent) => {
             e.stopPropagation();
-            this.closeSelect(a, parent.getElementsByClassName('select-items'), parent.getElementsByClassName('select-selected'));
+            this.closeSelect(a, document.getElementsByClassName('select-items'), document.getElementsByClassName('select-selected'));
             (a.nextSibling as HTMLElement).classList.toggle('select-hide');
         });
     }

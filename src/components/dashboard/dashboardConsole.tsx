@@ -45,16 +45,9 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
         this.logMessage(logEventArgs.message, logEventArgs.type);
     }
 
-    private isHidden(): boolean {
-        let terminal = document.getElementById('console');
-        return terminal.offsetParent === null;
-    }
-
     private logMessage(msg: string, logType?: LogType): void {
-        if (this.isHidden()) return;
-
         let timestamp: string = new Date().toLocaleTimeString();
-        let time = document.createElement('span');
+        let time: HTMLSpanElement = document.createElement('span');
         time.style.color = 'orange';
         time.textContent = timestamp;
 
@@ -75,7 +68,6 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div id='console'>
-        </div>
+        return <div id='console'/>
     }
 }
