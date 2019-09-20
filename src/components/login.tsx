@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../interfaces/conduitProps';
+import { ConduitProps } from '../utils/conduitProps';
 
 export class Login extends React.Component<ConduitProps, {}> {
     private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {

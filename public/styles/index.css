@@ -333,9 +333,12 @@ body {
     color: white;
     border: none;
     background: transparent;
-    margin-top: -20px;
+    margin-top: -26px;
     font-weight: bolder;
     font-style: 16px;
+    width: 100%;
+    text-align: right;
+    padding: 5px;
 }
 
 .dashboard-panel {

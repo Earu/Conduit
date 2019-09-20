@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
-import { Logger } from '../utils/logger';
-import { Loader } from '../utils/loader';
+import { Logger } from './logger';
+import { Loader } from './loader';
 
 export interface ConduitProps {
     client: Discord.Client;
