@@ -16,6 +16,7 @@ export class Login extends React.Component<ConduitProps, {}> {
                             .then(_ => {
                                 input.style.border = '2px solid red';
                                 input.disabled = false;
+                                this.props.logger.error('You cannot login with a user token');
                             });
                     } else {
                         form.style.display = 'none';
@@ -31,6 +32,7 @@ export class Login extends React.Component<ConduitProps, {}> {
                 });
         } else {
             input.style.border = '2px solid red';
+            input.disabled = false;
         }
     }
 
