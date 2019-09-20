@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
-import { ConduitProps } from '../../../interfaces/conduitprops';
+import { ConduitProps } from '../../../utils/conduitProps';
 import { BotInput } from '../../controls/botInput';
 import { Select } from '../../controls/select';
 import { BotAvatar } from '../../controls/avatar/botAvatar';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../../interfaces/conduitProps';
+import { ConduitProps } from '../../utils/conduitProps';
 import { Channel, Emoji, Guild, User, RateLimitInfo, GuildMember, Role } from 'discord.js';
 import { LogEventArgs, LogType } from '../../utils/logger';
 

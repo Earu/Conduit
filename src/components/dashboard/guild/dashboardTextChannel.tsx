@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../../../interfaces/conduitProps';
+import { ConduitProps } from '../../../utils/conduitProps';
 import { TextChannel } from 'discord.js';
 import { BotInput } from '../../controls/botInput';
 

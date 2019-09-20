@@ -1,9 +1,11 @@
 import { Avatar, AvatarProps } from './avatar';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
 import { Guild, GuildMember } from 'discord.js';
+import { ActionReporter } from '../../../utils/actionReporter';
 
 export interface GuildAvatarProps extends AvatarProps {
     guild: Guild;
+    reporter: ActionReporter;
 }
 
 export class GuildAvatar extends Avatar<GuildAvatarProps> {
@@ -46,6 +48,7 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         })).then((res: HttpResult) => {
             if (res.isSuccess()) {
                 this.props.logger.success('New guild icon set');
+                this.props.reporter.reportGuildAction('Changed guild\'s avatar', this.props.guild);
             } else {
                 let obj = res.asObject<{ message?: string }>();
                 if (obj.message) {

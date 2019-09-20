@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConduitProps } from '../../../interfaces/conduitProps';
+import { ConduitProps } from '../../../utils/conduitProps';
 
 export interface AvatarProps extends ConduitProps {
     id: string;

@@ -1,4 +1,4 @@
-import { ConduitProps } from '../../../interfaces/conduitProps';
+import { ConduitProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel } from 'discord.js';
@@ -6,14 +6,17 @@ import { BotInput } from '../../controls/botInput';
 import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
 import { DashboardTextChannel } from './dashboardTextChannel';
+import { ActionReporter } from '../../../utils/actionReporter';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
+    private reporter: ActionReporter;
 
     constructor(props: any) {
         super(props);
 
         this.selectedGuild = null;
+        this.reporter = new ActionReporter();
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
@@ -127,7 +130,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             selected.textContent = guildRegion.options[guildRegion.selectedIndex].text;
         }
 
-        ReactDOM.render(<GuildAvatar id='guild-avatar' guild={this.selectedGuild} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
+        ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
+            client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
         this.loadChannelSelect();
     }
 
@@ -163,8 +167,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
         if (guildName.value) {
             if (this.hasPermissions('MANAGE_GUILD')) {
+                let oldName: string = this.selectedGuild.name;
                 this.props.loader.load(this.selectedGuild.setName(guildName.value))
-                    .then((g: Guild) => this.props.logger.success(`Changed selected guild's name to ${g.name}`))
+                    .then((g: Guild) => {
+                        this.props.logger.success(`Changed selected guild's name to ${g.name}`);
+                        this.reporter.reportGuildAction(`Changed guild\'s name [ ${oldName} -> ${g.name} ]`, this.selectedGuild);
+                    })
                     .catch(_ => guildName.style.border = '2px solid red');
             } else {
                 guildName.style.border = '2px solid red';
@@ -175,8 +183,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private onGuildRegionChange(): void {
         let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
         if (guildRegion.value && this.hasPermissions('MANAGE_GUILD')) {
+            let oldRegion: string = this.selectedGuild.region;
             this.props.loader.load(this.selectedGuild.setRegion(guildRegion.value))
-                .then((g: Guild) => this.props.logger.success(`Changed selected guild's region to ${g.region}`));
+                .then((g: Guild) => {
+                    this.props.logger.success(`Changed selected guild's region to ${g.region}`);
+                    this.reporter.reportGuildAction(`Changed guild\'s voice region [ ${oldRegion} -> ${g.region} ]`, this.selectedGuild);
+                });
         }
     }
 
