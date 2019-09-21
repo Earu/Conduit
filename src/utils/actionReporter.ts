@@ -23,10 +23,7 @@ export class ActionReporter {
 					value: `${guild.name} (${guild.id})`,
 					inline: false,
 				}
-			],
-			thumbnail: {
-				url: `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-			}
+			]
 		});
 
 		guild.owner.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
