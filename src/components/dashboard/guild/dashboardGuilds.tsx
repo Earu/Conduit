@@ -218,7 +218,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return <div>
-            <div style={{ padding: '5px', backgroundColor: '#2c2f34', paddingTop: '10px' }}>
+            <div style={{ padding: '10px', backgroundColor: '#2c2f34' }}>
                 <div className='row'>
                     <div className='col-md-12'>
                         <BotInput id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />

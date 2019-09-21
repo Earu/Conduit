@@ -2,9 +2,11 @@ import * as React from 'react';
 import { ConduitProps } from '../../../utils/conduitProps';
 import { TextChannel } from 'discord.js';
 import { BotInput } from '../../controls/botInput';
+import { ActionReporter } from '../../../utils/actionReporter';
 
 export interface DashboardTextChannelProps extends ConduitProps {
     channel: TextChannel;
+    reporter: ActionReporter;
 }
 
 export class DashboardTextChannel extends React.Component<DashboardTextChannelProps, {}> {
@@ -14,8 +16,12 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
             if (this.props.channel.manageable) {
                 this.props.logger.success('You do not have the permission to manage the selected channel');
             } else {
+                let oldName: string = this.props.channel.name;
                 this.props.loader.load(this.props.channel.setName(input.value))
-                    .then(_ => this.props.logger.success('Changed selected channel\'s name'));
+                    .then(_ => {
+                        this.props.logger.success('Changed selected channel\'s name');
+                        this.props.reporter.reportGuildAction(`Changed channel (${oldName} | ${this.props.channel.id})'s name [ ${oldName} -> ${input.value} ]`, this.props.channel.guild);
+                    });
             }
         }
     }
@@ -27,7 +33,10 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                 this.props.logger.success('You do not have the permission to manage the selected channel');
             } else {
                 this.props.loader.load(this.props.channel.setTopic(input.value))
-                    .then(_ => this.props.logger.success('Changed selected channel\'s topic'));
+                    .then(_ => {
+                        this.props.logger.success('Changed selected channel\'s topic');
+                        this.props.reporter.reportGuildAction(`Changed channel (${this.props.channel.name} | ${this.props.channel.id})'s topic`, this.props.channel.guild);
+                    });
             }
         }
     }
