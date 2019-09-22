@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
 import { ConduitProps } from '../../../utils/conduitProps';
-import { BotInput } from '../../controls/botInput';
+import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { BotAvatar } from '../../controls/avatar/botAvatar';
 
@@ -154,8 +154,8 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
                 <BotAvatar id='bot-avatar' client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
             </div>
             <div className='col-md-2'>
-                <BotInput placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />
-                <BotInput placeholder='game...' id='bot-game' onValidated={this.onBotGameValidated.bind(this)} />
+                <Input placeholder='name...' id='bot-tag' onValidated={this.onBotNameValidated.bind(this)} />
+                <Input placeholder='game...' id='bot-game' onValidated={this.onBotGameValidated.bind(this)} />
             </div>
             <div className='col-md-2'>
                 <Select id='bot-activity' onSelected={this.onBotPresenceChanged.bind(this)} defaultValue='PLAYING'>

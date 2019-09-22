@@ -2,7 +2,7 @@ import { ConduitProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel } from 'discord.js';
-import { BotInput } from '../../controls/botInput';
+import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
 import { DashboardTextChannel } from './dashboardTextChannel';
@@ -27,7 +27,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.props.loader.load(this.props.client.fetchVoiceRegions())
             .then((regions: Collection<string, VoiceRegion>) => {
                 let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
-                ReactDOM.render(<Select id='guild-region' defaultValue={this.selectedGuild.region} onSelected={this.onGuildRegionChange.bind(this)}>{opts}</Select>, document.getElementById('container-guild-region'));
+                ReactDOM.render(<Select id='guild-region'
+                    defaultValue={this.selectedGuild.region}
+                    onSelected={this.onGuildRegionChange.bind(this)}>
+                    {opts}
+                </Select>, document.getElementById('container-guild-region'));
                 let select: HTMLElement = document.getElementById('parent-guild-region');
                 select.style.marginBottom = '0px';
                 this.updateGuildInfo();
@@ -38,7 +42,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={c.id} value={c.id}>{c.name} [ {c.type} ]</option>);
         ReactDOM.render(<Select id='guild-channel'
             defaultValue={this.selectedGuild.channels.first().id}
-            onSelected={this.onGuildChannelSelected.bind(this)}>
+            onSelected={this.loadChannel.bind(this)}>
             {opts}
         </Select>, document.getElementById('container-guild-channel'));
     }
@@ -133,6 +137,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
         this.loadChannelSelect();
+        this.loadChannel(this.selectedGuild.channels.first().id); // refresh the channel panel
     }
 
     private onGuildSelected(): void {
@@ -171,7 +176,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 this.props.loader.load(this.selectedGuild.setName(guildName.value))
                     .then((g: Guild) => {
                         this.props.logger.success(`Changed selected guild's name to ${g.name}`);
-                        this.reporter.reportGuildAction(`Changed guild\'s name [ ${oldName} -> ${g.name} ]`, this.selectedGuild);
+                        this.reporter.reportGuildAction(`Changed guild\'s name [ \'${oldName}\' -> \'${g.name}\' ]`, this.selectedGuild);
                     })
                     .catch(_ => guildName.style.border = '2px solid red');
             } else {
@@ -187,12 +192,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.selectedGuild.setRegion(guildRegion.value))
                 .then((g: Guild) => {
                     this.props.logger.success(`Changed selected guild's region to ${g.region}`);
-                    this.reporter.reportGuildAction(`Changed guild\'s voice region [ ${oldRegion} -> ${g.region} ]`, this.selectedGuild);
+                    this.reporter.reportGuildAction(`Changed guild\'s voice region [ \'${oldRegion}\' -> \'${g.region}\' ]`, this.selectedGuild);
                 });
         }
     }
 
-    private onGuildChannelSelected(chanId: string): void {
+    private loadChannel(chanId: string): void {
         let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
         if (!chan) return;
 
@@ -203,7 +208,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 break;
             case 'text':
                 let txtChan: TextChannel = chan as TextChannel;
-                jsx = <DashboardTextChannel channel={txtChan} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
+                jsx = <DashboardTextChannel reporter={this.reporter} channel={txtChan} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
                 break;
             case 'voice':
                 let voiceChan: VoiceChannel = chan as VoiceChannel;
@@ -216,12 +221,35 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         ReactDOM.render(jsx, document.getElementById('channel'));
     }
 
+    private onLeaveGuild(): void {
+        if (!this.selectedGuild) return;
+
+        this.props.loader.load(this.selectedGuild.leave())
+            .then(_ => {
+                this.props.logger.success('Left selected guild');
+                this.selectedGuild = this.props.client.guilds.first();
+                this.updateGuildInfo();
+            });
+    }
+
+    private onDeleteGuild(): void {
+        if (!this.selectedGuild) return;
+
+        this.props.loader.load(this.selectedGuild.delete())
+            .then(_ => {
+                this.reporter.reportGuildAction('Deleted guild', this.selectedGuild);
+                this.props.logger.success('Deleted selected guild');
+                this.selectedGuild = this.props.client.guilds.first();
+                this.updateGuildInfo();
+            });
+    }
+
     render(): JSX.Element {
         return <div>
             <div style={{ padding: '10px', backgroundColor: '#2c2f34' }}>
                 <div className='row'>
                     <div className='col-md-12'>
-                        <BotInput id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />
+                        <Input id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />
                         <datalist id='guilds' />
                         <hr style={{ borderTop: '1px solid gray', marginTop: '5px', marginBottom: '5px' }} />
                     </div>
@@ -231,17 +259,19 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-avatar' />
                     </div>
                     <div className='col-md-4'>
-                        <BotInput id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
+                        <Input id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
                         <div style={{ height: '7px' }} />
-                        <button style={{ height: '55px', width: '100%' }} className='purple-btn'>Guild Permissions</button>
+                        <button style={{ height: '55px', width: '100%', marginBottom: '5px' }} className='purple-btn'>Guild Permissions</button>
                     </div>
                     <div className='col-md-3'>
-                        <div style={{ height: '7px' }} />
-                        <button className='red-btn' style={{ width: '100%', height: '55px' }}>
+                        <button className='red-btn' onClick={this.onLeaveGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }}>
                             Leave Guild
+                        </button>
+                        <button className='red-btn' onClick={this.onDeleteGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px' }}>
+                            Delete Guild
                         </button>
                     </div>
                 </div>

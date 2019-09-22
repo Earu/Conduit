@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-export interface BotInputProps {
+export interface InputProps {
     placeholder: string;
     id: string;
     onValidated: () => void;
     list?: string;
 }
 
-export class BotInput extends React.Component<BotInputProps, {}> {
+export class Input extends React.Component<InputProps, {}> {
     private onChange(e: React.ChangeEvent<HTMLInputElement>){
         if (!e.target.value) {
             e.target.style.border = null;
