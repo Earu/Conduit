@@ -79,6 +79,14 @@ export class HttpClient {
         return this.httpRequest('PATCH', url, body, headers);
     }
 
+    public put(url: string, body: string, headers?: any): Promise<HttpResult> {
+        return this.httpRequest('PUT', url, body, headers);
+    }
+
+    public delete(url: string, body: string, headers?: any): Promise<HttpResult> {
+        return this.httpRequest('DELETE', url, body, headers);
+    }
+
     public post(url: string, body: string, headers?: any): Promise<HttpResult> {
         return this.httpRequest('POST', url, body, headers);
     }
