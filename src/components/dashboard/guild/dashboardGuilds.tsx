@@ -246,7 +246,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return <div>
-            <div style={{ padding: '10px', backgroundColor: '#2c2f34' }}>
+            <div style={{ padding: '10px' }}>
                 <div className='row'>
                     <div className='col-md-12'>
                         <Input id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />
@@ -263,8 +263,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
-                        <div style={{ height: '7px' }} />
-                        <button style={{ height: '55px', width: '100%', marginBottom: '5px' }} className='purple-btn'>Guild Permissions</button>
+                        <button style={{ height: '68px', width: '100%' }} className='purple-btn'>Guild Permissions</button>
                     </div>
                     <div className='col-md-3'>
                         <button className='red-btn' onClick={this.onLeaveGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }}>
