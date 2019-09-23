@@ -8,7 +8,7 @@ export interface InputProps {
 }
 
 export class Input extends React.Component<InputProps, {}> {
-    private onChange(e: React.ChangeEvent<HTMLInputElement>){
+    private onChange(e: React.ChangeEvent<HTMLInputElement>) {
         if (!e.target.value) {
             e.target.style.border = null;
         }
@@ -27,6 +27,6 @@ export class Input extends React.Component<InputProps, {}> {
             type='text'
             onKeyPress={this.onKeyPress.bind(this)}
             placeholder={this.props.placeholder}
-            list={this.props.list}/>
+            list={this.props.list} />;
     }
 }
