@@ -24,9 +24,8 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
     private updateAvatar(guild: Guild): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
         let img: HTMLImageElement = avatar.children[0] as HTMLImageElement;
-        let url = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
-        if (url) {
-            img.src = url;
+        if (guild.iconURL) {
+            img.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
         } else {
             img.alt = guild.name[0];
         }
@@ -61,6 +60,10 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
     }
 
     componentDidUpdate(): void {
+        this.updateAvatar(this.props.guild);
+    }
+
+    componentDidMount(): void {
         this.updateAvatar(this.props.guild);
     }
 }
