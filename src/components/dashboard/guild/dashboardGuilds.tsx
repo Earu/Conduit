@@ -246,12 +246,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     render(): JSX.Element {
         return <div>
-            <div style={{ padding: '10px' }}>
+            <div style={{ padding: '10px', paddingBottom: '0' }}>
                 <div className='row'>
                     <div className='col-md-12'>
                         <Input id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />
                         <datalist id='guilds' />
-                        <hr style={{ borderTop: '1px solid gray', marginTop: '5px', marginBottom: '5px' }} />
+                        <hr />
                     </div>
                 </div>
                 <div className='row'>
@@ -276,8 +276,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 </div>
                 <div className='row'>
                     <div className='col-md-12'>
-                        <hr style={{ borderTop: '1px solid gray', marginTop: '5px', marginBottom: '5px' }} />
-                        <div id='container-guild-channel' />
+                        <div id='container-guild-channel' style={{ marginTop: '10px' }} />
+                        <hr style={{ marginBottom: '0px' }} />
                     </div>
                 </div>
             </div>

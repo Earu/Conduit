@@ -33,6 +33,12 @@ body {
     position: relative;
 }
 
+hr {
+    border-top: 1px solid gray;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 #root {
     height: 100vh;
 }
