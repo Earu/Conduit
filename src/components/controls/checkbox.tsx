@@ -15,7 +15,7 @@ export class Checkbox extends React.Component<CheckboxProps> {
 	render(): JSX.Element {
 		return <div className='pretty p-switch p-fill'>
 			<input id={this.props.id} type='checkbox' defaultChecked={this.props.defaultValue} onChange={this.onChange.bind(this)} />
-			<div className='state p-danger'>
+			<div className='state p-success'>
 				<label>{this.props.name}</label>
 			</div>
 		</div>;
