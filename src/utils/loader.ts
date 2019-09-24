@@ -9,10 +9,11 @@ export class Loader {
         this.promiseAmount = 0;
     }
 
-    public async load(promise: Promise<any>) {
+    public async load(promise: Promise<any>): Promise<any> {
         let loader: HTMLElement = document.getElementById('loader');
         loader.style.display = 'block';
         this.promiseAmount++;
+
         try {
             let res: any = await promise;
             this.promiseAmount--;
@@ -28,7 +29,7 @@ export class Loader {
                 loader.style.display = 'none';
             }
 
-            throw err;
+            throw error;
         }
     }
 }

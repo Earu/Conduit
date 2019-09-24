@@ -4,6 +4,7 @@ import { ConduitProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { BotAvatar } from '../../controls/avatar/botAvatar';
+import { ActivityType } from 'discord.js';
 
 export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
@@ -77,7 +78,9 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
                     name.style.border = '1px solid black';
                     this.props.logger.success(`Changed username to '${name.value}'`)
                 })
-                .catch(_ => name.style.border = '2px solid red');
+                .catch(_ => name.value = this.props.client.user.username);
+        } else {
+            name.value = this.props.client.user.username;
         }
     }
 
@@ -87,10 +90,34 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         if (game.value) {
             let actNumber: number = this.activityNameToNum(activity.value);
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
-                .then(_ => this.props.logger.success(`Changed activity to '${activity.value.toLowerCase()} ${game.value}'`));
+                .then(_ => this.props.logger.success(`Changed activity to '${activity.value.toLowerCase()} ${game.value}'`))
+                .catch(_ => {
+                    let gamePresence: Discord.Game = this.props.client.user.presence.game;
+                    if (gamePresence) {
+                        game.value = gamePresence.name;
+                        let act = this.activityNumToName(gamePresence.type);
+                        activity.value = act;
+                        activity.nextSibling.textContent = act[0] + act.slice(1).toLowerCase();
+                    }
+                });
         } else {
             this.props.loader.load(this.props.client.user.setActivity(''))
                 .then(_ => this.props.logger.success('Removed the current game activity'));
+        }
+    }
+
+    private activityNumToName(actNum: number): string {
+        switch (actNum) {
+            case 0:
+                return 'PLAYING';
+            case 1:
+                return 'STREAMING';
+            case 2:
+                return 'LISTENING';
+            case 3:
+                return 'WATCHING';
+            default:
+                return '';
         }
     }
 
@@ -124,16 +151,32 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
 
     private onBotPresenceChanged(actName: string): void {
         let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
+        let activity: HTMLSelectElement = document.getElementById('bot-activity') as HTMLSelectElement;
         if (game.value) {
             let actNumber: number = this.activityNameToNum(actName);
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
-                .then(_ => this.props.logger.success(`Changed activity to '${actName.toLowerCase()} ${game.value}'`));
+                .then(_ => this.props.logger.success(`Changed activity to '${actName.toLowerCase()} ${game.value}'`))
+                .catch(_ => {
+                    let gamePresence: Discord.Game = this.props.client.user.presence.game;
+                    if (gamePresence) {
+                        game.value = gamePresence.name;
+                        let act = this.activityNumToName(gamePresence.type);
+                        activity.value = act;
+                        activity.nextSibling.textContent = act[0] + act.slice(1).toLowerCase();
+                    }
+                });
         }
     }
 
     private onBotStatusChanged(status: string): void {
+        let select: HTMLSelectElement = document.getElementById('bot-status') as HTMLSelectElement;
         this.props.loader.load(this.props.client.user.setPresence({ status: status as Discord.PresenceStatus }))
             .then(_ => this.props.logger.success(`Changed status to '${this.statusNameToDisplay(status)}'`))
+            .catch(_ => {
+                status = this.props.client.user.presence.status;
+                select.value = status;
+                select.nextSibling.textContent = this.statusNameToDisplay(status);
+            });
     }
 
     private onBotClose(_: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
