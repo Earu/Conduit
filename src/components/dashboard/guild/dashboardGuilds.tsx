@@ -8,6 +8,7 @@ import { GuildAvatar } from '../../controls/avatar/guildAvatar';
 import { DashboardTextChannel } from './dashboardTextChannel';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
+import { Channel } from 'discord.js';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -21,7 +22,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
-            .on('guildDelete', this.onGuildDelete.bind(this));
+            .on('guildDelete', this.onGuildDelete.bind(this))
+            .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate.bind(this, g))
+            .on('channelCreate', this.onChannelX.bind(this))
+            .on('channelDelete', this.onChannelX.bind(this))
+            .on('channelUpdate', (_, c: Channel) => this.onChannelX.bind(this, c));
     }
 
     private loadRegionSelect(): void {
@@ -100,6 +105,23 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         if (node) {
             guilds.removeChild(node);
+        }
+    }
+
+    private onGuildUpdate(guild: Guild): void {
+        if (!this.selectedGuild) return;
+        if (guild.id == this.selectedGuild.id) return;
+
+        this.selectedGuild = guild;
+        this.updateGuildInfo();
+    }
+
+    private onChannelX(chan: Channel): void {
+        if (!this.selectedGuild) return;
+        if (chan.type === 'dm') return;
+        let guildChan: GuildChannel = chan as GuildChannel;
+        if (guildChan.guild.id === this.selectedGuild.id) {
+            this.updateGuildInfo();
         }
     }
 
@@ -203,7 +225,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
         if (!chan) return;
 
-        let jsx: JSX.Element = <div>UNKNOWN</div>
+        let jsx: JSX.Element = <div>UNKNOWN</div>;
         switch (chan.type) {
             case 'category':
                 let catChan: CategoryChannel = chan as CategoryChannel;
@@ -211,7 +233,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             case 'text':
                 let txtChan: TextChannel = chan as TextChannel;
                 jsx = <DashboardTextChannel reporter={this.reporter} channel={txtChan} client={this.props.client}
-                    logger={this.props.logger} loader={this.props.loader} />
+                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
                 break;
             case 'voice':
                 let voiceChan: VoiceChannel = chan as VoiceChannel;
@@ -254,7 +276,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     <div className='col-md-12'>
                         <Input id='guild-select' onValidated={this.onGuildSelected.bind(this)} placeholder='guild name or id...' list='guilds' />
                         <datalist id='guilds' />
-                        <hr />
+                        <hr style={{ marginBottom: '10px' }} />
                     </div>
                 </div>
                 <div className='row'>
@@ -279,8 +301,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     </div>
                 </div>
             </div>
-            <DashboardPanel title='CHANNELS' foldable={true}>
-                <div style={{ padding: '10px', paddingBottom: '0' }}>
+            <DashboardPanel title='CHANNELS' foldable={true} style={{ marginTop: '10px' }}>
+                <div style={{ padding: '10px', paddingBottom: '0px' }}>
                     <div className='row'>
                         <div className='col-md-12'>
                             <div id='container-guild-channel' />
@@ -288,7 +310,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         </div>
                     </div>
                 </div>
-                <div id='channel' style={{ padding: '5px' }} />
+                <div id='channel' style={{ padding: '5px', paddingBottom: '0px' }} />
+            </DashboardPanel>
+            <DashboardPanel title='EMOJIS' foldable={true} style={{ marginTop: '0px' }}>
             </DashboardPanel>
         </div>;
     }
