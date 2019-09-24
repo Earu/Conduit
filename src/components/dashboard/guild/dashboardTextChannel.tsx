@@ -4,6 +4,8 @@ import { TextChannel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { Checkbox } from '../../controls/checkbox';
+import { GuildChannel } from 'discord.js';
+import { ConduitEvent } from '../../../utils/conduitEvent';
 
 declare module 'discord.js' {
     interface TextChannel {
@@ -14,9 +16,21 @@ declare module 'discord.js' {
 export interface DashboardTextChannelProps extends ConduitProps {
     channel: TextChannel;
     reporter: ActionReporter;
+    onDeletion?: () => void;
 }
 
 export class DashboardTextChannel extends React.Component<DashboardTextChannelProps, {}> {
+    private onChannelDeletion: ConduitEvent<void>;
+
+    constructor (props: any) {
+        super(props);
+
+        this.onChannelDeletion = new ConduitEvent();
+        if (this.props.onDeletion) {
+            this.onChannelDeletion.on(this.props.onDeletion);
+        }
+    }
+
     private onChannelNameChanged(): void {
         let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         if (input.value) {
@@ -32,6 +46,8 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                     })
                     .catch(_ => input.value = this.props.channel.name);
             }
+        } else {
+            input.value = this.props.channel.name;
         }
     }
 
@@ -59,6 +75,8 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                 this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
                 if (this.props.channel.rateLimitPerUser > 0) {
                     input.value = `${this.props.channel.rateLimitPerUser}s`;
+                } else {
+                    input.value = '';
                 }
             } else {
                 let regex: RegExp = /^(\d+)s?$/;
@@ -75,11 +93,15 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                         .catch(_ => {
                             if (this.props.channel.rateLimitPerUser > 0) {
                                 input.value = `${this.props.channel.rateLimitPerUser}s`;
+                            } else {
+                                input.value = '';
                             }
                         });
                 } else {
                     if (this.props.channel.rateLimitPerUser > 0) {
                         input.value = `${this.props.channel.rateLimitPerUser}s`;
+                    } else {
+                        input.value = '';
                     }
                 }
             }
@@ -113,6 +135,19 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
         }
     }
 
+    private onChannelDelete(): void {
+        if (!this.props.channel.deletable) {
+            this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
+        } else {
+            this.props.loader.load(this.props.channel.delete())
+                .then((c: GuildChannel) => {
+                    this.props.logger.success(`Deleted selected channel`);
+                    this.onChannelDeletion.trigger();
+                    this.props.reporter.reportGuildAction(`Deleted channel \`${c.name}\` (**${c.id}**)`, c.guild);
+                });
+        }
+    }
+
     private onInitialize(): void {
         let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         let topicInput: HTMLInputElement = document.getElementById('channel-topic') as HTMLInputElement;
@@ -122,6 +157,8 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
         topicInput.value = this.props.channel.topic;
         if (this.props.channel.rateLimitPerUser > 0) {
             rtInput.value = `${this.props.channel.rateLimitPerUser}s`;
+        } else {
+            rtInput.value = '';
         }
     }
 
@@ -149,7 +186,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                     <button style={{ width: '100%', padding: '0', height: '32px' }} className='purple-btn'>Webhooks</button>
                 </div>
                 <div className='col-md-3'>
-                    <button style={{ height: '68px', width: '100%' }} className='red-btn'>Delete</button>
+                    <button style={{ height: '68px', width: '100%' }} className='red-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
                 </div>
             </div>
             <div className='row' style={{ padding: '5px' }}>
