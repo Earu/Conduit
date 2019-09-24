@@ -114,10 +114,10 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
     render(): JSX.Element {
         return <div>
             <div className='row' style={{ padding: '5px' }}>
-                <div className='col-md-1'>
+                <div className='col-md-2'>
                     <button className='classic-btn' style={{ width: '100%' }} onClick={this.onClear.bind(this)}>Clear</button>
                 </div>
-                <div className='col-md-1'>
+                <div className='col-md-2'>
                     <Checkbox id='log-conduit'
                         name='Conduit'
                         defaultValue={this.enabledEvents[DiscordEventType.Conduit]}
@@ -128,7 +128,7 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
                         defaultValue={this.enabledEvents[DiscordEventType.Global]}
                         onChange={(s: boolean) => this.setEvent(DiscordEventType.Global, s)} />
                 </div>
-                <div className='col-md-1'>
+                <div className='col-md-2'>
                     <Checkbox id='log-guild'
                         name='Guild'
                         defaultValue={this.enabledEvents[DiscordEventType.Guild]}
@@ -139,7 +139,7 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
                         defaultValue={this.enabledEvents[DiscordEventType.Channel]}
                         onChange={(s: boolean) => this.setEvent(DiscordEventType.Channel, s)} />
                 </div>
-                <div className='col-md-1'>
+                <div className='col-md-2'>
                     <Checkbox id='log-role'
                         name='Role'
                         defaultValue={this.enabledEvents[DiscordEventType.Role]}
@@ -150,7 +150,7 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
                         defaultValue={this.enabledEvents[DiscordEventType.Emoji]}
                         onChange={(s: boolean) => this.setEvent(DiscordEventType.Emoji, s)} />
                 </div>
-                <div className='col-md-8'>
+                <div className='col-md-4'>
                     <Input id='log-regex' placeholder='regex filter...' onChange={this.onRegexChange.bind(this)} style={{ marginTop: '4px', marginBottom: '0px' }} />
                 </div>
             </div>
