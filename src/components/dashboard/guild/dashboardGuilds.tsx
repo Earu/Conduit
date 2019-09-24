@@ -7,6 +7,7 @@ import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
 import { DashboardTextChannel } from './dashboardTextChannel';
 import { ActionReporter } from '../../../utils/actionReporter';
+import { DashboardPanel } from '../dashboardPanel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -261,29 +262,34 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-avatar' />
                     </div>
                     <div className='col-md-4'>
-                        <Input id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='guild name...' />
+                        <Input id='guild-name' onValidated={this.onGuildNameChange.bind(this)} placeholder='name...' />
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
-                        <button style={{ height: '68px', width: '100%' }} className='purple-btn'>Guild Permissions</button>
+                        <button style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }} className='purple-btn'>Permissions</button>
+                        <button style={{ width: '100%', padding: '0', height: '32px' }} className='purple-btn'>Members</button>
                     </div>
                     <div className='col-md-3'>
                         <button className='red-btn' onClick={this.onLeaveGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }}>
-                            Leave Guild
+                            Leave
                         </button>
                         <button className='red-btn' onClick={this.onDeleteGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px' }}>
-                            Delete Guild
+                            Delete
                         </button>
-                    </div>
-                </div>
-                <div className='row'>
-                    <div className='col-md-12'>
-                        <div id='container-guild-channel' style={{ marginTop: '10px' }} />
-                        <hr style={{ marginBottom: '0px' }} />
                     </div>
                 </div>
             </div>
-            <div id='channel' style={{ padding: '5px' }} />
+            <DashboardPanel title='CHANNELS' foldable={true}>
+                <div style={{ padding: '10px', paddingBottom: '0' }}>
+                    <div className='row'>
+                        <div className='col-md-12'>
+                            <div id='container-guild-channel' />
+                            <hr style={{ marginBottom: '0px' }} />
+                        </div>
+                    </div>
+                </div>
+                <div id='channel' style={{ padding: '5px' }} />
+            </DashboardPanel>
         </div>;
     }
 }

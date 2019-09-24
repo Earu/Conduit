@@ -137,18 +137,19 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
         return <div>
             <div className='row' style={{ padding: '5px' }}>
                 <div className='col-md-3'>
-                    <Input id='channel-name' onValidated={this.onChannelNameChanged.bind(this)} placeholder='channel name...' />
-                    <Input id='channel-topic' onValidated={this.onChannelTopicChanged.bind(this)} placeholder='channel topic...' />
+                    <Input id='channel-name' onValidated={this.onChannelNameChanged.bind(this)} placeholder='name...' />
+                    <Input id='channel-topic' onValidated={this.onChannelTopicChanged.bind(this)} placeholder='topic...' />
                 </div>
                 <div className='col-md-3'>
-                    <Input id='channel-rate-limit' onValidated={this.onChannelRateLimitChanged.bind(this)} placeholder='channel slowmode (in seconds)...' />
+                    <Input id='channel-rate-limit' onValidated={this.onChannelRateLimitChanged.bind(this)} placeholder=' slowmode (in seconds)...' />
                     <Checkbox id='channel-nsfw' name='NSFW' defaultValue={this.props.channel.nsfw} onChange={this.onChannelNsfwChanged.bind(this)} />
                 </div>
                 <div className='col-md-3'>
-                    <button style={{ height: '68px', width: '100%' }} className='purple-btn'>Channel Permissions</button>
+                    <button style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }} className='purple-btn'>Permissions</button>
+                    <button style={{ width: '100%', padding: '0', height: '32px' }} className='purple-btn'>Webhooks</button>
                 </div>
                 <div className='col-md-3'>
-                    <button style={{ height: '68px', width: '100%' }} className='red-btn'>Delete Channel</button>
+                    <button style={{ height: '68px', width: '100%' }} className='red-btn'>Delete</button>
                 </div>
             </div>
             <div className='row' style={{ padding: '5px' }}>
