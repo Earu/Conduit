@@ -3,8 +3,10 @@ import * as React from 'react';
 export interface InputProps {
     placeholder: string;
     id: string;
-    onValidated: () => void;
+    onValidated?: () => void;
+    onChange?: (value: string) => void;
     list?: string;
+    style?: React.CSSProperties;
 }
 
 export class Input extends React.Component<InputProps, {}> {
@@ -15,7 +17,11 @@ export class Input extends React.Component<InputProps, {}> {
     }
 
     private onKeyPress(e: React.KeyboardEvent<HTMLInputElement>): void {
-        if (e.which === 13) {
+        if (this.props.onChange) {
+            this.props.onChange(e.currentTarget.value);
+        }
+
+        if (e.which === 13 && this.props.onValidated) {
             this.props.onValidated();
         }
     }
@@ -27,6 +33,7 @@ export class Input extends React.Component<InputProps, {}> {
             type='text'
             onKeyPress={this.onKeyPress.bind(this)}
             placeholder={this.props.placeholder}
-            list={this.props.list} />;
+            list={this.props.list}
+            style={this.props.style}/>;
     }
 }

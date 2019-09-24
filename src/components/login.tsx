@@ -2,9 +2,7 @@ import * as React from 'react';
 import { ConduitProps } from '../utils/conduitProps';
 
 export class Login extends React.Component<ConduitProps, {}> {
-    private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-        e.preventDefault();
-
+    private connect(): void {
         let input: HTMLInputElement = document.getElementById('token-input') as HTMLInputElement;
         if (input.value) {
             let form: HTMLElement = document.getElementById('token-form');
@@ -40,16 +38,27 @@ export class Login extends React.Component<ConduitProps, {}> {
         }
     }
 
+    private onConnect(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+        e.preventDefault();
+        this.connect();
+    }
+
     private onTokenChange(e: React.ChangeEvent<HTMLInputElement>): void {
         if (!e.target.value) {
             e.target.style.border = 'none';
         }
     }
 
+    private onKeyPress(e: React.KeyboardEvent<HTMLInputElement>): void {
+        if (e.which === 13) {
+            this.connect();
+        }
+    }
+
     render(): JSX.Element {
         return (<div id='token-form'>
             <span className='title'>BOT LOGIN</span>
-            <input onChange={this.onTokenChange} id='token-input' type='password' placeholder='discord bot token...' />
+            <input onKeyPress={this.onKeyPress.bind(this)} onChange={this.onTokenChange} id='token-input' type='password' placeholder='discord bot token...' />
             <button className='classic-btn' onClick={this.onConnect.bind(this)}>Connect</button>
         </div>);
     }
