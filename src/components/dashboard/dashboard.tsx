@@ -20,7 +20,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                     </DashboardPanel>
                 </div>
                 <div className='col-md-12'>
-                    <DashboardPanel title='CONSOLE' foldable={true} style={{ position: 'fixed', bottom: '0px', width: '100%' }}>
+                    <DashboardPanel id='console-panel' title='CONSOLE' foldable={true} style={{ position: 'fixed', bottom: '0px', width: '100%' }}>
                         <DashboardConsole client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
                     </DashboardPanel>
                 </div>

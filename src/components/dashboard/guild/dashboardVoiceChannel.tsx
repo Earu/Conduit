@@ -3,6 +3,7 @@ import * as React from 'react';
 import { VoiceChannel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
+import { VoiceConnection } from 'discord.js';
 
 export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<VoiceChannel>, {}> {
 	private onChannelDeletion: ConduitEvent<void>;
@@ -74,7 +75,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 				let regex: RegExp = /^(\d+)(\s*kbps)?$/;
 				let matches: RegExpMatchArray = input.value.match(regex);
 				if (matches && matches[1]) {
-					let bitrate = Number(matches[1]);
+					let bitrate: number = Number(matches[1]);
 					let oldBitrate: number = this.props.channel.bitrate;
 					this.props.loader.load(this.props.channel.setBitrate(bitrate))
 						.then((c: VoiceChannel) => {
@@ -101,6 +102,23 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 				});
 		}
 	}
+
+	/*private onJoinLeaveClick(): void {
+		let vcon: VoiceConnection = this.props.channel.guild.voiceConnection;
+		if (vcon && vcon.channel.id === this.props.channel.id) {
+			this.props.channel.leave();
+			this.props.logger.success(`Disconnected from voice channel \`${this.props.channel.name} [ ${this.props.channel.type} ]\` (**${this.props.channel.id}**)`);
+		} else {
+			if (this.props.channel.joinable) {
+				this.props.loader.load(this.props.channel.join())
+					.then((con: VoiceConnection) => {
+						this.props.logger.success(`Connected to voice channel \`${con.channel.name} [ ${con.channel.type} ]\` (**${con.channel.id}**)`);
+					});
+			} else {
+				this.props.logger.error('You cannot join this voice channel');
+			}
+		}
+	}*/
 
 	private onInitialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
@@ -137,9 +155,10 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					<button style={{ height: '68px', width: '100%' }} className='red-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
 				</div>
 			</div>
+			{/*
 			<div className='row' style={{ padding: '5px' }}>
                 <div className='col-md-3'>
-					<button style={{ height: '68px', width: '100%' }} className='purple-btn'>Join / Leave</button>
+					<button style={{ height: '68px', width: '100%' }} className='purple-btn' onClick={this.onJoinLeaveClick.bind(this)}>Join / Leave</button>
                 </div>
 				<div className='col-md-3'>
 					<Input id='channel-tts' placeholder='tts message...' multiline={true} style={{ height: '68px', width: '100%' }}/>
@@ -149,6 +168,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					<input id='channel-file' type='file' />
 				</div>
             </div>
+			*/}
 		</div>;
 	}
 }

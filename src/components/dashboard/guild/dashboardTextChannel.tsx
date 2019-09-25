@@ -71,7 +71,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                 let regex: RegExp = /^(\d+)(\s*s)?$/;
                 let matches: RegExpMatchArray = input.value.match(regex);
                 if (matches && matches[1]) {
-                    let limit = Number(matches[1]);
+                    let limit: number = Number(matches[1]);
                     let oldLimit: number = this.props.channel.rateLimitPerUser;
                     this.props.loader.load(this.props.channel.setRateLimitPerUser(limit))
                         .then((c: TextChannel) => {
