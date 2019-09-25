@@ -41,7 +41,7 @@ export class HttpResult {
 }
 
 export class HttpClient {
-    private httpRequest(method: string, url: string, body?: string, headers?: any): Promise<HttpResult> {
+    private httpRequest(method: string, url: string, body?: string | FormData, headers?: any): Promise<HttpResult> {
         return new Promise((resolve, reject) => {
             try {
                 let req = new XMLHttpRequest();
@@ -75,19 +75,19 @@ export class HttpClient {
         return this.httpRequest('GET', url, null, headers);
     }
 
-    public patch(url: string, body: string, headers?: any): Promise<HttpResult> {
+    public patch(url: string, body: string | FormData, headers?: any): Promise<HttpResult> {
         return this.httpRequest('PATCH', url, body, headers);
     }
 
-    public put(url: string, body: string, headers?: any): Promise<HttpResult> {
+    public put(url: string, body: string | FormData, headers?: any): Promise<HttpResult> {
         return this.httpRequest('PUT', url, body, headers);
     }
 
-    public delete(url: string, body: string, headers?: any): Promise<HttpResult> {
+    public delete(url: string, body: string | FormData, headers?: any): Promise<HttpResult> {
         return this.httpRequest('DELETE', url, body, headers);
     }
 
-    public post(url: string, body: string, headers?: any): Promise<HttpResult> {
+    public post(url: string, body: string | FormData, headers?: any): Promise<HttpResult> {
         return this.httpRequest('POST', url, body, headers);
     }
 }
