@@ -140,6 +140,17 @@ hr {
     border: 1px solid rgba(240, 71, 71, 1);
 }
 
+.small-btn {
+    width: 100%;
+    padding: 0;
+    height: 32px;
+}
+
+.large-btn {
+    height: 68px;
+    width: 100%;
+}
+
 /* loader */
 #loader {
     width: 100px;

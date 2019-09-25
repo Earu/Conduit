@@ -3,7 +3,6 @@ import * as React from 'react';
 import { VoiceChannel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
-import { VoiceConnection } from 'discord.js';
 
 export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<VoiceChannel>, {}> {
 	private onChannelDeletion: ConduitEvent<void>;
@@ -28,7 +27,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 				this.props.loader.load(this.props.channel.setName(input.value))
 					.then((c: VoiceChannel) => {
 						this.props.logger.success('Changed selected channel\'s name');
-						this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
+						this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
 					})
 					.catch(_ => input.value = this.props.channel.name);
 			}
@@ -55,7 +54,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 							this.props.logger.success('Changed selected channel\'s user limit');
 							let oldLimitDisplay: string = oldLimit === 0 ? 'inf' : `${oldLimit} max. users`;
 							let newLimitDisplay: string = c.userLimit === 0 ? 'inf' : `${c.userLimit} max. users`;
-							this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s user limit [ \`${oldLimitDisplay}\` -> \`${newLimitDisplay}\` ]`, c.guild);
+							this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s user limit [ \`${oldLimitDisplay}\` -> \`${newLimitDisplay}\` ]`, c.guild);
 						})
 						.catch(_ => input.value = this.props.channel.userLimit > 0 ? `${this.props.channel.userLimit} max. users` : '');
 				} else {
@@ -80,7 +79,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					this.props.loader.load(this.props.channel.setBitrate(bitrate))
 						.then((c: VoiceChannel) => {
 							input.value = `${c.bitrate}kbps`;
-							this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s bitrape [ \`${oldBitrate}\` -> \`${c.bitrate}\` ]`, c.guild);
+							this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s bitratee [ \`${oldBitrate}\` -> \`${c.bitrate}\` ]`, c.guild);
 						})
 						.catch(_ => input.value = `${this.props.channel.bitrate}kbps`);
 				}
@@ -98,7 +97,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 				.then((c: VoiceChannel) => {
 					this.props.logger.success(`Deleted selected channel`);
 					this.onChannelDeletion.trigger();
-					this.props.reporter.reportGuildAction(`Deleted channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)`, c.guild);
+					this.props.reporter.reportGuildAction(`Deleted ${this.props.reporter.formatChannel(c)}`, c.guild);
 				});
 		}
 	}
@@ -149,10 +148,10 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					<Input id='channel-bitrate' onValidated={this.onChannelBitrateChanged.bind(this)} placeholder='bitrate...' />
 				</div>
 				<div className='col-md-3'>
-					<button style={{ height: '68px', width: '100%' }} className='purple-btn' onClick={this.onChannelDelete.bind(this)}>Permissions</button>
+					<button className='purple-btn large-btn'>Permissions</button>
 				</div>
 				<div className='col-md-3'>
-					<button style={{ height: '68px', width: '100%' }} className='red-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
+					<button className='red-btn large-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
 				</div>
 			</div>
 			{/*
