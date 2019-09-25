@@ -420,6 +420,14 @@ hr {
         width: 100% !important;
     }
 
+    #console-panel {
+        display: none;
+    }
+
+    #dashboard>.row{
+        padding-bottom: 15px !important;
+    }
+
     .avatar-control>img,
     .avatar-control>button,
     .avatar-control {

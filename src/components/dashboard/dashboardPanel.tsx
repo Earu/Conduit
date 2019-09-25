@@ -4,6 +4,7 @@ export interface DashboardPanelProps {
     title: string;
     foldable?: boolean;
     style?: React.CSSProperties;
+    id?: string;
 }
 
 export class DashboardPanel extends React.Component<DashboardPanelProps, {}> {
@@ -31,7 +32,7 @@ export class DashboardPanel extends React.Component<DashboardPanelProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div className='dashboard-panel' style={this.props.style}>
+        return <div id={this.props.id} className='dashboard-panel' style={this.props.style}>
             <div className='dashboard-header'>
                 <span className='title'>{this.props.title}</span>
                 <button className='fold-btn'
