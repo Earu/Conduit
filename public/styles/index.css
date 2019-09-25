@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Comfortaa|Roboto&display=swap');
 
 html,
 body {
@@ -6,7 +6,7 @@ body {
     min-height: 100%;
     padding: 0;
     margin: 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Roboto', sans-serif;
     scrollbar-color: #2a2c2e #1c1e1f !important;
 }
 
@@ -73,9 +73,9 @@ hr {
 
 .title {
     color: white;
-    font-weight: bolder;
-    font-size: 15px;
+    font-size: 18px;
     display: block;
+    font-family: 'Comfortaa', cursive;
 }
 
 #token-input {
@@ -329,7 +329,6 @@ hr {
 
 .dashboard-header>.title {
     text-align: left;
-    font-size: 15px;
     margin: 0;
 }
 

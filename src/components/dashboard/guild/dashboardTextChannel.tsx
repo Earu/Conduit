@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { ConduitProps } from '../../../utils/conduitProps';
+import { ConduitChannelProps } from '../../../utils/conduitProps';
 import { TextChannel } from 'discord.js';
 import { Input } from '../../controls/input';
-import { ActionReporter } from '../../../utils/actionReporter';
 import { Checkbox } from '../../controls/checkbox';
 import { GuildChannel } from 'discord.js';
 import { ConduitEvent } from '../../../utils/conduitEvent';
@@ -13,13 +12,7 @@ declare module 'discord.js' {
     }
 }
 
-export interface DashboardTextChannelProps extends ConduitProps {
-    channel: TextChannel;
-    reporter: ActionReporter;
-    onDeletion?: () => void;
-}
-
-export class DashboardTextChannel extends React.Component<DashboardTextChannelProps, {}> {
+export class DashboardTextChannel extends React.Component<ConduitChannelProps<TextChannel>, {}> {
     private onChannelDeletion: ConduitEvent<void>;
 
     constructor (props: any) {
@@ -42,7 +35,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                 this.props.loader.load(this.props.channel.setName(input.value))
                     .then((c: TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s name');
-                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name}\` (**${c.id}**)'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
+                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
                     })
                     .catch(_ => input.value = this.props.channel.name);
             }
@@ -61,7 +54,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                 this.props.loader.load(this.props.channel.setTopic(input.value))
                     .then((c: TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s topic');
-                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name}\` (**${c.id}**)'s topic`, c.guild);
+                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s topic`, c.guild);
                     })
                     .catch(_ => input.value = this.props.channel.topic);
             }
@@ -73,36 +66,22 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
         if (input.value) {
             if (!this.props.channel.manageable) {
                 this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
-                if (this.props.channel.rateLimitPerUser > 0) {
-                    input.value = `${this.props.channel.rateLimitPerUser}s`;
-                } else {
-                    input.value = '';
-                }
+                input.value = this.props.channel.rateLimitPerUser > 0 ? `${this.props.channel.rateLimitPerUser}s` : '';
             } else {
-                let regex: RegExp = /^(\d+)s?$/;
+                let regex: RegExp = /^(\d+)(\s*s)?$/;
                 let matches: RegExpMatchArray = input.value.match(regex);
                 if (matches && matches[1]) {
                     let limit = Number(matches[1]);
                     let oldLimit: number = this.props.channel.rateLimitPerUser;
                     this.props.loader.load(this.props.channel.setRateLimitPerUser(limit))
                         .then((c: TextChannel) => {
-                            input.value = `${limit}s`;
+                            input.value = c.rateLimitPerUser > 0 ? `${c.rateLimitPerUser}s` : '';
                             this.props.logger.success('Changed selected channel\'s user rate-limit');
-                            this.props.reporter.reportGuildAction(`Changed channel \`${c.name}\` (**${c.id}**)'s user rate-limit [ \`${oldLimit}s\` -> \`${c.rateLimitPerUser}s\` ]`, c.guild);
+                            this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s user rate-limit [ \`${oldLimit}s\` -> \`${c.rateLimitPerUser}s\` ]`, c.guild);
                         })
-                        .catch(_ => {
-                            if (this.props.channel.rateLimitPerUser > 0) {
-                                input.value = `${this.props.channel.rateLimitPerUser}s`;
-                            } else {
-                                input.value = '';
-                            }
-                        });
+                        .catch(_ => input.value = this.props.channel.rateLimitPerUser > 0 ? `${this.props.channel.rateLimitPerUser}s` : '');
                 } else {
-                    if (this.props.channel.rateLimitPerUser > 0) {
-                        input.value = `${this.props.channel.rateLimitPerUser}s`;
-                    } else {
-                        input.value = '';
-                    }
+                    input.value = this.props.channel.rateLimitPerUser > 0 ? `${this.props.channel.rateLimitPerUser}s` : '';
                 }
             }
         }
@@ -127,7 +106,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
             this.props.loader.load(this.props.channel.setNSFW(state, ''))
                 .then((c: TextChannel) => {
                     this.props.logger.success(`Set selected channel\'s nsfw state to ${state}`);
-                    this.props.reporter.reportGuildAction(`Changed channel \`${c.name}\` (**${c.id}**)'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
+                    this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
                 })
                 .catch(_ => {
                     input.checked = this.props.channel.nsfw;
@@ -143,7 +122,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
                 .then((c: GuildChannel) => {
                     this.props.logger.success(`Deleted selected channel`);
                     this.onChannelDeletion.trigger();
-                    this.props.reporter.reportGuildAction(`Deleted channel \`${c.name}\` (**${c.id}**)`, c.guild);
+                    this.props.reporter.reportGuildAction(`Deleted channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)`, c.guild);
                 });
         }
     }
@@ -155,11 +134,7 @@ export class DashboardTextChannel extends React.Component<DashboardTextChannelPr
 
         nameInput.value = this.props.channel.name;
         topicInput.value = this.props.channel.topic;
-        if (this.props.channel.rateLimitPerUser > 0) {
-            rtInput.value = `${this.props.channel.rateLimitPerUser}s`;
-        } else {
-            rtInput.value = '';
-        }
+        rtInput.value = this.props.channel.rateLimitPerUser > 0 ? `${this.props.channel.rateLimitPerUser}s` : ''
     }
 
     componentDidMount(): void {
