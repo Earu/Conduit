@@ -5,12 +5,32 @@ export interface InputProps {
     id: string;
     onValidated?: () => void;
     onChange?: (value: string) => void;
+    multiline?: boolean;
     list?: string;
     style?: React.CSSProperties;
 }
 
 export class Input extends React.Component<InputProps, {}> {
-    private onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    private style: React.CSSProperties;
+
+    constructor (props: InputProps) {
+        super(props);
+
+        if (!props.style) {
+            this.style = { resize: 'none' };
+        } else {
+            this.style = props.style;
+            this.style.resize = 'none';
+        }
+    }
+
+    private onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        if (!e.target.value) {
+            e.target.style.border = null;
+        }
+    }
+
+    private onTextAreaChange(e: React.ChangeEvent<HTMLTextAreaElement>): void {
         if (!e.target.value) {
             e.target.style.border = null;
         }
@@ -27,13 +47,22 @@ export class Input extends React.Component<InputProps, {}> {
     }
 
     render(): JSX.Element {
-        return <input onChange={this.onChange}
-            className='bot-edit-input'
-            id={this.props.id}
-            type='text'
-            onKeyPress={this.onKeyPress.bind(this)}
-            placeholder={this.props.placeholder}
-            list={this.props.list}
-            style={this.props.style}/>;
+        if (this.props.multiline) {
+            return <textarea onChange={this.onTextAreaChange}
+                className='bot-edit-input'
+                id={this.props.id}
+                onKeyPress={this.onKeyPress.bind(this)}
+                placeholder={this.props.placeholder}
+                style={this.style} />;
+        } else {
+            return <input onChange={this.onInputChange}
+                className='bot-edit-input'
+                id={this.props.id}
+                type='text'
+                onKeyPress={this.onKeyPress.bind(this)}
+                placeholder={this.props.placeholder}
+                list={this.props.list}
+                style={this.style} />;
+        }
     }
 }

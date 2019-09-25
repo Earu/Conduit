@@ -167,6 +167,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             <div className='row' style={{ padding: '5px' }}>
                 <div className='col-md-12'>
                     <Input id='channel-message' onValidated={this.onChannelMessageSent.bind(this)} placeholder='message...' />
+                    <input id='channel-file' type='file' />
                 </div>
             </div>
         </div>;

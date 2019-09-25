@@ -9,7 +9,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
     render(): JSX.Element {
         return <div id='dashboard'>
             <DashboardHeader client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
-            <div className='row' style={{ paddingBottom: '345px' }}>
+            <div className='row' style={{ paddingBottom: '400px' }}>
                 <div className='col-md-6'>
                     <DashboardPanel title='GUILDS' foldable={true}>
                         <DashboardGuilds client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
