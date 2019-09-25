@@ -5,6 +5,8 @@ import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { GuildChannel } from 'discord.js';
 import { ConduitEvent } from '../../../utils/conduitEvent';
+import { Attachment } from 'discord.js';
+import { HttpClient, HttpResult } from '../../../utils/httpClient';
 
 declare module 'discord.js' {
     interface TextChannel {
@@ -14,11 +16,13 @@ declare module 'discord.js' {
 
 export class DashboardTextChannel extends React.Component<ConduitChannelProps<TextChannel>, {}> {
     private onChannelDeletion: ConduitEvent<void>;
+    private httpClient: HttpClient;
 
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
 
         this.onChannelDeletion = new ConduitEvent();
+        this.httpClient = new HttpClient();
         if (this.props.onDeletion) {
             this.onChannelDeletion.on(this.props.onDeletion);
         }
@@ -87,13 +91,56 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
     }
 
+    private fileToBinary(file: File): Promise<string> {
+        return new Promise(resolve => {
+            let fileReader: FileReader = new FileReader();
+            fileReader.onload = () => {
+                let arrayBuffer: ArrayBuffer = fileReader.result as ArrayBuffer;
+                let array: Uint8Array = new Uint8Array(arrayBuffer);
+                resolve(String.fromCharCode.apply(null, array))
+            };
+
+            fileReader.readAsArrayBuffer(file);
+        });
+    }
+
     private onChannelMessageSent(): void {
         let input: HTMLInputElement = document.getElementById('channel-message') as HTMLInputElement;
-        if (input.value) {
+        let fileInput: HTMLInputElement = document.getElementById('channel-file') as HTMLInputElement;
+        let file: File = fileInput.files[0];
+        if (file) {
+            let form: FormData = new FormData();
+            form.append('file', file.slice(), file.name);
+            if (input.value) {
+                form.append('payload_json', JSON.stringify({ content: input.value, tts: false, embed: null }));
+            }
+
+            this.props.loader.load(this.httpClient.post(`https://discordapp.com/api/channels/${this.props.channel.id}/messages`, form, {
+                'Authorization': `Bot ${this.props.client.token}`,
+            })).then((res: HttpResult) => {
+                if (res.isSuccess) {
+                    this.props.logger.success(`Successfully sent a message to the selected channel and guild`);
+                } else {
+                    let obj = res.asObject<{ message?: string }>();
+                    if (obj.message) {
+                        this.props.logger.error(obj.message);
+                    } else {
+                        this.props.logger.error('Could not send a message to the selected channel and guild');
+                    }
+                }
+
+                input.value = '';
+                fileInput.value = '';
+            });
+        } else if (input.value) {
             this.props.loader.load(this.props.channel.send(input.value))
-                .then(_ => this.props.logger.success(`Successfully sent a message to the selected channel and guild`));
-            input.value = '';
+                .then(_ => {
+                    this.props.logger.success(`Successfully sent a message to the selected channel and guild`);
+                    input.value = '';
+                    fileInput.value = '';
+                });
         }
+
     }
 
     private onChannelNsfwChanged(state: boolean): void {
