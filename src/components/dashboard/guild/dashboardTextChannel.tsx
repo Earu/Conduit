@@ -5,7 +5,6 @@ import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { GuildChannel } from 'discord.js';
 import { ConduitEvent } from '../../../utils/conduitEvent';
-import { Attachment } from 'discord.js';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
 
 declare module 'discord.js' {
@@ -39,7 +38,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                 this.props.loader.load(this.props.channel.setName(input.value))
                     .then((c: TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s name');
-                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
+                        this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
                     })
                     .catch(_ => input.value = this.props.channel.name);
             }
@@ -58,7 +57,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                 this.props.loader.load(this.props.channel.setTopic(input.value))
                     .then((c: TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s topic');
-                        this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s topic`, c.guild);
+                        this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s topic`, c.guild);
                     })
                     .catch(_ => input.value = this.props.channel.topic);
             }
@@ -81,7 +80,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                         .then((c: TextChannel) => {
                             input.value = c.rateLimitPerUser > 0 ? `${c.rateLimitPerUser}s` : '';
                             this.props.logger.success('Changed selected channel\'s user rate-limit');
-                            this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s user rate-limit [ \`${oldLimit}s\` -> \`${c.rateLimitPerUser}s\` ]`, c.guild);
+                            this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s user rate-limit [ \`${oldLimit}s\` -> \`${c.rateLimitPerUser}s\` ]`, c.guild);
                         })
                         .catch(_ => input.value = this.props.channel.rateLimitPerUser > 0 ? `${this.props.channel.rateLimitPerUser}s` : '');
                 } else {
@@ -153,7 +152,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             this.props.loader.load(this.props.channel.setNSFW(state, ''))
                 .then((c: TextChannel) => {
                     this.props.logger.success(`Set selected channel\'s nsfw state to ${state}`);
-                    this.props.reporter.reportGuildAction(`Changed channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
+                    this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
                 })
                 .catch(_ => {
                     input.checked = this.props.channel.nsfw;
@@ -169,7 +168,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                 .then((c: GuildChannel) => {
                     this.props.logger.success(`Deleted selected channel`);
                     this.onChannelDeletion.trigger();
-                    this.props.reporter.reportGuildAction(`Deleted channel \`${c.name} [ ${c.type} ]\` (**${c.id}**)`, c.guild);
+                    this.props.reporter.reportGuildAction(`Deleted ${this.props.reporter.formatChannel(c)}`, c.guild);
                 });
         }
     }
@@ -204,11 +203,11 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                     <Checkbox id='channel-nsfw' name='NSFW' defaultValue={this.props.channel.nsfw} onChange={this.onChannelNsfwChanged.bind(this)} />
                 </div>
                 <div className='col-md-3'>
-                    <button style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }} className='purple-btn'>Permissions</button>
-                    <button style={{ width: '100%', padding: '0', height: '32px' }} className='purple-btn'>Webhooks</button>
+                    <button style={{ marginBottom: '5px' }} className='purple-btn small-btn'>Permissions</button>
+                    <button className='purple-btn small-btn'>Webhooks</button>
                 </div>
                 <div className='col-md-3'>
-                    <button style={{ height: '68px', width: '100%' }} className='red-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
+                    <button className='red-btn large-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
                 </div>
             </div>
             <div className='row' style={{ padding: '5px' }}>

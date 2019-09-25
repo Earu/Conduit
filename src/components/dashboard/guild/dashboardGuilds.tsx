@@ -10,6 +10,7 @@ import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
 import { Channel } from 'discord.js';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
+import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -230,7 +231,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         switch (chan.type) {
             case 'category':
                 let catChan: CategoryChannel = chan as CategoryChannel;
+                jsx = <DashboardCategoryChannel reporter={this.reporter} channel={catChan} client={this.props.client}
+                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)}/>
                 break;
+            case 'store':
+            case 'news':
             case 'text':
                 let txtChan: TextChannel = chan as TextChannel;
                 jsx = <DashboardTextChannel reporter={this.reporter} channel={txtChan} client={this.props.client}
@@ -242,7 +247,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
                 break;
             default:
-                // general channel stuff here cannot test
+                // unknown channel type, typically new or unexpected channel types
                 break;
         }
 
@@ -291,14 +296,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
-                        <button style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }} className='purple-btn'>Permissions</button>
-                        <button style={{ width: '100%', padding: '0', height: '32px' }} className='purple-btn'>Members</button>
+                        <button style={{ marginBottom: '5px' }} className='purple-btn small-btn'>Permissions</button>
+                        <button className='purple-btn small-btn'>Members</button>
                     </div>
                     <div className='col-md-3'>
-                        <button className='red-btn' onClick={this.onLeaveGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px', marginBottom: '5px' }}>
+                        <button className='red-btn small-btn' onClick={this.onLeaveGuild.bind(this)} style={{ marginBottom: '5px' }}>
                             Leave
                         </button>
-                        <button className='red-btn' onClick={this.onDeleteGuild.bind(this)} style={{ width: '100%', padding: '0', height: '32px' }}>
+                        <button className='red-btn small-btn' onClick={this.onDeleteGuild.bind(this)}>
                             Delete
                         </button>
                     </div>
