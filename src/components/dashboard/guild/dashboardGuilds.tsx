@@ -9,6 +9,7 @@ import { DashboardTextChannel } from './dashboardTextChannel';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
 import { Channel } from 'discord.js';
+import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -237,6 +238,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 break;
             case 'voice':
                 let voiceChan: VoiceChannel = chan as VoiceChannel;
+                jsx = <DashboardVoiceChannel reporter={this.reporter} channel={voiceChan} client={this.props.client}
+                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
                 break;
             default:
                 // general channel stuff here cannot test
@@ -313,6 +316,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 <div id='channel' style={{ padding: '5px', paddingBottom: '0px' }} />
             </DashboardPanel>
             <DashboardPanel title='EMOJIS' foldable={true} style={{ marginTop: '0px' }}>
+            </DashboardPanel>
+            <DashboardPanel title='ROLES' foldable={true} style={{ marginTop: '0px' }}>
             </DashboardPanel>
         </div>;
     }
