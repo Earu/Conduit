@@ -26,7 +26,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
-            .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate.bind(this, g))
+            .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate(g))
+            .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this))
             .on('channelCreate', this.onChannelCreate.bind(this))
             .on('channelDelete', this.onChannelDelete.bind(this))
     }
@@ -169,7 +170,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private updateGuildInfo(updateChannels: boolean=true): void {
         let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
-        let parentGuildRegion: HTMLDivElement = document.getElementById('parent-guild-region') as HTMLDivElement;
 
         if (!this.selectedGuild) {
             guildName.value = '';
@@ -180,13 +180,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
 
         guildName.value = this.selectedGuild.name;
-
-        if (parentGuildRegion) {
-            let guildRegion: HTMLSelectElement = parentGuildRegion.getElementsByTagName('select')[0];
-            let selected: HTMLDivElement = parentGuildRegion.getElementsByClassName('select-selected')[0] as HTMLDivElement;
-            guildRegion.value = this.selectedGuild.region;
-            selected.textContent = guildRegion.options[guildRegion.selectedIndex].text;
-        }
+        SelectHelper.trySetValue('guild-region', this.selectedGuild.region);
 
         ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);

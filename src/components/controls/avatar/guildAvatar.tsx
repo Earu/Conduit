@@ -27,7 +27,9 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         if (guild.iconURL) {
             img.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
         } else {
-            img.alt = guild.name[0];
+            img.src = '';
+            let parts: Array<string> = guild.name.split(' ');
+            img.alt = parts.map((p: string) => p[0]).join('');
         }
     }
 
