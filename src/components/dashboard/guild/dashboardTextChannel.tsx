@@ -30,11 +30,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
 
         props.client
-            .on('channelDelete', (c: Channel) => this.onChannelX(c, () => {
-                if (c.id === this.channel.id) {
-                    this.onChannelDeletion.trigger();
-                }
-            }))
+            .on('channelDelete', (c: Channel) => this.onChannelX(c, () => this.onChannelDeletion.trigger()))
             .on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
                 this.channel = c as TextChannel;
                 this.onInitialize();
@@ -42,11 +38,13 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelX(c: Channel, callback: () => void) {
-		if (c.type === 'dm' || c.type === 'group') return;
-		let guildChan: GuildChannel = c as GuildChannel;
-		if (guildChan.guild.id === this.channel.guild.id) {
-			callback();
-		}
+        if (c.type === 'dm' || c.type === 'group') return;
+        if (c.id === this.channel.id) {
+            let guildChan: GuildChannel = c as GuildChannel;
+            if (guildChan.guild.id === this.channel.guild.id) {
+                callback();
+            }
+        }
 	}
 
     private onChannelNameChanged(): void {
