@@ -132,7 +132,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             if (this.selectedGuild.channels.size === 1) {
                 this.updateGuildInfo();
             } else {
-                SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
+                SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`, this.loadChannel.bind(this));
             }
         }
     }
@@ -167,15 +167,15 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         return null;
     }
 
-    private updateGuildInfo(updateChannels: boolean=true): void {
+    private updateGuildInfo(updateChannels: boolean = true): void {
         let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
 
         if (!this.selectedGuild) {
             guildName.value = '';
-            ReactDOM.render(<div/>, guildAvatar);
-            ReactDOM.render(<div/>, document.getElementById('channel'));
-            ReactDOM.render(<div/>, document.getElementById('container-guild-channel'));
+            ReactDOM.render(<div />, guildAvatar);
+            ReactDOM.render(<div />, document.getElementById('channel'));
+            ReactDOM.render(<div />, document.getElementById('container-guild-channel'));
             return;
         }
 
@@ -190,8 +190,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 this.loadChannelSelect();
                 this.loadChannel(this.selectedGuild.channels.first().id); // refresh the channel panel
             } else {
-                ReactDOM.render(<div/>, document.getElementById('channel'));
-                ReactDOM.render(<div/>, document.getElementById('container-guild-channel'));
+                ReactDOM.render(<div />, document.getElementById('channel'));
+                ReactDOM.render(<div />, document.getElementById('container-guild-channel'));
             }
         }
     }

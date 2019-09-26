@@ -52,26 +52,26 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 		if (chanToAdd) {
 			this.chanIdToAdd = chanToAdd.id;
-			let opts = this.childrenChannels.map((c: GuildChannel) => {
-				let opt: HTMLOptionElement = document.createElement('option');
-				opt.value = c.id;
-				opt.textContent = `${c.name} [ ${c.type} ]`;
-				return opt;
-			});
-			SelectHelper.trySetOptions('channel-children', opts);
-		} else {
-			this.chanIdToAdd = null;
-		}
-
-		if (chanToRemove) {
-			this.chanIdToRemove = chanToRemove.id;
 			let opts = this.nonChildrenChannels.map((c: GuildChannel) => {
 				let opt: HTMLOptionElement = document.createElement('option');
 				opt.value = c.id;
 				opt.textContent = `${c.name} [ ${c.type} ]`;
 				return opt;
 			});
-			SelectHelper.trySetOptions('channel-children', opts);
+			SelectHelper.trySetOptions('channel-not-children', opts, this.onChannelNotChildrenSelected.bind(this));
+		} else {
+			this.chanIdToAdd = null;
+		}
+
+		if (chanToRemove) {
+			this.chanIdToRemove = chanToRemove.id;
+			let opts = this.childrenChannels.map((c: GuildChannel) => {
+				let opt: HTMLOptionElement = document.createElement('option');
+				opt.value = c.id;
+				opt.textContent = `${c.name} [ ${c.type} ]`;
+				return opt;
+			});
+			SelectHelper.trySetOptions('channel-children', opts, this.onChannelChildrenSelected.bind(this));
 		} else {
 			this.chanIdToRemove = null;
 		}
