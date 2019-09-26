@@ -1,14 +1,13 @@
 import { ConduitProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel } from 'discord.js';
+import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel, Channel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
 import { DashboardTextChannel } from './dashboardTextChannel';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
-import { Channel } from 'discord.js';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { SelectHelper } from '../../../utils/selectHelper';
