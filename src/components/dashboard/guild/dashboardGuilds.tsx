@@ -46,15 +46,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private loadChannelSelect(defaultChanId: string): void {
-        let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
-        ReactDOM.render(<Select id='guild-channel'
-            defaultValue={defaultChanId}
-            onSelected={this.loadChannel.bind(this)}>
-            {opts}
-        </Select>, document.getElementById('container-guild-channel'));
-    }
-
     private addGuildsToDatalist(guilds: Array<Guild>): void {
         let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [ {g.id} ]</option>);
         ReactDOM.render(opts, document.getElementById('guilds'));
@@ -147,7 +138,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
             }
         }
-
     }
 
     private async tryFindGuild(id: string): Promise<Guild> {
@@ -190,8 +180,16 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         if (updateChannels) {
             if (this.selectedGuild.channels.size > 0) {
                 let chanId: string = this.selectedGuild.channels.first().id;
-                this.loadChannelSelect(chanId);
-                this.loadChannel(chanId); // refresh the channel panel
+
+                if (guildChannelContainer.children.length <= 1) { // only update if there only hr or nothing left
+                    let opts: Array<JSX.Element> = this.selectedGuild.channels
+                        .map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+
+                    ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
+                        onSelected={this.loadChannel.bind(this)}>{opts}</Select>, guildChannelContainer);
+                }
+
+                this.loadChannel(chanId);
             } else {
                 ReactDOM.render(<div />, guildChannel);
                 ReactDOM.render(<div />, guildChannelContainer);
