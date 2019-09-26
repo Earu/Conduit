@@ -6,6 +6,7 @@ import { Checkbox } from '../../controls/checkbox';
 import { GuildChannel } from 'discord.js';
 import { ConduitEvent } from '../../../utils/conduitEvent';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
+import { Channel } from 'discord.js';
 
 declare module 'discord.js' {
     interface TextChannel {
@@ -25,6 +26,18 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         if (this.props.onDeletion) {
             this.onChannelDeletion.on(this.props.onDeletion);
         }
+
+        this.props.client
+            .on('channelDelete', (c: Channel) => {
+                if (c.id === this.props.channel.id) {
+                    this.onChannelDeletion.trigger();
+                }
+            })
+            .on('channelUpdate', (c: Channel) => {
+                if (c.id === this.props.channel.id) {
+                    this.onInitialize();
+                }
+            });
     }
 
     private onChannelNameChanged(): void {

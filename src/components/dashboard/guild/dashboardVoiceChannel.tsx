@@ -3,6 +3,7 @@ import * as React from 'react';
 import { VoiceChannel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
+import { Channel } from 'discord.js';
 
 export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<VoiceChannel>, {}> {
 	private onChannelDeletion: ConduitEvent<void>;
@@ -14,6 +15,18 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		if (this.props.onDeletion) {
 			this.onChannelDeletion.on(this.props.onDeletion);
 		}
+
+		this.props.client
+			.on('channelDelete', (c: Channel) => {
+				if (c.id === this.props.channel.id) {
+					this.onChannelDeletion.trigger();
+				}
+			})
+			.on('channelUpdate', (c: Channel) => {
+				if (c.id === this.props.channel.id) {
+					this.onInitialize();
+				}
+			});
 	}
 
 	private onChannelNameChanged(): void {
