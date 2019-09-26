@@ -11,6 +11,7 @@ import { DashboardPanel } from '../dashboardPanel';
 import { Channel } from 'discord.js';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
+import { SelectHelper } from '../../../utils/selectHelper';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -26,9 +27,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('guildCreate', this.onGuildCreate.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
             .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate.bind(this, g))
-            .on('channelCreate', this.onChannelX.bind(this))
-            .on('channelDelete', this.onChannelX.bind(this))
-            .on('channelUpdate', (_, c: Channel) => this.onChannelX.bind(this, c));
+            .on('channelCreate', this.onChannelCreate.bind(this))
+            .on('channelDelete', this.onChannelDelete.bind(this))
     }
 
     private loadRegionSelect(): void {
@@ -36,7 +36,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .then((regions: Collection<string, VoiceRegion>) => {
                 let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
                 ReactDOM.render(<Select id='guild-region'
-                    defaultValue={this.selectedGuild.region}
+                    defaultValue={this.selectedGuild ? this.selectedGuild.region : null}
                     onSelected={this.onGuildRegionChange.bind(this)}>
                     {opts}
                 </Select>, document.getElementById('container-guild-region'));
@@ -108,23 +108,46 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         if (node) {
             guilds.removeChild(node);
         }
+
+        if (this.selectedGuild && guild.id === this.selectedGuild.id) {
+            this.selectedGuild = this.props.client.guilds.first();
+            this.updateGuildInfo();
+        }
     }
 
     private onGuildUpdate(guild: Guild): void {
         if (!this.selectedGuild) return;
-        if (guild.id == this.selectedGuild.id) return;
+        if (guild.id != this.selectedGuild.id) return;
 
         this.selectedGuild = guild;
-        this.updateGuildInfo();
+        this.updateGuildInfo(false);
     }
 
-    private onChannelX(chan: Channel): void {
+    private onChannelCreate(chan: Channel): void {
         if (!this.selectedGuild) return;
-        if (chan.type === 'dm') return;
+        if (chan.type === 'dm' || chan.type === 'group') return;
         let guildChan: GuildChannel = chan as GuildChannel;
         if (guildChan.guild.id === this.selectedGuild.id) {
-            this.updateGuildInfo();
+            if (this.selectedGuild.channels.size === 1) {
+                this.updateGuildInfo();
+            } else {
+                SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
+            }
         }
+    }
+
+    private onChannelDelete(chan: Channel): void {
+        if (!this.selectedGuild) return;
+        if (chan.type === 'dm' || chan.type === 'group') return;
+        let guildChan: GuildChannel = chan as GuildChannel;
+        if (guildChan.guild.id === this.selectedGuild.id) {
+            if (this.selectedGuild.channels.size < 1) {
+                this.updateGuildInfo();
+            } else {
+                SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
+            }
+        }
+
     }
 
     private async tryFindGuild(id: string): Promise<Guild> {
@@ -143,12 +166,18 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         return null;
     }
 
-    private updateGuildInfo(): void {
-        if (!this.selectedGuild) return;
-
+    private updateGuildInfo(updateChannels: boolean=true): void {
         let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
         let parentGuildRegion: HTMLDivElement = document.getElementById('parent-guild-region') as HTMLDivElement;
+
+        if (!this.selectedGuild) {
+            guildName.value = '';
+            ReactDOM.render(<div/>, guildAvatar);
+            ReactDOM.render(<div/>, document.getElementById('channel'));
+            ReactDOM.render(<div/>, document.getElementById('container-guild-channel'));
+            return;
+        }
 
         guildName.value = this.selectedGuild.name;
 
@@ -161,8 +190,16 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
-        this.loadChannelSelect();
-        this.loadChannel(this.selectedGuild.channels.first().id); // refresh the channel panel
+
+        if (updateChannels) {
+            if (this.selectedGuild.channels.size > 0) {
+                this.loadChannelSelect();
+                this.loadChannel(this.selectedGuild.channels.first().id); // refresh the channel panel
+            } else {
+                ReactDOM.render(<div/>, document.getElementById('channel'));
+                ReactDOM.render(<div/>, document.getElementById('container-guild-channel'));
+            }
+        }
     }
 
     private onGuildSelected(): void {
@@ -194,6 +231,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onGuildNameChange(): void {
+        if (!this.selectedGuild) return;
+
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
         if (guildName.value && this.hasPermissions('MANAGE_GUILD')) {
             let oldName: string = this.selectedGuild.name;
@@ -209,6 +248,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onGuildRegionChange(): void {
+        if (!this.selectedGuild) return;
+
         let guildRegion: HTMLSelectElement = document.getElementById('guild-region') as HTMLSelectElement;
         if (guildRegion.value && this.hasPermissions('MANAGE_GUILD')) {
             let oldRegion: string = this.selectedGuild.region;
@@ -232,7 +273,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             case 'category':
                 let catChan: CategoryChannel = chan as CategoryChannel;
                 jsx = <DashboardCategoryChannel reporter={this.reporter} channel={catChan} client={this.props.client}
-                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)}/>
+                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
                 break;
             case 'store':
             case 'news':

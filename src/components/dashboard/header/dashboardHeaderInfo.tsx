@@ -31,7 +31,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         guilds.innerText = this.props.client.guilds.size.toString();
         users.innerText = this.props.client.users.size.toString();
         botId.innerText = user.id;
-        botInvite.href = `https://discordapp.com/oauth2/authorize?client_id=${user.id}`;
+        botInvite.href = `https://discordapp.com/oauth2/authorize?client_id=${user.id}&scope=bot&permissions=0`;
 
         if (user.presence.game) {
             game.value = user.presence.game.name;
