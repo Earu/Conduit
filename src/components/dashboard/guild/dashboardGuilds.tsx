@@ -46,17 +46,17 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private loadChannelSelect(): void {
-        let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={c.id} value={c.id}>{c.name} [ {c.type} ]</option>);
+    private loadChannelSelect(defaultChanId: string): void {
+        let opts: Array<JSX.Element> = this.selectedGuild.channels.map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
         ReactDOM.render(<Select id='guild-channel'
-            defaultValue={this.selectedGuild.channels.first().id}
+            defaultValue={defaultChanId}
             onSelected={this.loadChannel.bind(this)}>
             {opts}
         </Select>, document.getElementById('container-guild-channel'));
     }
 
     private addGuildsToDatalist(guilds: Array<Guild>): void {
-        let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [{g.id}]</option>);
+        let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [ {g.id} ]</option>);
         ReactDOM.render(opts, document.getElementById('guilds'));
     }
 
@@ -117,10 +117,10 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     private onGuildUpdate(guild: Guild): void {
         if (!this.selectedGuild) return;
-        if (guild.id != this.selectedGuild.id) return;
-
-        this.selectedGuild = guild;
-        this.updateGuildInfo(false);
+        if (guild.id === this.selectedGuild.id){
+            this.selectedGuild = guild;
+            this.updateGuildInfo(false);
+        }
     }
 
     private onChannelCreate(chan: Channel): void {
@@ -169,12 +169,15 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private updateGuildInfo(updateChannels: boolean = true): void {
         let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
+        let guildChannel: HTMLElement = document.getElementById('channel');
+        let guildChannelContainer: HTMLElement = document.getElementById('container-guild-channel');
+        if (!guildAvatar || !guildName || !guildChannel || !guildChannelContainer) return;
 
         if (!this.selectedGuild) {
             guildName.value = '';
             ReactDOM.render(<div />, guildAvatar);
-            ReactDOM.render(<div />, document.getElementById('channel'));
-            ReactDOM.render(<div />, document.getElementById('container-guild-channel'));
+            ReactDOM.render(<div />, guildChannel);
+            ReactDOM.render(<div />, guildChannelContainer);
             return;
         }
 
@@ -186,11 +189,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         if (updateChannels) {
             if (this.selectedGuild.channels.size > 0) {
-                this.loadChannelSelect();
-                this.loadChannel(this.selectedGuild.channels.first().id); // refresh the channel panel
+                let chanId: string = this.selectedGuild.channels.first().id;
+                this.loadChannelSelect(chanId);
+                this.loadChannel(chanId); // refresh the channel panel
             } else {
-                ReactDOM.render(<div />, document.getElementById('channel'));
-                ReactDOM.render(<div />, document.getElementById('container-guild-channel'));
+                ReactDOM.render(<div />, guildChannel);
+                ReactDOM.render(<div />, guildChannelContainer);
             }
         }
     }
