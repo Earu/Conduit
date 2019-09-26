@@ -18,11 +18,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		}
 
 		props.client
-			.on('channelDelete', (c: Channel) => this.onChannelX(c, () => {
-				if (c.id === this.channel.id) {
-					this.onChannelDeletion.trigger();
-				}
-			}))
+			.on('channelDelete', (c: Channel) => this.onChannelX(c, () => this.onChannelDeletion.trigger()))
 			.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
 				this.channel = c as VoiceChannel;
 				this.onInitialize();
@@ -31,9 +27,11 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 
 	private onChannelX(c: Channel, callback: () => void) {
 		if (c.type === 'dm' || c.type === 'group') return;
-		let guildChan: GuildChannel = c as GuildChannel;
-		if (guildChan.guild.id === this.channel.guild.id) {
-			callback();
+		if (c.id === this.channel.id) {
+			let guildChan: GuildChannel = c as GuildChannel;
+			if (guildChan.guild.id === this.channel.guild.id) {
+				callback();
+			}
 		}
 	}
 
@@ -163,6 +161,11 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 
 	render(): JSX.Element {
 		return <div>
+			<div className='row' style={{ padding: '5px' }}>
+				<div className='col-md-12'>
+
+				</div>
+			</div>
 			<div className='row' style={{ padding: '5px' }}>
 				<div className='col-md-3'>
 					<Input id='channel-name' onValidated={this.onChannelNameChanged.bind(this)} placeholder='name...' />
