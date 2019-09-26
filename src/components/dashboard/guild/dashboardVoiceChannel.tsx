@@ -23,7 +23,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					this.onChannelDeletion.trigger();
 				}
 			}))
-			.on('channelUpdate', (c: Channel) => this.onChannelX(c, () => {
+			.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
 				this.channel = c as VoiceChannel;
 				this.onInitialize();
 			}));
@@ -148,7 +148,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 
 		nameInput.value = this.channel.name;
 		userLimitInput.value = this.channel.userLimit > 0 ? `${this.channel.userLimit} max. users` : '';
-		bitrateInput.value = `${this.channel.bitrate}kbps`;
+		bitrateInput.value = this.channel.bitrate ? `${this.channel.bitrate}kbps` : ''; // should never happen
 	}
 
 	componentDidMount(): void {

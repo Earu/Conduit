@@ -35,7 +35,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                     this.onChannelDeletion.trigger();
                 }
             }))
-            .on('channelUpdate', (c: Channel) => this.onChannelX(c, () => {
+            .on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
                 this.channel = c as TextChannel;
                 this.onInitialize();
             }));
