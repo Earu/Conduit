@@ -6,6 +6,16 @@ export class SelectHelper {
         return { success: true, select: select };
     }
 
+    private static tryGetOption(select: HTMLSelectElement, value: string): { success: boolean; option: HTMLOptionElement } {
+        for (let opt of select.options) {
+            if (opt.value === value) {
+                return { success: true, option: opt };
+            }
+        }
+
+        return { success: false, option: null };
+    }
+
     private static addHandler(select: HTMLSelectElement, opt: HTMLOptionElement, div: HTMLDivElement, onSelected: (value: string) => void) {
         div.addEventListener('click', (_: MouseEvent) => {
             let sibling: HTMLElement = div.parentNode.previousSibling as HTMLElement;
@@ -85,24 +95,19 @@ export class SelectHelper {
     }
 
     public static tryRemoveValue(selectId: string, value: string): boolean {
-        let { success, select } = SelectHelper.tryGetSelect(selectId);
-        if (!success) return false;
+        let obj: any = SelectHelper.tryGetSelect(selectId);
+        if (!obj.success) return false;
+        let select: HTMLSelectElement = obj.select;
+        obj = SelectHelper.tryGetOption(select, value);
+        if (!obj.success) return false;
+        let opt: HTMLOptionElement = obj.option;
 
-        let foundOpt: HTMLOptionElement = null;
-        for (let opt of select.options) {
-            if (opt.value === value) {
-                foundOpt = opt;
-                break;
-            }
-        }
-
-        if (!foundOpt) return false;
-        select.removeChild(foundOpt);
+        select.removeChild(opt);
 
         let items: HTMLDivElement = select.nextSibling.nextSibling as HTMLDivElement;
         let foundItem: HTMLDivElement = null;
         for (let child of items.children) {
-            if (child.textContent === foundOpt.textContent) {
+            if (child.textContent === opt.textContent) {
                 foundItem = child as HTMLDivElement;
                 break;
             }
@@ -112,5 +117,31 @@ export class SelectHelper {
         items.removeChild(foundItem);
 
         return true;
+    }
+
+    public static tryChangeOptionText(selectId: string, value: string, newText: string): boolean {
+        let obj: any = SelectHelper.tryGetSelect(selectId);
+        if (!obj.success) return false;
+        let select: HTMLSelectElement = obj.select;
+        obj = SelectHelper.tryGetOption(select, value);
+        if (!obj.success) return false;
+        let opt: HTMLOptionElement = obj.option;
+
+        let items: HTMLDivElement = select.nextSibling.nextSibling as HTMLDivElement;
+        let foundItem: HTMLDivElement = null;
+        for (let child of items.children) {
+            if (child.textContent === opt.textContent) {
+                foundItem = child as HTMLDivElement;
+                break;
+            }
+        }
+
+        if (!foundItem) return false;
+        if (select.nextSibling.textContent === opt.textContent) {
+            select.nextSibling.textContent = newText;
+        }
+
+        foundItem.textContent = newText
+        opt.textContent = newText;
     }
 }

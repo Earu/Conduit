@@ -29,6 +29,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this))
             .on('channelCreate', this.onChannelCreate.bind(this))
             .on('channelDelete', this.onChannelDelete.bind(this))
+            .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
     }
 
     private loadRegionSelect(): void {
@@ -108,36 +109,45 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     private onGuildUpdate(guild: Guild): void {
         if (!this.selectedGuild) return;
-        if (guild.id === this.selectedGuild.id){
+        if (guild.id === this.selectedGuild.id) {
             this.selectedGuild = guild;
             this.updateGuildInfo(false);
         }
     }
 
-    private onChannelCreate(chan: Channel): void {
+    private onChannelX(chan: Channel, callback: (guildChan: GuildChannel) => void): void {
         if (!this.selectedGuild) return;
         if (chan.type === 'dm' || chan.type === 'group') return;
         let guildChan: GuildChannel = chan as GuildChannel;
         if (guildChan.guild.id === this.selectedGuild.id) {
+            callback(guildChan);
+        }
+    }
+
+    private onChannelUpdate(chan: Channel): void {
+        this.onChannelX(chan, (guildChan: GuildChannel) => {
+            SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, guildChan.name);
+        });
+    }
+
+    private onChannelCreate(chan: Channel): void {
+        this.onChannelX(chan, (guildChan: GuildChannel) => {
             if (this.selectedGuild.channels.size === 1) {
                 this.updateGuildInfo();
             } else {
                 SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`, this.loadChannel.bind(this));
             }
-        }
+        });
     }
 
     private onChannelDelete(chan: Channel): void {
-        if (!this.selectedGuild) return;
-        if (chan.type === 'dm' || chan.type === 'group') return;
-        let guildChan: GuildChannel = chan as GuildChannel;
-        if (guildChan.guild.id === this.selectedGuild.id) {
+        this.onChannelX(chan, (guildChan: GuildChannel) => {
             if (this.selectedGuild.channels.size < 1) {
                 this.updateGuildInfo();
             } else {
                 SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
             }
-        }
+        });
     }
 
     private async tryFindGuild(id: string): Promise<Guild> {
