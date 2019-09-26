@@ -126,7 +126,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
     private onChannelUpdate(chan: Channel): void {
         this.onChannelX(chan, (guildChan: GuildChannel) => {
-            SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, guildChan.name);
+            SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
         });
     }
 
