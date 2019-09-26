@@ -6,12 +6,12 @@ export class SelectHelper {
         return { success: true, select: select };
     }
 
-    public static trySetValue(selectId: string, value: string, text?: string): boolean {
+    public static trySetValue(selectId: string, value: string): boolean {
         let { success, select } = SelectHelper.tryGetSelect(selectId);
         if (!success) return false;
 
         select.value = value;
-        select.nextSibling.textContent = text ? text : select.textContent;
+        select.nextSibling.textContent = select.options[select.selectedIndex].textContent;
         return true;
     }
 

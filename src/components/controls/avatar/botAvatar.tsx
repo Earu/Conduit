@@ -21,7 +21,9 @@ export class BotAvatar extends Avatar<AvatarProps> {
         if (url) {
             img.src = url;
         } else {
-            img.alt = this.props.client.user.username[0];
+            img.src = '';
+            let parts: Array<string> = this.props.client.user.username.split(' ');
+            img.alt = parts.map((p: string) => p[0]).join('');
         }
     }
 
