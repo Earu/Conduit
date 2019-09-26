@@ -9,16 +9,8 @@ export interface SelectProps {
 export class Select extends React.Component<SelectProps, {}> {
     private static addedHandler: boolean = false;
 
-    private lastValue: string;
-
     constructor(props: any) {
         super(props);
-
-        if (this.props.defaultValue) {
-            this.lastValue = this.props.defaultValue;
-        } else {
-            this.lastValue = '';
-        }
 
         if (!Select.addedHandler) {
             document.addEventListener('click', () => this.closeSelect(null, document.getElementsByClassName('select-items'), document.getElementsByClassName('select-selected')));
@@ -27,10 +19,7 @@ export class Select extends React.Component<SelectProps, {}> {
     }
 
     private onSelected(value: string): void {
-        if (value !== this.lastValue) {
-            this.props.onSelected(value);
-            this.lastValue = value;
-        }
+        this.props.onSelected(value);
     }
 
     private closeSelect(item: Element, selectItems: HTMLCollectionOf<Element>, selectSelectedItems: HTMLCollectionOf<Element>): void {
