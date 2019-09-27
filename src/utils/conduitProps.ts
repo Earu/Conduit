@@ -1,7 +1,6 @@
 import * as Discord from 'discord.js';
 import { Logger } from './logger';
 import { Loader } from './loader';
-import { TextChannel } from 'discord.js';
 import { ActionReporter } from './actionReporter';
 import { GuildChannel } from 'discord.js';
 

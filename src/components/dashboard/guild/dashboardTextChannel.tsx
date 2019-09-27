@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ConduitChannelProps } from '../../../utils/conduitProps';
-import { TextChannel, GuildChannel, Channel, CategoryChannel } from 'discord.js';
+import { TextChannel, GuildChannel, Channel, CategoryChannel, Collection } from 'discord.js';
 import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { ConduitEvent } from '../../../utils/conduitEvent';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
-import { Collection } from 'discord.js';
 
 declare module 'discord.js' {
     interface TextChannel {

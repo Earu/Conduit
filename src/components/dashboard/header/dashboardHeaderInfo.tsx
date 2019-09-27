@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Discord from 'discord.js';
+import { ClientUser, User, Guild, Game, PresenceStatus } from 'discord.js';
 import { ConduitProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
@@ -17,7 +17,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     }
 
     private onReady(): void {
-        let user: Discord.ClientUser = this.props.client.user;
+        let user: ClientUser = this.props.client.user;
         let name: HTMLInputElement = document.getElementById('bot-tag') as HTMLInputElement;
         let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
         let shards: HTMLElement = document.getElementById('shard-count');
@@ -43,8 +43,8 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onUserUpdate(_: Discord.User, newUser: Discord.User): void {
-        let user: Discord.ClientUser = this.props.client.user;
+    private onUserUpdate(_: User, newUser: User): void {
+        let user: ClientUser = this.props.client.user;
         if (newUser.id === user.id) {
             let name: HTMLInputElement = document.getElementById('bot-tag') as HTMLInputElement;
             let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
@@ -55,7 +55,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onGuildX(_: Discord.Guild): void {
+    private onGuildX(_: Guild): void {
         let shards: HTMLElement = document.getElementById('shard-count');
         let guilds: HTMLElement = document.getElementById('guild-count');
         let users: HTMLElement = document.getElementById('user-count');
@@ -91,7 +91,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
                 .then(_ => this.props.logger.success(`Changed activity to '${activity.value.toLowerCase()} ${game.value}'`))
                 .catch(_ => {
-                    let gamePresence: Discord.Game = this.props.client.user.presence.game;
+                    let gamePresence: Game = this.props.client.user.presence.game;
                     if (gamePresence) {
                         game.value = gamePresence.name;
                         let act = this.activityNumToName(gamePresence.type);
@@ -156,7 +156,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             this.props.loader.load(this.props.client.user.setActivity(game.value, { type: actNumber }))
                 .then(_ => this.props.logger.success(`Changed activity to '${actName.toLowerCase()} ${game.value}'`))
                 .catch(_ => {
-                    let gamePresence: Discord.Game = this.props.client.user.presence.game;
+                    let gamePresence: Game = this.props.client.user.presence.game;
                     if (gamePresence) {
                         game.value = gamePresence.name;
                         let act = this.activityNumToName(gamePresence.type);
@@ -169,7 +169,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
 
     private onBotStatusChanged(status: string): void {
         let select: HTMLSelectElement = document.getElementById('bot-status') as HTMLSelectElement;
-        this.props.loader.load(this.props.client.user.setPresence({ status: status as Discord.PresenceStatus }))
+        this.props.loader.load(this.props.client.user.setPresence({ status: status as PresenceStatus }))
             .then(_ => this.props.logger.success(`Changed status to '${this.statusNameToDisplay(status)}'`))
             .catch(_ => {
                 status = this.props.client.user.presence.status;
