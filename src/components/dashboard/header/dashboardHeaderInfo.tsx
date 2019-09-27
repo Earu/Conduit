@@ -4,7 +4,6 @@ import { ConduitProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { BotAvatar } from '../../controls/avatar/botAvatar';
-import { ActivityType } from 'discord.js';
 
 export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
     constructor(props: any) {
