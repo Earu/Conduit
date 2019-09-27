@@ -1,12 +1,14 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ConduitChannelProps } from '../../../utils/conduitProps';
-import { TextChannel } from 'discord.js';
+import { TextChannel, GuildChannel, Channel, CategoryChannel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
-import { GuildChannel } from 'discord.js';
 import { ConduitEvent } from '../../../utils/conduitEvent';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
-import { Channel } from 'discord.js';
+import { Select } from '../../controls/select';
+import { SelectHelper } from '../../../utils/selectHelper';
+import { Collection } from 'discord.js';
 
 declare module 'discord.js' {
     interface TextChannel {
@@ -30,22 +32,53 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
 
         props.client
-            .on('channelDelete', (c: Channel) => this.onChannelX(c, () => this.onChannelDeletion.trigger()))
-            .on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
-                this.channel = c as TextChannel;
-                this.onInitialize();
-            }));
+            .on('channelCreate', this.onChannelCreate.bind(this))
+            .on('channelDelete', this.onChannelDelete.bind(this))
+            .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
     }
 
-    private onChannelX(c: Channel, callback: () => void) {
-        if (c.type === 'dm' || c.type === 'group') return;
-        if (c.id === this.channel.id) {
-            let guildChan: GuildChannel = c as GuildChannel;
-            if (guildChan.guild.id === this.channel.guild.id) {
-                callback();
+    private onChannelCreate(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (this.isVisible() && c.type === 'category') {
+                let cat: CategoryChannel = c as CategoryChannel;
+                SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
             }
         }
-	}
+    }
+
+    private onChannelDelete(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (c.id === this.channel.id) {
+                this.onChannelDeletion.trigger();
+            } else if (this.isVisible() && c.type === 'category') {
+                SelectHelper.tryRemoveValue('channel-parent', c.id);
+            }
+        }
+    }
+
+    private onChannelUpdate(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (c.id === this.channel.id) {
+                this.channel = c as TextChannel;
+                this.onInitialize();
+            } else if (this.isVisible() && c.type === 'category') {
+                let cat: CategoryChannel = c as CategoryChannel;
+                SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`);
+            }
+        }
+    }
+
+    private isValidChannel(c: Channel): boolean {
+        if (c.type === 'dm' || c.type === 'group') return false;
+        let guildChan: GuildChannel = c as GuildChannel;
+        return guildChan.guild.id === this.channel.guild.id;
+    }
+
+    private isVisible(): boolean {
+        if (document.getElementById('text-channel')) return true;
+
+        return false;
+    }
 
     private onChannelNameChanged(): void {
         let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
@@ -167,7 +200,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
     }
 
-    private onChannelDelete(): void {
+    private onChannelDeleted(): void {
         if (!this.channel.deletable) {
             this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
         } else {
@@ -180,15 +213,57 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
     }
 
+    private onParentSelected(value: string): void {
+        if (!this.channel.manageable) {
+            this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
+        } else {
+            if (value === 'NONE') {
+                let oldParent = this.channel.parent;
+                this.props.loader.load(this.channel.setParent(null))
+                    .then((c: TextChannel) => {
+                        this.props.logger.success(`Changed selected channel's category`);
+                        let report: string = `Moved ${this.props.reporter.formatChannel(c)} out of ${this.props.reporter.formatChannel(oldParent)}`;
+                        this.props.reporter.reportGuildAction(report, c.guild);
+                    })
+                    .catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
+            } else {
+                let parent: GuildChannel = this.channel.guild.channels.find((c: GuildChannel) => c.id === value);
+                if (!parent) return;
+
+                this.props.loader.load(this.channel.setParent(parent))
+                    .then((c: TextChannel) => {
+                        this.props.logger.success(`Changed selected channel's category`);
+                        this.props.reporter.reportGuildAction(`Moved ${this.props.reporter.formatChannel(c)} to ${this.props.reporter.formatChannel(parent)}`, c.guild);
+                    })
+                    .catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
+            }
+        }
+    }
+
     private onInitialize(): void {
         let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         let topicInput: HTMLInputElement = document.getElementById('channel-topic') as HTMLInputElement;
         let rtInput: HTMLInputElement = document.getElementById('channel-rate-limit') as HTMLInputElement;
-        if (!nameInput || !topicInput || !rtInput) return;
+        let chanContainer: HTMLElement = document.getElementById('container-channel-parent');
+        if (!nameInput || !topicInput || !rtInput || !chanContainer) return;
 
         nameInput.value = this.channel.name;
         topicInput.value = this.channel.topic ? this.channel.topic : '';
         rtInput.value = this.channel.rateLimitPerUser > 0 ? `${this.channel.rateLimitPerUser}s` : ''
+
+        let chans: Collection<string, GuildChannel> = this.channel.guild.channels.filter((c: GuildChannel) => c.type === 'category');
+        let categories: Array<JSX.Element> = [];
+        categories.push(<option key={`${this.channel.id}_NONE`} value='NONE'>no category</option>);
+        if (chans.size > 0) {
+            for(let item of chans) {
+                let c: GuildChannel = item[1];
+                categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+            }
+        }
+
+        ReactDOM.render(<Select id='channel-parent' onSelected={this.onParentSelected.bind(this)} defaultValue={this.channel.parent ? this.channel.parentID : 'NONE'}>
+            {categories}
+        </Select>, chanContainer);
     }
 
     componentDidMount(): void {
@@ -202,7 +277,12 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     render(): JSX.Element {
-        return <div>
+        return <div id='text-channel'>
+            <div className='row' style={{ padding: '5px' }}>
+                <div className='col-md-12'>
+                    <div id='container-channel-parent' />
+                </div>
+            </div>
             <div className='row' style={{ padding: '5px' }}>
                 <div className='col-md-3'>
                     <Input id='channel-name' onValidated={this.onChannelNameChanged.bind(this)} placeholder='name...' />
@@ -217,7 +297,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                     <button className='purple-btn small-btn'>Webhooks</button>
                 </div>
                 <div className='col-md-3'>
-                    <button className='red-btn large-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
+                    <button className='red-btn large-btn' onClick={this.onChannelDeleted.bind(this)}>Delete</button>
                 </div>
             </div>
             <div className='row' style={{ padding: '5px' }}>

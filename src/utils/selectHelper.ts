@@ -116,6 +116,19 @@ export class SelectHelper {
         if (!foundItem) return false;
         items.removeChild(foundItem);
 
+        // in case we're removing the selected element
+        if (opt.textContent === select.nextSibling.textContent) {
+            select.selectedIndex = 0;
+            let newOpt: HTMLOptionElement = select.options[select.selectedIndex];
+            if (!newOpt) {
+                select.value = '';
+                select.nextSibling.textContent = '';
+            } else {
+                select.value = newOpt.value;
+                select.nextSibling.textContent = newOpt.textContent;
+            }
+        }
+
         return true;
     }
 

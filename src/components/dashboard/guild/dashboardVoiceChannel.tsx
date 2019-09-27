@@ -2,7 +2,10 @@ import { ConduitChannelProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
-import { Channel, GuildChannel, VoiceChannel } from 'discord.js';
+import { Channel, GuildChannel, VoiceChannel, CategoryChannel, Collection } from 'discord.js';
+import * as ReactDOM from 'react-dom';
+import { Select } from '../../controls/select';
+import { SelectHelper } from '../../../utils/selectHelper';
 
 export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<VoiceChannel>, {}> {
 	private onChannelDeletion: ConduitEvent<void>;
@@ -17,23 +20,54 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 			this.onChannelDeletion.on(props.onDeletion);
 		}
 
-		props.client
-			.on('channelDelete', (c: Channel) => this.onChannelX(c, () => this.onChannelDeletion.trigger()))
-			.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
-				this.channel = c as VoiceChannel;
-				this.onInitialize();
-			}));
+        props.client
+            .on('channelCreate', this.onChannelCreate.bind(this))
+            .on('channelDelete', this.onChannelDelete.bind(this))
+            .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+    }
+
+    private onChannelCreate(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (this.isVisible() && c.type === 'category') {
+                let cat: CategoryChannel = c as CategoryChannel;
+                SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
+            }
+        }
+    }
+
+    private onChannelDelete(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (c.id === this.channel.id) {
+                this.onChannelDeletion.trigger();
+            } else if (this.isVisible() && c.type === 'category') {
+                SelectHelper.tryRemoveValue('channel-parent', c.id);
+            }
+        }
+    }
+
+    private onChannelUpdate(c: Channel): void {
+        if (this.isValidChannel(c)) {
+            if (c.id === this.channel.id) {
+                this.channel = c as VoiceChannel;
+                this.onInitialize();
+            } else if (this.isVisible() && c.type === 'category') {
+                let cat: CategoryChannel = c as CategoryChannel;
+                SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`);
+            }
+        }
+    }
+
+	private isValidChannel(c: Channel): boolean {
+		if (c.type === 'dm' || c.type === 'group') return false;
+		let guildChan: GuildChannel = c as GuildChannel;
+		return guildChan.guild.id === this.channel.guild.id;
 	}
 
-	private onChannelX(c: Channel, callback: () => void) {
-		if (c.type === 'dm' || c.type === 'group') return;
-		if (c.id === this.channel.id) {
-			let guildChan: GuildChannel = c as GuildChannel;
-			if (guildChan.guild.id === this.channel.guild.id) {
-				callback();
-			}
-		}
-	}
+	private isVisible(): boolean {
+        if (document.getElementById('voice-channel')) return true;
+
+        return false;
+    }
 
 	private onChannelNameChanged(): void {
 		let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
@@ -108,7 +142,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		}
 	}
 
-	private onChannelDelete(): void {
+	private onChannelDeleted(): void {
 		if (!this.channel.deletable) {
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
@@ -138,15 +172,57 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		}
 	}*/
 
+	private onParentSelected(value: string): void {
+		if (!this.channel.manageable) {
+			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
+		} else {
+			if (value === 'NONE') {
+				let oldParent = this.channel.parent;
+				this.props.loader.load(this.channel.setParent(null))
+					.then((c: VoiceChannel) => {
+						this.props.logger.success(`Changed selected channel's category`);
+						let report: string = `Moved ${this.props.reporter.formatChannel(c)} out of ${this.props.reporter.formatChannel(oldParent)}`;
+						this.props.reporter.reportGuildAction(report, c.guild);
+					})
+					.catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
+			} else {
+				let parent: GuildChannel = this.channel.guild.channels.find((c: GuildChannel) => c.id === value);
+				if (!parent) return;
+
+				this.props.loader.load(this.channel.setParent(parent))
+					.then((c: VoiceChannel) => {
+						this.props.logger.success(`Changed selected channel's category`);
+						this.props.reporter.reportGuildAction(`Moved ${this.props.reporter.formatChannel(c)} to ${this.props.reporter.formatChannel(parent)}`, c.guild);
+					})
+					.catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
+			}
+		}
+	}
+
 	private onInitialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
 		let userLimitInput: HTMLInputElement = document.getElementById('channel-user-limit') as HTMLInputElement;
 		let bitrateInput: HTMLInputElement = document.getElementById('channel-bitrate') as HTMLInputElement;
-		if (!nameInput || !userLimitInput || !bitrateInput) return;
+		let chanContainer: HTMLElement = document.getElementById('container-channel-parent');
+		if (!nameInput || !userLimitInput || !bitrateInput || !chanContainer) return;
 
 		nameInput.value = this.channel.name;
 		userLimitInput.value = this.channel.userLimit > 0 ? `${this.channel.userLimit} max. users` : '';
 		bitrateInput.value = this.channel.bitrate ? `${this.channel.bitrate}kbps` : ''; // should never happen
+
+        let chans: Collection<string, GuildChannel> = this.channel.guild.channels.filter((c: GuildChannel) => c.type === 'category');
+        let categories: Array<JSX.Element> = [];
+        categories.push(<option key={`${this.channel.id}_NONE`} value='NONE'>no category</option>);
+        if (chans.size > 0) {
+            for(let item of chans) {
+                let c: GuildChannel = item[1];
+                categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+            }
+        }
+
+		ReactDOM.render(<Select id='channel-parent' onSelected={this.onParentSelected.bind(this)} defaultValue={this.channel.parent ? this.channel.parentID : 'NONE'}>
+			{categories}
+		</Select>, chanContainer);
 	}
 
 	componentDidMount(): void {
@@ -160,10 +236,10 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	render(): JSX.Element {
-		return <div>
+		return <div id='voice-channel'>
 			<div className='row' style={{ padding: '5px' }}>
 				<div className='col-md-12'>
-
+					<div id='container-channel-parent' />
 				</div>
 			</div>
 			<div className='row' style={{ padding: '5px' }}>
@@ -178,7 +254,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 					<button className='purple-btn large-btn'>Permissions</button>
 				</div>
 				<div className='col-md-3'>
-					<button className='red-btn large-btn' onClick={this.onChannelDelete.bind(this)}>Delete</button>
+					<button className='red-btn large-btn' onClick={this.onChannelDeleted.bind(this)}>Delete</button>
 				</div>
 			</div>
 			{/*

@@ -6,6 +6,8 @@ import { User } from 'discord.js';
 
 export class ActionReporter {
 	public formatChannel(chan: GuildChannel): string {
+		if (!chan) return '';
+
 		if (chan.type === 'category') {
 			return `category \`${chan.name}\` (**${chan.id}**)`;
 		} else {
