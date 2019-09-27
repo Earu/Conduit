@@ -1,4 +1,4 @@
-import * as Discord from 'discord.js';
+import { User } from 'discord.js';
 import { Avatar, AvatarProps } from './avatar';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
 
@@ -31,7 +31,7 @@ export class BotAvatar extends Avatar<AvatarProps> {
         this.updateAvatar();
     }
 
-    private onUserUpdate(_: Discord.User, newUser: Discord.User): void {
+    private onUserUpdate(_: User, newUser: User): void {
         if (this.props.client.user.id === newUser.id) {
             this.updateAvatar();
         }

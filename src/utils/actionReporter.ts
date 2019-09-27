@@ -1,8 +1,4 @@
-import { GuildChannel } from 'discord.js';
-import { RichEmbed } from 'discord.js';
-import { Guild } from 'discord.js';
-import { DMChannel } from 'discord.js';
-import { User } from 'discord.js';
+import { GuildChannel, RichEmbed, Guild, DMChannel, User } from 'discord.js';
 
 export class ActionReporter {
 	public formatChannel(chan: GuildChannel): string {
