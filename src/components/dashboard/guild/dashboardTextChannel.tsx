@@ -17,6 +17,8 @@ declare module 'discord.js' {
 }
 
 export class DashboardTextChannel extends React.Component<ConduitChannelProps<TextChannel>, {}> {
+    private static registeredEvents: boolean = false;
+
     private onChannelDeletion: ConduitEvent<void>;
     private httpClient: HttpClient;
     private channel: TextChannel;
@@ -31,10 +33,13 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             this.onChannelDeletion.on(props.onDeletion);
         }
 
-        props.client
-            .on('channelCreate', this.onChannelCreate.bind(this))
-            .on('channelDelete', this.onChannelDelete.bind(this))
-            .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+        if (!DashboardTextChannel.registeredEvents) {
+            props.client
+                .on('channelCreate', this.onChannelCreate.bind(this))
+                .on('channelDelete', this.onChannelDelete.bind(this))
+                .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+            DashboardTextChannel.registeredEvents = true;
+        }
     }
 
     private onChannelCreate(c: Channel): void {
@@ -255,7 +260,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         let categories: Array<JSX.Element> = [];
         categories.push(<option key={`${this.channel.id}_NONE`} value='NONE'>no category</option>);
         if (chans.size > 0) {
-            for(let item of chans) {
+            for (let item of chans) {
                 let c: GuildChannel = item[1];
                 categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
             }

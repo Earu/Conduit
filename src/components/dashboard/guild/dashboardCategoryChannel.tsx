@@ -7,6 +7,8 @@ import { ConduitEvent } from '../../../utils/conduitEvent';
 import { Select } from '../../controls/select';
 
 export class DashboardCategoryChannel extends React.Component<ConduitChannelProps<CategoryChannel>, {}> {
+	private static registeredEvents: boolean = false;
+
 	private onChannelDeletion: ConduitEvent<void>;
 	private childrenChannels: Collection<string, GuildChannel>;
 	private nonChildrenChannels: Collection<string, GuildChannel>;
@@ -25,20 +27,23 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			this.onChannelDeletion.on(props.onDeletion);
 		}
 
-		props.client
-			.on('channelDelete', (c: Channel) => this.onChannelX(c, () => {
-				if (c.id === this.category.id) {
-					this.onChannelDeletion.trigger();
-				}
-			}))
-			.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
-				if (c.id === this.category.id) {
-					this.category = c as CategoryChannel;
-					this.onInitialize();
-				}
-				this.updateChannels();
-			}))
-			.on('channelCreate', (c: Channel) => this.onChannelX(c, this.updateChannels.bind(this)));
+		if (!DashboardCategoryChannel.registeredEvents) {
+			props.client
+				.on('channelDelete', (c: Channel) => this.onChannelX(c, () => {
+					if (c.id === this.category.id) {
+						this.onChannelDeletion.trigger();
+					}
+				}))
+				.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
+					if (c.id === this.category.id) {
+						this.category = c as CategoryChannel;
+						this.onInitialize();
+					}
+					this.updateChannels();
+				}))
+				.on('channelCreate', (c: Channel) => this.onChannelX(c, this.updateChannels.bind(this)));
+			DashboardCategoryChannel.registeredEvents = true;
+		}
 	}
 
 	private onChannelX(c: Channel, callback: () => void) {
