@@ -29,29 +29,41 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 		if (!DashboardCategoryChannel.registeredEvents) {
 			props.client
-				.on('channelDelete', (c: Channel) => this.onChannelX(c, () => {
-					if (c.id === this.category.id) {
-						this.onChannelDeletion.trigger();
-					}
-				}))
-				.on('channelUpdate', (_, c: Channel) => this.onChannelX(c, () => {
-					if (c.id === this.category.id) {
-						this.category = c as CategoryChannel;
-						this.onInitialize();
-					}
-					this.updateChannels();
-				}))
-				.on('channelCreate', (c: Channel) => this.onChannelX(c, this.updateChannels.bind(this)));
+				.on('channelDelete', this.onChannelDelete.bind(this))
+				.on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c))
+				.on('channelCreate', this.onChannelCreate.bind(this));
 			DashboardCategoryChannel.registeredEvents = true;
 		}
 	}
 
-	private onChannelX(c: Channel, callback: () => void) {
-		if (c.type === 'dm' || c.type === 'group') return;
-		let guildChan: GuildChannel = c as GuildChannel;
-		if (guildChan.guild.id === this.category.guild.id) {
-			callback();
+	private onChannelDelete(c: Channel): void {
+		if (this.isValidChannel(c)) {
+			if (c.id === this.category.id) {
+				this.onChannelDeletion.trigger();
+			}
 		}
+	}
+
+	private onChannelUpdate(c: Channel): void {
+		if (this.isValidChannel(c)) {
+			if (c.id === this.category.id) {
+				this.category = c as CategoryChannel;
+				this.onInitialize();
+			}
+			this.updateChannels();
+		}
+	}
+
+	private onChannelCreate(c: Channel): void {
+		if (this.isValidChannel(c)) {
+			this.updateChannels();
+		}
+	}
+
+	private isValidChannel(c: Channel) {
+		if (c.type === 'dm' || c.type === 'group') return false;
+		let guildChan: GuildChannel = c as GuildChannel;
+		return guildChan.guild.id === this.category.guild.id;
 	}
 
 	private updateChannels() {
@@ -143,7 +155,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		}
 	}
 
-	private onChannelDelete(): void {
+	private onChannelDeleted(): void {
 		if (!this.category.deletable) {
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
@@ -156,7 +168,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		}
 	}
 
-	private onChannelChildrenDelete(): void {
+	private onChannelChildrenDeleted(): void {
 		this.props.loader.load(this.deleteChildren())
 			.then(() => {
 				this.props.loader.load(this.category.delete())
@@ -240,8 +252,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 					<button className='purple-btn large-btn'>Permissions</button>
 				</div>
 				<div className='col-md-3'>
-					<button style={{ marginBottom: '5px' }} className='red-btn small-btn' onClick={this.onChannelDelete.bind(this)}>Delete Category</button>
-					<button className='red-btn small-btn' onClick={this.onChannelChildrenDelete.bind(this)}>Delete All</button>
+					<button style={{ marginBottom: '5px' }} className='red-btn small-btn' onClick={this.onChannelDeleted.bind(this)}>Delete Category</button>
+					<button className='red-btn small-btn' onClick={this.onChannelChildrenDeleted.bind(this)}>Delete All</button>
 				</div>
 			</div>
 			<div className='row' style={{ padding: '5px' }}>
