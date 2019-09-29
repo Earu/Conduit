@@ -1,19 +1,50 @@
-export class SelectHelper {
-    private static tryGetSelect(selectId: string): { success: boolean; select: HTMLSelectElement }  {
-        let select: HTMLSelectElement = document.getElementById(selectId) as HTMLSelectElement;
-        if (!select) return { success: false, select: null };
+class SelectResult<T extends HTMLElement> {
+    public success: boolean;
+    public element: T;
 
-        return { success: true, select: select };
+    constructor (element: T) {
+        this.element = element;
+        this.success = element ? true : false;
     }
 
-    private static tryGetOption(select: HTMLSelectElement, value: string): { success: boolean; option: HTMLOptionElement } {
-        for (let opt of select.options) {
-            if (opt.value === value) {
-                return { success: true, option: opt };
-            }
-        }
+    public toNode(): T {
+        return this.element;
+    }
+}
 
-        return { success: false, option: null };
+export class SelectHelper {
+    private static tryGetSelect(selectId: string): SelectResult<HTMLSelectElement> {
+        let select: HTMLSelectElement = document.getElementById(selectId) as HTMLSelectElement;
+        return new SelectResult(select);
+    }
+
+    private static tryGetOption(select: HTMLSelectElement, value: string): SelectResult<HTMLOptionElement> {
+        try {
+            for (let opt of select.options) {
+                if (opt.value === value) {
+                    return new SelectResult(opt);
+                }
+            }
+
+            return new SelectResult(null);
+        } catch {
+            return new SelectResult(null);
+        }
+    }
+
+    private static tryGetItem(select: HTMLSelectElement, opt: HTMLOptionElement): SelectResult<HTMLDivElement> {
+        try {
+            let items: HTMLDivElement = select.nextSibling.nextSibling as HTMLDivElement;
+            for (let child of items.children) {
+                if (child.textContent === opt.textContent) {
+                    return new SelectResult(child as HTMLDivElement);
+                }
+            }
+
+            return new SelectResult(null);
+        } catch {
+            return new SelectResult(null);
+        }
     }
 
     private static addHandler(select: HTMLSelectElement, opt: HTMLOptionElement, div: HTMLDivElement, onSelected: (value: string) => void) {
@@ -41,18 +72,20 @@ export class SelectHelper {
     }
 
     public static trySetValue(selectId: string, value: string): boolean {
-        let { success, select } = SelectHelper.tryGetSelect(selectId);
-        if (!success) return false;
+        let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
+        if (!resSelect.success) return false;
 
+        let select: HTMLSelectElement = resSelect.toNode();
         select.value = value;
         select.nextSibling.textContent = select.options[select.selectedIndex].textContent;
         return true;
     }
 
     public static trySetOptions(selectId: string, opts: Array<HTMLOptionElement>, onSelected: (value: string) => void): boolean {
-        let { success, select } = SelectHelper.tryGetSelect(selectId);
-        if (!success) return false;
+        let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
+        if (!resSelect.success) return false;
 
+        let select: HTMLSelectElement = resSelect.toNode();
         while (select.firstChild) {
             select.removeChild(select.firstChild);
         }
@@ -78,9 +111,10 @@ export class SelectHelper {
     }
 
     public static tryAddValue(selectId: string, value: string, text: string, onSelected: (value: string) => void): boolean {
-        let { success, select } = SelectHelper.tryGetSelect(selectId);
-        if (!success) return false;
+        let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
+        if (!resSelect.success) return false;
 
+        let select: HTMLSelectElement = resSelect.toNode();
         let opt: HTMLOptionElement = document.createElement('option');
         opt.value = value;
         opt.textContent = text;
@@ -95,26 +129,21 @@ export class SelectHelper {
     }
 
     public static tryRemoveValue(selectId: string, value: string): boolean {
-        let obj: any = SelectHelper.tryGetSelect(selectId);
-        if (!obj.success) return false;
-        let select: HTMLSelectElement = obj.select;
-        obj = SelectHelper.tryGetOption(select, value);
-        if (!obj.success) return false;
-        let opt: HTMLOptionElement = obj.option;
+        let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
+        if (!resSelect.success) return false;
+        let resOpt: SelectResult<HTMLOptionElement> = SelectHelper.tryGetOption(resSelect.element, value);
+        if (!resOpt.success) return false;
+        let resItem: SelectResult<HTMLDivElement> = SelectHelper.tryGetItem(resSelect.element, resOpt.element);
+        if (!resItem.success) return false;
+
+        let select: HTMLSelectElement = resSelect.toNode();
+        let opt: HTMLOptionElement = resOpt.toNode();
+
+        let items: ChildNode = select.nextSibling.nextSibling;
+        let item: HTMLDivElement = resItem.toNode();
 
         select.removeChild(opt);
-
-        let items: HTMLDivElement = select.nextSibling.nextSibling as HTMLDivElement;
-        let foundItem: HTMLDivElement = null;
-        for (let child of items.children) {
-            if (child.textContent === opt.textContent) {
-                foundItem = child as HTMLDivElement;
-                break;
-            }
-        }
-
-        if (!foundItem) return false;
-        items.removeChild(foundItem);
+        items.removeChild(item);
 
         // in case we're removing the selected element
         if (opt.textContent === select.nextSibling.textContent) {
@@ -133,28 +162,22 @@ export class SelectHelper {
     }
 
     public static tryChangeOptionText(selectId: string, value: string, newText: string): boolean {
-        let obj: any = SelectHelper.tryGetSelect(selectId);
-        if (!obj.success) return false;
-        let select: HTMLSelectElement = obj.select;
-        obj = SelectHelper.tryGetOption(select, value);
-        if (!obj.success) return false;
-        let opt: HTMLOptionElement = obj.option;
+        let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
+        if (!resSelect.success) return false;
+        let resOpt: SelectResult<HTMLOptionElement> = SelectHelper.tryGetOption(resSelect.element, value);
+        if (!resOpt.success) return false;
+        let resItem: SelectResult<HTMLDivElement> = SelectHelper.tryGetItem(resSelect.element, resOpt.element);
+        if (!resItem.success) return false;
 
-        let items: HTMLDivElement = select.nextSibling.nextSibling as HTMLDivElement;
-        let foundItem: HTMLDivElement = null;
-        for (let child of items.children) {
-            if (child.textContent === opt.textContent) {
-                foundItem = child as HTMLDivElement;
-                break;
-            }
-        }
+        let select: HTMLSelectElement = resSelect.toNode();
+        let opt: HTMLOptionElement = resOpt.toNode();
+        let item: HTMLDivElement = resItem.toNode();
 
-        if (!foundItem) return false;
         if (select.nextSibling.textContent === opt.textContent) {
             select.nextSibling.textContent = newText;
         }
 
-        foundItem.textContent = newText
+        item.textContent = newText
         opt.textContent = newText;
     }
 }
