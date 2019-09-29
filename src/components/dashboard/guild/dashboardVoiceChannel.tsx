@@ -33,11 +33,9 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private onChannelCreate(c: Channel): void {
-		if (this.isValidChannel(c)) {
-			if (this.isVisible() && c.type === 'category') {
-				let cat: CategoryChannel = c as CategoryChannel;
-				SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
-			}
+		if (this.isValidChannel(c) && c.type === 'category') {
+			let cat: CategoryChannel = c as CategoryChannel;
+			SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
 		}
 	}
 
@@ -45,7 +43,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		if (this.isValidChannel(c)) {
 			if (c.id === this.channel.id) {
 				this.onChannelDeletion.trigger();
-			} else if (this.isVisible() && c.type === 'category') {
+			} else if (c.type === 'category') {
 				SelectHelper.tryRemoveValue('channel-parent', c.id);
 			}
 		}
@@ -56,7 +54,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 			if (c.id === this.channel.id) {
 				this.channel = c as VoiceChannel;
 				this.onInitialize();
-			} else if (this.isVisible() && c.type === 'category') {
+			} else if (c.type === 'category') {
 				let cat: CategoryChannel = c as CategoryChannel;
 				SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`);
 			}
@@ -64,6 +62,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private isValidChannel(c: Channel): boolean {
+		if (!this.isVisible()) return false;
 		if (c.type === 'dm' || c.type === 'group') return false;
 		let guildChan: GuildChannel = c as GuildChannel;
 		return guildChan.guild.id === this.channel.guild.id;

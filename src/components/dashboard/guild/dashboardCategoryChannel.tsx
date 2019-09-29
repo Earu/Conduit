@@ -37,10 +37,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private onChannelDelete(c: Channel): void {
-		if (this.isValidChannel(c)) {
-			if (c.id === this.category.id) {
-				this.onChannelDeletion.trigger();
-			}
+		if (this.isValidChannel(c) && c.id === this.category.id) {
+			this.onChannelDeletion.trigger();
 		}
 	}
 
@@ -61,9 +59,16 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private isValidChannel(c: Channel) {
+		if (!this.isVisible()) return false;
 		if (c.type === 'dm' || c.type === 'group') return false;
 		let guildChan: GuildChannel = c as GuildChannel;
 		return guildChan.guild.id === this.category.guild.id;
+	}
+
+	private isVisible() {
+		if (document.getElementById('category-channel')) return true;
+
+		return false;
 	}
 
 	private updateChannels() {
@@ -93,7 +98,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			ReactDOM.render(<div />, containerAdd);
 		}
 
-		if (chanToRemove && containerRemove) {
+		if (chanToRemove) {
 			this.chanIdToRemove = chanToRemove.id;
 			let opts: Array<JSX.Element> = this.childrenChannels.map((c: GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
@@ -114,7 +119,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			return this.category.children;
 		} else {
 			return this.category.guild.channels
-				.filter((c: GuildChannel) => c.type != 'category' && (!c.parent || c.parent.id != this.category.id));
+				.filter((c: GuildChannel) => !(c.type === 'category') && !(c.parentID === this.category.id));
 		}
 	}
 
@@ -242,7 +247,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	render(): JSX.Element {
-		return <div>
+		return <div id='category-channel'>
 			<div className='row' style={{ padding: '5px' }}>
 				<div className='col-md-3'>
 					<Input id='channel-name' onValidated={this.onChannelNameChanged.bind(this)} placeholder='name...' />
