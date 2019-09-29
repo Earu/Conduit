@@ -115,10 +115,14 @@ export class Select extends React.Component<SelectProps, {}> {
     }
 
     render(): JSX.Element {
-        return <div className='conduit-select' id={`parent-${this.props.id}`}>
-            <select id={this.props.id} defaultValue={this.props.defaultValue}>
-                {this.props.children}
-            </select>
-        </div>
+        if (this.props.children) {
+            return <div className='conduit-select' id={`parent-${this.props.id}`}>
+                <select id={this.props.id} defaultValue={this.props.defaultValue}>
+                    {this.props.children}
+                </select>
+            </div>
+        } else {
+            return <div/>
+        }
     }
 }
