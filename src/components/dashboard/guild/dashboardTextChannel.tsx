@@ -253,7 +253,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
 
         nameInput.value = this.channel.name;
         topicInput.value = this.channel.topic ? this.channel.topic : '';
-        rtInput.value = this.channel.rateLimitPerUser > 0 ? `${this.channel.rateLimitPerUser}s` : ''
+        rtInput.value = this.channel.rateLimitPerUser > 0 ? `${this.channel.rateLimitPerUser}s` : '';
 
         let chans: Collection<string, GuildChannel> = this.channel.guild.channels.filter((c: GuildChannel) => c.type === 'category');
         let categories: Array<JSX.Element> = [];
