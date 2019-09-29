@@ -190,14 +190,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         if (updateChannels) {
             if (this.selectedGuild.channels.size > 0) {
                 let chanId: string = this.selectedGuild.channels.first().id;
+                let opts: Array<JSX.Element> = this.selectedGuild.channels
+                    .map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
-                if (guildChannelContainer.children.length <= 1) { // only update if there only hr or nothing left
-                    let opts: Array<JSX.Element> = this.selectedGuild.channels
-                        .map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
-
-                    ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
-                        onSelected={this.loadChannel.bind(this)}>{opts}</Select>, guildChannelContainer);
-                }
+                ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
+                    onSelected={this.loadChannel.bind(this)}>{opts}</Select>, guildChannelContainer);
 
                 this.loadChannel(chanId);
             } else {
