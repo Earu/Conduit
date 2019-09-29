@@ -54,7 +54,7 @@ export class Select extends React.Component<SelectProps, {}> {
         let b: HTMLDivElement = document.createElement('div');
         b.setAttribute('class', 'select-items select-hide');
 
-        for (let i: number = 0; i < select.length; i++) {
+        for (let i: number = 0; i < select.options.length; i++) {
             let opt: HTMLOptionElement = select.options[i];
             let optRow: HTMLDivElement = document.createElement('div');
             optRow.textContent = opt.textContent;
@@ -115,14 +115,10 @@ export class Select extends React.Component<SelectProps, {}> {
     }
 
     render(): JSX.Element {
-        if (this.props.children) {
-            return <div className='conduit-select' id={`parent-${this.props.id}`}>
-                <select id={this.props.id} defaultValue={this.props.defaultValue}>
-                    {this.props.children}
-                </select>
-            </div>
-        } else {
-            return <div/>
-        }
+        return <div className='conduit-select' id={`parent-${this.props.id}`}>
+            <select id={this.props.id} defaultValue={this.props.defaultValue}>
+                {this.props.children}
+            </select>
+        </div>
     }
 }
