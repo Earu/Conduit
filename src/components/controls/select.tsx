@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { SelectHelper } from '../../utils/selectHelper';
 
 export interface SelectProps {
     id: string;
@@ -87,6 +88,10 @@ export class Select extends React.Component<SelectProps, {}> {
             this.closeSelect(a, document.getElementsByClassName('select-items'), document.getElementsByClassName('select-selected'));
             (a.nextSibling as HTMLElement).classList.toggle('select-hide');
         });
+
+        if (this.props.defaultValue) {
+            SelectHelper.trySetValue(this.props.id, this.props.defaultValue);
+        }
     }
 
     componentDidMount(): void {
@@ -111,8 +116,7 @@ export class Select extends React.Component<SelectProps, {}> {
 
     render(): JSX.Element {
         return <div className='conduit-select' id={`parent-${this.props.id}`}>
-            <select id={this.props.id}
-                defaultValue={this.props.defaultValue}>
+            <select id={this.props.id} defaultValue={this.props.defaultValue}>
                 {this.props.children}
             </select>
         </div>
