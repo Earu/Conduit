@@ -113,6 +113,10 @@ export class SelectHelper {
     public static tryAddValue(selectId: string, value: string, text: string, onSelected: (value: string) => void): boolean {
         let resSelect: SelectResult<HTMLSelectElement> = SelectHelper.tryGetSelect(selectId);
         if (!resSelect.success) return false;
+        let resOpt: SelectResult<HTMLOptionElement> = SelectHelper.tryGetOption(resSelect.element, value);
+        if (resOpt.success) { // in case value already exists
+            return SelectHelper.tryChangeOptionText(selectId, value, text);
+        }
 
         let select: HTMLSelectElement = resSelect.toNode();
         let opt: HTMLOptionElement = document.createElement('option');
