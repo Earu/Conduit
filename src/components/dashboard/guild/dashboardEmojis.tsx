@@ -59,7 +59,6 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 		}
 	}
 
-
 	private isCurrentEmojiValid(): boolean {
 		if (!this.selectedEmoji) return false;
 		if (this.selectedEmoji.deleted) return false;
