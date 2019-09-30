@@ -36,6 +36,11 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		img.id = emoji.id;
 		img.onclick = _ => {
 			if (!this.props.hideSelected){
+				let oldImg: HTMLImageElement = this.findEmojiImage(this.selectedEmoji.id);
+				if (oldImg) {
+					oldImg.style.border = 'none';
+				}
+
 				img.style.border = '3px solid #677bc4';
 			}
 

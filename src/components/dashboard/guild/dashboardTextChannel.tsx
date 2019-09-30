@@ -78,6 +78,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelNameChanged(): void {
+        if (!this.isCurrentChannelValid()) return;
+
         let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         if (input.value) {
             if (!this.channel.manageable) {
@@ -98,6 +100,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelTopicChanged(): void {
+        if (!this.isCurrentChannelValid()) return;
+
         let input: HTMLInputElement = document.getElementById('channel-topic') as HTMLInputElement;
         if (input.value) {
             if (!this.channel.manageable) {
@@ -115,6 +119,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelRateLimitChanged(): void {
+        if (!this.isCurrentChannelValid()) return;
+
         let input: HTMLInputElement = document.getElementById('channel-rate-limit') as HTMLInputElement;
         if (input.value) {
             if (!this.channel.manageable) {
@@ -141,6 +147,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelMessageSent(): void {
+        if (!this.isCurrentChannelValid()) return;
+
         let input: HTMLInputElement = document.getElementById('channel-message') as HTMLInputElement;
         let fileInput: HTMLInputElement = document.getElementById('channel-file') as HTMLInputElement;
         let file: File = fileInput.files[0];
@@ -180,6 +188,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelNsfwChanged(state: boolean): void {
+        if (!this.isCurrentChannelValid()) return;
+
         let input: HTMLInputElement = document.getElementById('channel-nsfw') as HTMLInputElement;
         if (!this.channel.manageable) {
             this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
@@ -198,6 +208,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onChannelDeleted(): void {
+        if (!this.isCurrentChannelValid()) return;
+
         if (!this.channel.deletable) {
             this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
         } else {
@@ -211,6 +223,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
     }
 
     private onParentSelected(value: string): void {
+        if (!this.isCurrentChannelValid()) return;
+
         if (!this.channel.manageable) {
             this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
         } else {
@@ -235,6 +249,13 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                     .catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
             }
         }
+    }
+
+    private isCurrentChannelValid(): boolean {
+        if (!this.channel) return false;
+        if (this.channel.deleted) return false;
+
+        return true;
     }
 
     private onInitialize(): void {

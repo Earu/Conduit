@@ -75,6 +75,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private onChannelNameChanged(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
 		if (input.value) {
 			if (!this.channel.manageable) {
@@ -95,6 +97,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private onChannelUserLimitChanged(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		let input: HTMLInputElement = document.getElementById('channel-user-limit') as HTMLInputElement;
 		if (input.value) {
 			if (!this.channel.manageable) {
@@ -123,6 +127,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private onChannelBitrateChanged(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		let input: HTMLInputElement = document.getElementById('channel-bitrate') as HTMLInputElement;
 		if (input.value) {
 			if (!this.channel.manageable) {
@@ -148,6 +154,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}
 
 	private onChannelDeleted(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		if (!this.channel.deletable) {
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
@@ -178,6 +186,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 	}*/
 
 	private onParentSelected(value: string): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		if (!this.channel.manageable) {
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
@@ -203,6 +213,13 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 			}
 		}
 	}
+
+	private isCurrentChannelValid(): boolean {
+        if (!this.channel) return false;
+        if (this.channel.deleted) return false;
+
+        return true;
+    }
 
 	private onInitialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
