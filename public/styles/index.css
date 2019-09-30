@@ -426,6 +426,15 @@ hr {
     width: 400px;
 }
 
+.emoji-selector>img {
+    display: inline-block;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    overflow: hidden;
+    height: 32px;
+    width: 32px;
+}
+
 @media only screen and (max-width: 990px) {
     .container {
         width: 100% !important;
@@ -435,7 +444,7 @@ hr {
         display: none;
     }
 
-    #dashboard>.row{
+    #dashboard>.row {
         padding-bottom: 15px !important;
     }
 

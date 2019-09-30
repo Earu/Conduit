@@ -1,0 +1,86 @@
+import * as React from 'react';
+import { ConduitProps } from "../../../utils/conduitProps";
+import { EmojiSelector } from '../../controls/emojiSelector';
+import { Guild, Emoji } from 'discord.js';
+import { Input } from '../../controls/input';
+import { ActionReporter } from '../../../utils/actionReporter';
+
+export interface DashboardEmojisProps extends ConduitProps {
+	guild: Guild;
+	reporter: ActionReporter;
+}
+
+export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
+	private selectedEmoji: Emoji;
+
+	private onEmojiChange(emoji: Emoji): void {
+		if (!emoji) return;
+
+		this.selectedEmoji = emoji;
+		let input: HTMLInputElement = document.getElementById('emoji-name') as HTMLInputElement;
+		input.value = emoji.name;
+	}
+
+	private onEmojiNameChange(): void {
+		if (!this.isValidEmoji()) return;
+
+		let input: HTMLInputElement = document.getElementById('emoji-name') as HTMLInputElement;
+		if (input.value) {
+			if (this.selectedEmoji.deletable) {
+				let oldName: string = this.selectedEmoji.name;
+				this.props.loader.load(this.selectedEmoji.setName(input.value))
+					.then((e: Emoji) => {
+						input.value = e.name;
+						this.props.logger.success('Successfully changed the name of the selected emoji');
+						this.props.reporter.reportGuildAction(`Changed emoji \`${e.name}\` (**${e.id}**)'s name [ \`${oldName}\` -> \`${e.name}]\``, this.props.guild);
+					});
+			} else {
+				this.props.logger.error('You do not have the \'MANAGE_EMOJIS\' permission in the selected guild');
+				input.value = this.selectedEmoji.name;
+			}
+		} else {
+			input.value = this.selectedEmoji.name;
+		}
+	}
+
+	private onEmojiDelete(): void {
+		if (!this.isValidEmoji()) return;
+
+		if (this.selectedEmoji.deletable) {
+			this.props.loader.load(this.props.guild.deleteEmoji(this.selectedEmoji))
+				.then(_ => {
+					this.props.logger.success('Successfully deleted the selected emoji');
+					this.props.reporter.reportGuildAction(`Deleted emoji \`${this.selectedEmoji.name}\` (**${this.selectedEmoji.id}**)`, this.props.guild);
+				});
+		} else {
+			this.props.logger.error('You do not have the \'MANAGE_EMOJIS\' permission in the selected guild');
+		}
+	}
+
+
+	private isValidEmoji() {
+		if (!this.selectedEmoji) return false;
+
+		return this.selectedEmoji.guild.id === this.props.guild.id;
+	}
+
+	render(): JSX.Element {
+		return <div>
+			<div className='row'>
+				<div className='col-md-12'>
+					<EmojiSelector id='guild-emojis' guild={this.props.guild} onEmojiSelectedUpdate={this.onEmojiChange.bind(this)}
+						onSelected={this.onEmojiChange.bind(this)} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
+					<hr style={{ marginBottom: '5px' }} />
+				</div>
+			</div>
+			<div className='row'>
+				<div className='col-md-6'>
+					<Input id='emoji-name' onValidated={this.onEmojiNameChange.bind(this)} placeholder='name...' />
+				</div>
+				<div className='col-md-6'>
+					<button className='red-btn small-btn' onClick={this.onEmojiDelete.bind(this)}>Delete</button>
+				</div>
+			</div>
+		</div>;
+	}
+}

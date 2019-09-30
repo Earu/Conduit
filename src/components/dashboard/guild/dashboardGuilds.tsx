@@ -11,7 +11,8 @@ import { DashboardPanel } from '../dashboardPanel';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { SelectHelper } from '../../../utils/selectHelper';
-import { DashboardEmojiSelector } from './dashboardEmojiSelector';
+import { EmojiSelector } from '../../controls/emojiSelector';
+import { DashboardEmojis } from './dashboardEmojis';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -172,7 +173,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
         let guildChannel: HTMLElement = document.getElementById('channel');
         let guildChannelContainer: HTMLElement = document.getElementById('container-guild-channel');
-        if (!guildAvatar || !guildName || !guildChannel || !guildChannelContainer) return;
+        let guildEmojisContainer: HTMLElement = document.getElementById('container-guild-emojis');
+        if (!guildAvatar || !guildName || !guildChannel || !guildChannelContainer || !guildEmojisContainer) return;
 
         if (!this.selectedGuild) {
             guildName.value = '';
@@ -187,9 +189,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
-
-        ReactDOM.render(<DashboardEmojiSelector id='guild-emojis' guild={this.selectedGuild} onSelected={console.log}
-            client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, document.getElementById('container-guild-emojis'))
 
         if (updateChannels) {
             let chans: Collection<string, GuildChannel> = this.selectedGuild.channels.filter((c: GuildChannel) => !c.deleted);
@@ -206,6 +205,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 ReactDOM.render(<div />, guildChannelContainer);
             }
         }
+
+        ReactDOM.render(<DashboardEmojis guild={this.selectedGuild} client={this.props.client}
+            logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildEmojisContainer)
     }
 
     private onGuildSelected(): void {
@@ -369,13 +371,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 <div id='channel' style={{ padding: '5px', paddingBottom: '0px' }} />
             </DashboardPanel>
             <DashboardPanel title='EMOJIS' foldable={true} style={{ marginTop: '0px' }}>
-                <div style={{ padding: '10px', paddingBottom: '0px' }}>
-                    <div className='row'>
-                        <div className='col-md-12'>
-                            <div id='container-guild-emojis' />
-                            <hr style={{ marginBottom: '0px' }} />
-                        </div>
-                    </div>
+                <div id='container-guild-emojis' style={{ padding: '10px', paddingBottom: '0px' }}>
                 </div>
             </DashboardPanel>
             <DashboardPanel title='ROLES' foldable={true} style={{ marginTop: '0px' }}>
