@@ -18,11 +18,13 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 
 		this.selectedEmoji = emoji;
 		let input: HTMLInputElement = document.getElementById('emoji-name') as HTMLInputElement;
+		if (!input) return;
+
 		input.value = emoji.name;
 	}
 
 	private onEmojiNameChange(): void {
-		if (!this.isValidEmoji()) return;
+		if (!this.isCurrentEmojiValid()) return;
 
 		let input: HTMLInputElement = document.getElementById('emoji-name') as HTMLInputElement;
 		if (input.value) {
@@ -44,7 +46,7 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 	}
 
 	private onEmojiDelete(): void {
-		if (!this.isValidEmoji()) return;
+		if (!this.isCurrentEmojiValid()) return;
 
 		if (this.selectedEmoji.deletable) {
 			this.props.loader.load(this.props.guild.deleteEmoji(this.selectedEmoji))
@@ -58,8 +60,9 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 	}
 
 
-	private isValidEmoji() {
+	private isCurrentEmojiValid() {
 		if (!this.selectedEmoji) return false;
+		if (this.selectedEmoji.deleted) return false;
 
 		return this.selectedEmoji.guild.id === this.props.guild.id;
 	}

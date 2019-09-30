@@ -151,6 +151,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private onChannelNameChanged(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		let input: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
 		if (input.value) {
 			if (!this.category.manageable) {
@@ -171,6 +173,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private onChannelDeleted(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		if (!this.category.deletable) {
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
@@ -184,6 +188,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private onChannelChildrenDeleted(): void {
+		if (!this.isCurrentChannelValid()) return;
+
 		this.props.loader.load(this.deleteChildren())
 			.then(() => {
 				this.props.loader.load(this.category.delete())
@@ -205,6 +211,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 	private onChannelChildrenRemoved(): void {
 		if (!this.chanIdToRemove) return;
+		if (!this.isCurrentChannelValid()) return;
 
 		let chan: GuildChannel = this.category.guild.channels.find((c: GuildChannel) => c.id === this.chanIdToRemove);
 		if (!chan) return;
@@ -223,6 +230,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 	private onChannelNonChildrenAdded(): void {
 		if (!this.chanIdToAdd) return;
+		if (!this.isCurrentChannelValid()) return;
 
 		let chan: GuildChannel = this.category.guild.channels.find((c: GuildChannel) => c.id === this.chanIdToAdd);
 		if (!chan) return;
@@ -238,6 +246,13 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		}
 	}
+
+	private isCurrentChannelValid(): boolean {
+        if (!this.category) return false;
+        if (this.category.deleted) return false;
+
+        return true;
+    }
 
 	private onInitialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
