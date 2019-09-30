@@ -16,6 +16,18 @@ const loader: LoaderHelper = new LoaderHelper(logger);
 
 EventEmitter.defaultMaxListeners = 20;
 
+// forgotten discord.js typings
+declare module 'discord.js' {
+    interface TextChannel {
+        rateLimitPerUser: number;
+        setNSFW(state: boolean, reason?: string): Promise<GuildChannel>;
+    }
+
+    interface Channel {
+        deleted: boolean;
+    }
+}
+
 ReactDOM.render(
     <div>
         <Header/>

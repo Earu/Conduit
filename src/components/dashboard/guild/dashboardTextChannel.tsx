@@ -9,12 +9,6 @@ import { HttpClient, HttpResult } from '../../../utils/httpClient';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
 
-declare module 'discord.js' {
-    interface TextChannel {
-        rateLimitPerUser: number;
-    }
-}
-
 export class DashboardTextChannel extends React.Component<ConduitChannelProps<TextChannel>, {}> {
     private static registeredEvents: boolean = false;
 
@@ -192,7 +186,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             input.checked = this.channel.nsfw;
         } else {
             let oldNsfw: boolean = this.channel.nsfw;
-            this.props.loader.load(this.channel.setNSFW(state, ''))
+            this.props.loader.load(this.channel.setNSFW(state))
                 .then((c: TextChannel) => {
                     this.props.logger.success(`Set selected channel\'s nsfw state to ${state}`);
                     this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
@@ -260,6 +254,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         if (chans.size > 0) {
             for (let item of chans) {
                 let c: GuildChannel = item[1];
+                if (c.deleted) continue;
                 categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
             }
         }

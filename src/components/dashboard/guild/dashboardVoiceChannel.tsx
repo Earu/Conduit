@@ -221,6 +221,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<V
 		if (chans.size > 0) {
 			for (let item of chans) {
 				let c: GuildChannel = item[1];
+				if (c.deleted) continue;
 				categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 			}
 		}

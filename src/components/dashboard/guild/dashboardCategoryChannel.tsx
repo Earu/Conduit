@@ -116,10 +116,10 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 	private getChannels(inCat: boolean): Collection<string, GuildChannel> {
 		if (inCat) {
-			return this.category.children;
+			return this.category.children.filter((c: GuildChannel) => !c.deleted);
 		} else {
 			return this.category.guild.channels
-				.filter((c: GuildChannel) => !(c.type === 'category') && !(c.parentID === this.category.id));
+				.filter((c: GuildChannel) => !c.deleted && c.type !== 'category' && c.parentID !== this.category.id);
 		}
 	}
 
