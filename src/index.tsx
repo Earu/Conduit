@@ -23,7 +23,15 @@ declare module 'discord.js' {
         setNSFW(state: boolean, reason?: string): Promise<GuildChannel>;
     }
 
+    interface Guild {
+        deleted: boolean;
+    }
+
     interface Channel {
+        deleted: boolean;
+    }
+
+    interface Emoji {
         deleted: boolean;
     }
 }

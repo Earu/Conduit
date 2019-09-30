@@ -10,8 +10,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	private static registeredEvents: boolean = false;
 
 	private onChannelDeletion: ConduitEvent<void>;
-	private childrenChannels: Collection<string, GuildChannel>;
-	private nonChildrenChannels: Collection<string, GuildChannel>;
+	private childrenChannels: Array<GuildChannel>;
+	private nonChildrenChannels: Array<GuildChannel>;
 
 	private category: CategoryChannel;
 	private chanIdToRemove: string;
@@ -79,8 +79,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		this.childrenChannels = this.getChannels(true);
 		this.nonChildrenChannels = this.getChannels(false);
 
-		let chanToAdd: GuildChannel = this.nonChildrenChannels.first();
-		let chanToRemove: GuildChannel = this.childrenChannels.first();
+		let chanToAdd: GuildChannel = this.nonChildrenChannels[0];
+		let chanToRemove: GuildChannel = this.childrenChannels[0];
 
 		if (chanToAdd) {
 			this.chanIdToAdd = chanToAdd.id;
@@ -114,23 +114,33 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		}
 	}
 
-	private getChannels(inCat: boolean): Collection<string, GuildChannel> {
-		if (inCat) {
-			return this.category.children.filter((c: GuildChannel) => !c.deleted);
-		} else {
-			return this.category.guild.channels
-				.filter((c: GuildChannel) => !c.deleted && c.type !== 'category' && c.parentID !== this.category.id);
+	private getChannels(inCat: boolean): Array<GuildChannel> {
+		let res: Array<GuildChannel> = [];
+		for (let item of this.category.guild.channels) {
+			let chan: GuildChannel = item[1];
+			if (chan.deleted || chan.type === 'category') continue;
+			if (inCat) { // could be simplified but confusing to read
+				if (chan.parentID === this.category.id) {
+					res.push(chan);
+				}
+			} else {
+				if (chan.parentID !== this.category.id) {
+					res.push(chan);
+				}
+			}
 		}
+
+		return res;
 	}
 
 	private async deleteChildren(): Promise<void> {
 		let action: string = 'Deleted channels:\n';
 		for (let item of this.category.children) {
 			let chan: GuildChannel = item[1];
-			if (!chan.deletable) continue;
+			if (!chan.deletable || chan.deleted) continue;
 
 			try {
-				chan.delete();
+				await chan.delete();
 				action += `- ${this.props.reporter.formatChannel(chan)}\n`;
 			} catch (err) {
 				this.props.logger.error(`Could not delete channel [ ${chan.id} ]`)
@@ -196,7 +206,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	private onChannelChildrenRemoved(): void {
 		if (!this.chanIdToRemove) return;
 
-		let chan: GuildChannel = this.category.children.find((c: GuildChannel) => c.id === this.chanIdToRemove);
+		let chan: GuildChannel = this.category.guild.channels.find((c: GuildChannel) => c.id === this.chanIdToRemove);
 		if (!chan) return;
 
 		if (chan.manageable) {
