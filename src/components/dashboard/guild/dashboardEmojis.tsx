@@ -72,7 +72,7 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 				<div className='col-md-12'>
 					<EmojiSelector id='guild-emojis' guild={this.props.guild} onEmojiSelectedUpdate={this.onEmojiChange.bind(this)}
 						onSelected={this.onEmojiChange.bind(this)} client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
-					<hr style={{ marginBottom: '5px' }} />
+					<hr style={{ marginBottom: '10px' }} />
 				</div>
 			</div>
 			<div className='row'>
