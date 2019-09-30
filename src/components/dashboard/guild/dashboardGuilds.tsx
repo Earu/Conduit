@@ -11,6 +11,7 @@ import { DashboardPanel } from '../dashboardPanel';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { SelectHelper } from '../../../utils/selectHelper';
+import { DashboardEmojiSelector } from './dashboardEmojiSelector';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -187,12 +188,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
 
+        ReactDOM.render(<DashboardEmojiSelector id='guild-emojis' guild={this.selectedGuild} onSelected={console.log}
+            client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, document.getElementById('container-guild-emojis'))
+
         if (updateChannels) {
-            if (this.selectedGuild.channels.size > 0) {
-                let chanId: string = this.selectedGuild.channels.first().id;
-                let opts: Array<JSX.Element> = this.selectedGuild.channels
-                    .filter(c => !c.deleted)
-                    .map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+            let chans: Collection<string, GuildChannel> = this.selectedGuild.channels.filter((c: GuildChannel) => !c.deleted);
+            if (chans.size > 0) {
+                let chanId: string = chans.first().id;
+                let opts: Array<JSX.Element> = chans.map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
                 ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
                     onSelected={this.loadChannel.bind(this)}>{opts}</Select>, guildChannelContainer);
@@ -270,6 +273,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private loadChannel(chanId: string): void {
         let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
         if (!chan) return;
+        if (chan.deleted) return;
 
         let jsx: JSX.Element = <div>UNKNOWN</div>;
         switch (chan.type) {
@@ -365,6 +369,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 <div id='channel' style={{ padding: '5px', paddingBottom: '0px' }} />
             </DashboardPanel>
             <DashboardPanel title='EMOJIS' foldable={true} style={{ marginTop: '0px' }}>
+                <div style={{ padding: '10px', paddingBottom: '0px' }}>
+                    <div className='row'>
+                        <div className='col-md-12'>
+                            <div id='container-guild-emojis' />
+                            <hr style={{ marginBottom: '0px' }} />
+                        </div>
+                    </div>
+                </div>
             </DashboardPanel>
             <DashboardPanel title='ROLES' foldable={true} style={{ marginTop: '0px' }}>
             </DashboardPanel>
