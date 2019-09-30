@@ -13,5 +13,5 @@ export interface ConduitProps {
 export interface ConduitChannelProps<T extends GuildChannel> extends ConduitProps {
     channel: T;
     reporter: ActionReporter;
-    onDeletion?: () => void;
+    onUpdateRequested?: () => void;
 }

@@ -1,18 +1,15 @@
 import { ConduitProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, CategoryChannel, TextChannel, VoiceChannel, Channel } from 'discord.js';
+import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, Channel } from 'discord.js';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
-import { DashboardTextChannel } from './dashboardTextChannel';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
-import { DashboardVoiceChannel } from './dashboardVoiceChannel';
-import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { SelectHelper } from '../../../utils/selectHelper';
-import { EmojiSelector } from '../../controls/emojiSelector';
 import { DashboardEmojis } from './dashboardEmojis';
+import { DashboardChannel } from './dashboardChannel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Guild;
@@ -28,10 +25,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('guildCreate', this.onGuildCreate.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
             .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate(g))
-            .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this))
-            .on('channelCreate', this.onChannelCreate.bind(this))
-            .on('channelDelete', this.onChannelDelete.bind(this))
-            .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+            .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this));
     }
 
     private loadRegionSelect(): void {
@@ -126,32 +120,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onChannelUpdate(chan: Channel): void {
-        this.onChannelX(chan, (guildChan: GuildChannel) => {
-            SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
-        });
-    }
-
-    private onChannelCreate(chan: Channel): void {
-        this.onChannelX(chan, (guildChan: GuildChannel) => {
-            if (this.selectedGuild.channels.size === 1) {
-                this.updateGuildInfo();
-            } else {
-                SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`, this.loadChannel.bind(this));
-            }
-        });
-    }
-
-    private onChannelDelete(chan: Channel): void {
-        this.onChannelX(chan, (guildChan: GuildChannel) => {
-            if (this.selectedGuild.channels.size < 1) {
-                this.updateGuildInfo();
-            } else {
-                SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
-            }
-        });
-    }
-
     private async tryFindGuild(id: string): Promise<Guild> {
         if (!id) return null;
 
@@ -171,15 +139,13 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private updateGuildInfo(updateChannels: boolean = true): void {
         let guildAvatar: HTMLElement = document.getElementById('container-guild-avatar');
         let guildName: HTMLInputElement = document.getElementById('guild-name') as HTMLInputElement;
-        let guildChannel: HTMLElement = document.getElementById('channel');
         let guildChannelContainer: HTMLElement = document.getElementById('container-guild-channel');
         let guildEmojisContainer: HTMLElement = document.getElementById('container-guild-emojis');
-        if (!guildAvatar || !guildName || !guildChannel || !guildChannelContainer || !guildEmojisContainer) return;
+        if (!guildAvatar || !guildName || !guildChannelContainer || !guildEmojisContainer) return;
 
         if (!this.selectedGuild) {
             guildName.value = '';
             ReactDOM.render(<div />, guildAvatar);
-            ReactDOM.render(<div />, guildChannel);
             ReactDOM.render(<div />, guildChannelContainer);
             return;
         }
@@ -191,19 +157,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
 
         if (updateChannels) {
-            let chans: Collection<string, GuildChannel> = this.selectedGuild.channels.filter((c: GuildChannel) => !c.deleted);
-            if (chans.size > 0) {
-                let chanId: string = chans.first().id;
-                let opts: Array<JSX.Element> = chans.map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
-
-                ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
-                    onSelected={this.loadChannel.bind(this)}>{opts}</Select>, guildChannelContainer);
-
-                this.loadChannel(chanId);
-            } else {
-                ReactDOM.render(<div />, guildChannel);
-                ReactDOM.render(<div />, guildChannelContainer);
-            }
+            ReactDOM.render(<DashboardChannel guild={this.selectedGuild} reporter={this.reporter} onUpdateRequested={this.updateGuildInfo.bind(this)}
+                client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildChannelContainer);
         }
 
         ReactDOM.render(<DashboardEmojis guild={this.selectedGuild} client={this.props.client}
@@ -272,38 +227,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private loadChannel(chanId: string): void {
-        let chan: GuildChannel = this.selectedGuild.channels.find((c: GuildChannel) => c.id === chanId);
-        if (!chan) return;
-        if (chan.deleted) return;
-
-        let jsx: JSX.Element = <div>UNKNOWN</div>;
-        switch (chan.type) {
-            case 'category':
-                let catChan: CategoryChannel = chan as CategoryChannel;
-                jsx = <DashboardCategoryChannel reporter={this.reporter} channel={catChan} client={this.props.client}
-                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
-                break;
-            case 'store':
-            case 'news':
-            case 'text':
-                let txtChan: TextChannel = chan as TextChannel;
-                jsx = <DashboardTextChannel reporter={this.reporter} channel={txtChan} client={this.props.client}
-                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
-                break;
-            case 'voice':
-                let voiceChan: VoiceChannel = chan as VoiceChannel;
-                jsx = <DashboardVoiceChannel reporter={this.reporter} channel={voiceChan} client={this.props.client}
-                    logger={this.props.logger} loader={this.props.loader} onDeletion={this.updateGuildInfo.bind(this)} />
-                break;
-            default:
-                // unknown channel type, typically new or unexpected channel types
-                break;
-        }
-
-        ReactDOM.render(jsx, document.getElementById('channel'));
-    }
-
     private onLeaveGuild(): void {
         if (!this.selectedGuild) return;
 
@@ -360,21 +283,13 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 </div>
             </div>
             <DashboardPanel title='CHANNELS' foldable={true} style={{ marginTop: '10px' }}>
-                <div style={{ padding: '10px', paddingBottom: '0px' }}>
-                    <div className='row'>
-                        <div className='col-md-12'>
-                            <div id='container-guild-channel' />
-                            <hr style={{ marginBottom: '0px' }} />
-                        </div>
-                    </div>
-                </div>
-                <div id='channel' style={{ padding: '5px', paddingBottom: '0px' }} />
+                <div id='container-guild-channel' />
             </DashboardPanel>
             <DashboardPanel title='EMOJIS' foldable={true} style={{ marginTop: '0px' }}>
-                <div id='container-guild-emojis' style={{ padding: '10px', paddingBottom: '0px' }}>
-                </div>
+                <div id='container-guild-emojis' style={{ padding: '10px', paddingBottom: '5px' }} />
             </DashboardPanel>
             <DashboardPanel title='ROLES' foldable={true} style={{ marginTop: '0px' }}>
+                <div id='container-guild-roles' style={{ padding: '10px' }} />
             </DashboardPanel>
         </div>;
     }
