@@ -260,8 +260,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         <div id='container-guild-region' />
                     </div>
                     <div className='col-md-3'>
-                        <button style={{ marginBottom: '5px' }} className='purple-btn small-btn'>Permissions</button>
-                        <button className='purple-btn small-btn'>Members</button>
+                        <button style={{ marginBottom: '5px' }} className='purple-btn small-btn'>Members</button>
+                        <button className='purple-btn small-btn'>Bans</button>
                     </div>
                     <div className='col-md-3'>
                         <button className='red-btn small-btn' onClick={this.onLeaveGuild.bind(this)} style={{ marginBottom: '5px' }}>
