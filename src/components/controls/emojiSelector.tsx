@@ -28,8 +28,11 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 	private onEmojiCreate(emoji: Emoji): void {
 		if (!this.isValidEmoji(emoji)) return;
 
+		let img: HTMLImageElement = this.findEmojiImage(emoji.id);
+		if (img) return;
+
 		let selector: HTMLElement = document.getElementById(this.props.id);
-		let img: HTMLImageElement = document.createElement('img');
+		img = document.createElement('img');
 		img.alt = emoji.name;
 		img.src = emoji.url;
 		img.title = emoji.toString();
