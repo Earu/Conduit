@@ -191,6 +191,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             if (this.selectedGuild.channels.size > 0) {
                 let chanId: string = this.selectedGuild.channels.first().id;
                 let opts: Array<JSX.Element> = this.selectedGuild.channels
+                    .filter(c => !c.deleted)
                     .map((c: GuildChannel) => <option key={`${this.selectedGuild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
                 ReactDOM.render(<Select id='guild-channel' defaultValue={chanId}
