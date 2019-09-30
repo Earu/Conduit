@@ -111,15 +111,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onChannelX(chan: Channel, callback: (guildChan: GuildChannel) => void): void {
-        if (!this.selectedGuild) return;
-        if (chan.type === 'dm' || chan.type === 'group') return;
-        let guildChan: GuildChannel = chan as GuildChannel;
-        if (guildChan.guild.id === this.selectedGuild.id) {
-            callback(guildChan);
-        }
-    }
-
     private async tryFindGuild(id: string): Promise<Guild> {
         if (!id) return null;
 
