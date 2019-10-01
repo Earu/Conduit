@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as Discord from 'discord.js';
+
 import { ConduitChannelProps } from '../../../utils/conduitProps';
-import { TextChannel, GuildChannel, Channel, CategoryChannel, Collection } from 'discord.js';
 import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { ConduitEvent } from '../../../utils/conduitEvent';
@@ -9,14 +10,14 @@ import { HttpClient, HttpResult } from '../../../utils/httpClient';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
 
-export class DashboardTextChannel extends React.Component<ConduitChannelProps<TextChannel>, {}> {
+export class DashboardTextChannel extends React.Component<ConduitChannelProps<Discord.TextChannel>, {}> {
     private static registeredEvents: boolean = false;
 
     private onChannelDeletion: ConduitEvent<void>;
     private httpClient: HttpClient;
-    private channel: TextChannel;
+    private channel: Discord.TextChannel;
 
-    constructor(props: ConduitChannelProps<TextChannel>) {
+    constructor(props: ConduitChannelProps<Discord.TextChannel>) {
         super(props);
 
         this.onChannelDeletion = new ConduitEvent();
@@ -30,19 +31,19 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             props.client
                 .on('channelCreate', this.onChannelCreate.bind(this))
                 .on('channelDelete', this.onChannelDelete.bind(this))
-                .on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+                .on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c));
             DashboardTextChannel.registeredEvents = true;
         }
     }
 
-    private onChannelCreate(c: Channel): void {
+    private onChannelCreate(c: Discord.Channel): void {
         if (this.isValidChannel(c) && c.type === 'category') {
-            let cat: CategoryChannel = c as CategoryChannel;
+            let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
             SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
         }
     }
 
-    private onChannelDelete(c: Channel): void {
+    private onChannelDelete(c: Discord.Channel): void {
         if (this.isValidChannel(c)) {
             if (c.id === this.channel.id) {
                 this.onChannelDeletion.trigger();
@@ -52,22 +53,22 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         }
     }
 
-    private onChannelUpdate(c: Channel): void {
+    private onChannelUpdate(c: Discord.Channel): void {
         if (this.isValidChannel(c)) {
             if (c.id === this.channel.id) {
-                this.channel = c as TextChannel;
+                this.channel = c as Discord.TextChannel;
                 this.onInitialize();
             } else if (c.type === 'category') {
-                let cat: CategoryChannel = c as CategoryChannel;
+                let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
                 SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`);
             }
         }
     }
 
-    private isValidChannel(c: Channel): boolean {
+    private isValidChannel(c: Discord.Channel): boolean {
         if (!this.isVisible()) return false;
         if (c.type === 'dm' || c.type === 'group') return false;
-        let guildChan: GuildChannel = c as GuildChannel;
+        let guildChan: Discord.GuildChannel = c as Discord.GuildChannel;
         return guildChan.guild.id === this.channel.guild.id;
     }
 
@@ -88,7 +89,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             } else {
                 let oldName: string = this.channel.name;
                 this.props.loader.load(this.channel.setName(input.value))
-                    .then((c: TextChannel) => {
+                    .then((c: Discord.TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s name');
                         this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
                     })
@@ -109,7 +110,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                 input.value = this.channel.topic;
             } else {
                 this.props.loader.load(this.channel.setTopic(input.value))
-                    .then((c: TextChannel) => {
+                    .then((c: Discord.TextChannel) => {
                         this.props.logger.success('Changed selected channel\'s topic');
                         this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s topic`, c.guild);
                     })
@@ -133,7 +134,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
                     let limit: number = Number(matches[1]);
                     let oldLimit: number = this.channel.rateLimitPerUser;
                     this.props.loader.load(this.channel.setRateLimitPerUser(limit))
-                        .then((c: TextChannel) => {
+                        .then((c: Discord.TextChannel) => {
                             input.value = c.rateLimitPerUser > 0 ? `${c.rateLimitPerUser}s` : '';
                             this.props.logger.success('Changed selected channel\'s user rate-limit');
                             this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s user rate-limit [ \`${oldLimit}s\` -> \`${c.rateLimitPerUser}s\` ]`, c.guild);
@@ -197,7 +198,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         } else {
             let oldNsfw: boolean = this.channel.nsfw;
             this.props.loader.load(this.channel.setNSFW(state))
-                .then((c: TextChannel) => {
+                .then((c: Discord.TextChannel) => {
                     this.props.logger.success(`Set selected channel\'s nsfw state to ${state}`);
                     this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s nsfw state [ \`${oldNsfw}\` -> \`${c.nsfw}\` ]`, c.guild);
                 })
@@ -214,7 +215,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
         } else {
             this.props.loader.load(this.channel.delete())
-                .then((c: GuildChannel) => {
+                .then((c: Discord.GuildChannel) => {
                     this.props.logger.success(`Deleted selected channel`);
                     this.onChannelDeletion.trigger();
                     this.props.reporter.reportGuildAction(`Deleted ${this.props.reporter.formatChannel(c)}`, c.guild);
@@ -231,18 +232,18 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
             if (value === 'NONE') {
                 let oldParent = this.channel.parent;
                 this.props.loader.load(this.channel.setParent(null))
-                    .then((c: TextChannel) => {
+                    .then((c: Discord.TextChannel) => {
                         this.props.logger.success(`Changed selected channel's category`);
                         let report: string = `Moved ${this.props.reporter.formatChannel(c)} out of ${this.props.reporter.formatChannel(oldParent)}`;
                         this.props.reporter.reportGuildAction(report, c.guild);
                     })
                     .catch(_ => SelectHelper.trySetValue('channel-parent', this.channel.parent ? this.channel.parentID : 'NONE'));
             } else {
-                let parent: GuildChannel = this.channel.guild.channels.find((c: GuildChannel) => c.id === value);
+                let parent: Discord.GuildChannel = this.channel.guild.channels.find((c: Discord.GuildChannel) => c.id === value);
                 if (!parent) return;
 
                 this.props.loader.load(this.channel.setParent(parent))
-                    .then((c: TextChannel) => {
+                    .then((c: Discord.TextChannel) => {
                         this.props.logger.success(`Changed selected channel's category`);
                         this.props.reporter.reportGuildAction(`Moved ${this.props.reporter.formatChannel(c)} to ${this.props.reporter.formatChannel(parent)}`, c.guild);
                     })
@@ -269,12 +270,12 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Te
         topicInput.value = this.channel.topic ? this.channel.topic : '';
         rtInput.value = this.channel.rateLimitPerUser > 0 ? `${this.channel.rateLimitPerUser}s` : '';
 
-        let chans: Collection<string, GuildChannel> = this.channel.guild.channels.filter((c: GuildChannel) => c.type === 'category');
+        let chans: Discord.Collection<string, Discord.GuildChannel> = this.channel.guild.channels.filter((c: Discord.GuildChannel) => c.type === 'category');
         let categories: Array<JSX.Element> = [];
         categories.push(<option key={`${this.channel.id}_NONE`} value='NONE'>no category</option>);
         if (chans.size > 0) {
             for (let item of chans) {
-                let c: GuildChannel = item[1];
+                let c: Discord.GuildChannel = item[1];
                 if (c.deleted) continue;
                 categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
             }

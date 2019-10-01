@@ -1,8 +1,8 @@
 import * as Discord from 'discord.js';
+
 import { Logger } from './logger';
 import { Loader } from './loader';
 import { ActionReporter } from './actionReporter';
-import { GuildChannel } from 'discord.js';
 
 export interface ConduitProps {
     client: Discord.Client;
@@ -10,7 +10,7 @@ export interface ConduitProps {
     loader: Loader;
 }
 
-export interface ConduitChannelProps<T extends GuildChannel> extends ConduitProps {
+export interface ConduitChannelProps<T extends Discord.GuildChannel> extends ConduitProps {
     channel: T;
     reporter: ActionReporter;
     onUpdateRequested?: () => void;

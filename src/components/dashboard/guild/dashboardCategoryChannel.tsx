@@ -1,23 +1,24 @@
-import { ConduitChannelProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { CategoryChannel, GuildChannel, Collection, Channel } from 'discord.js';
+import * as Discord from 'discord.js';
+
+import { ConduitChannelProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
 import { Select } from '../../controls/select';
 
-export class DashboardCategoryChannel extends React.Component<ConduitChannelProps<CategoryChannel>, {}> {
+export class DashboardCategoryChannel extends React.Component<ConduitChannelProps<Discord.CategoryChannel>, {}> {
 	private static registeredEvents: boolean = false;
 
 	private onChannelDeletion: ConduitEvent<void>;
-	private childrenChannels: Array<GuildChannel>;
-	private nonChildrenChannels: Array<GuildChannel>;
+	private childrenChannels: Array<Discord.GuildChannel>;
+	private nonChildrenChannels: Array<Discord.GuildChannel>;
 
-	private category: CategoryChannel;
+	private category: Discord.CategoryChannel;
 	private chanIdToRemove: string;
 	private chanIdToAdd: string;
 
-	constructor(props: ConduitChannelProps<CategoryChannel>) {
+	constructor(props: ConduitChannelProps<Discord.CategoryChannel>) {
 		super(props);
 
 		this.onChannelDeletion = new ConduitEvent();
@@ -30,38 +31,38 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		if (!DashboardCategoryChannel.registeredEvents) {
 			props.client
 				.on('channelDelete', this.onChannelDelete.bind(this))
-				.on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c))
+				.on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c))
 				.on('channelCreate', this.onChannelCreate.bind(this));
 			DashboardCategoryChannel.registeredEvents = true;
 		}
 	}
 
-	private onChannelDelete(c: Channel): void {
+	private onChannelDelete(c: Discord.Channel): void {
 		if (this.isValidChannel(c) && c.id === this.category.id) {
 			this.onChannelDeletion.trigger();
 		}
 	}
 
-	private onChannelUpdate(c: Channel): void {
+	private onChannelUpdate(c: Discord.Channel): void {
 		if (this.isValidChannel(c)) {
 			if (c.id === this.category.id) {
-				this.category = c as CategoryChannel;
+				this.category = c as Discord.CategoryChannel;
 				this.onInitialize();
 			}
 			this.updateChannels();
 		}
 	}
 
-	private onChannelCreate(c: Channel): void {
+	private onChannelCreate(c: Discord.Channel): void {
 		if (this.isValidChannel(c)) {
 			this.updateChannels();
 		}
 	}
 
-	private isValidChannel(c: Channel) {
+	private isValidChannel(c: Discord.Channel) {
 		if (!this.isVisible()) return false;
 		if (c.type === 'dm' || c.type === 'group') return false;
-		let guildChan: GuildChannel = c as GuildChannel;
+		let guildChan: Discord.GuildChannel = c as Discord.GuildChannel;
 		return guildChan.guild.id === this.category.guild.id;
 	}
 
@@ -79,12 +80,12 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		this.childrenChannels = this.getChannels(true);
 		this.nonChildrenChannels = this.getChannels(false);
 
-		let chanToAdd: GuildChannel = this.nonChildrenChannels[0];
-		let chanToRemove: GuildChannel = this.childrenChannels[0];
+		let chanToAdd: Discord.GuildChannel = this.nonChildrenChannels[0];
+		let chanToRemove: Discord.GuildChannel = this.childrenChannels[0];
 
 		if (chanToAdd) {
 			this.chanIdToAdd = chanToAdd.id;
-			let opts: Array<JSX.Element> = this.nonChildrenChannels.map((c: GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = this.nonChildrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
 			ReactDOM.render(<div>
 				<Select id='channel-not-children' onSelected={this.onChannelNotChildrenSelected.bind(this)}>{opts}</Select>
@@ -100,7 +101,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 		if (chanToRemove) {
 			this.chanIdToRemove = chanToRemove.id;
-			let opts: Array<JSX.Element> = this.childrenChannels.map((c: GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = this.childrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
 			ReactDOM.render(<div>
 				<Select id='channel-children' onSelected={this.onChannelChildrenSelected.bind(this)}>{opts}</Select>
@@ -114,10 +115,10 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		}
 	}
 
-	private getChannels(inCat: boolean): Array<GuildChannel> {
-		let res: Array<GuildChannel> = [];
+	private getChannels(inCat: boolean): Array<Discord.GuildChannel> {
+		let res: Array<Discord.GuildChannel> = [];
 		for (let item of this.category.guild.channels) {
-			let chan: GuildChannel = item[1];
+			let chan: Discord.GuildChannel = item[1];
 			if (chan.deleted || chan.type === 'category') continue;
 			if (inCat) { // could be simplified but confusing to read
 				if (chan.parentID === this.category.id) {
@@ -136,7 +137,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	private async deleteChildren(): Promise<void> {
 		let action: string = 'Deleted channels:\n';
 		for (let item of this.category.children) {
-			let chan: GuildChannel = item[1];
+			let chan: Discord.GuildChannel = item[1];
 			if (!chan.deletable || chan.deleted) continue;
 
 			try {
@@ -161,7 +162,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			} else {
 				let oldName: string = this.category.name;
 				this.props.loader.load(this.category.setName(input.value))
-					.then((c: CategoryChannel) => {
+					.then((c: Discord.CategoryChannel) => {
 						this.props.logger.success('Changed selected channel\'s name');
 						this.props.reporter.reportGuildAction(`Changed ${this.props.reporter.formatChannel(c)}'s name [ \`${oldName}\` -> \`${c.name}\` ]`, c.guild);
 					})
@@ -179,7 +180,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 			this.props.logger.error('You do not have the \'MANAGE_CHANNEL\' permission in the selected guild');
 		} else {
 			this.props.loader.load(this.category.delete())
-				.then((c: CategoryChannel) => {
+				.then((c: Discord.CategoryChannel) => {
 					this.props.logger.success(`Deleted selected channel`);
 					this.onChannelDeletion.trigger();
 					this.props.reporter.reportGuildAction(`Deleted ${this.props.reporter.formatChannel(c)}`, c.guild);
@@ -193,7 +194,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		this.props.loader.load(this.deleteChildren())
 			.then(() => {
 				this.props.loader.load(this.category.delete())
-					.then((c: CategoryChannel) => {
+					.then((c: Discord.CategoryChannel) => {
 						this.props.logger.success(`Deleted selected channel`);
 						this.onChannelDeletion.trigger();
 						this.props.reporter.reportGuildAction(`Deleted ${this.props.reporter.formatChannel(c)}`, c.guild);
@@ -213,12 +214,12 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		if (!this.chanIdToRemove) return;
 		if (!this.isCurrentChannelValid()) return;
 
-		let chan: GuildChannel = this.category.guild.channels.find((c: GuildChannel) => c.id === this.chanIdToRemove);
+		let chan: Discord.GuildChannel = this.category.guild.channels.find((c: Discord.GuildChannel) => c.id === this.chanIdToRemove);
 		if (!chan) return;
 
 		if (chan.manageable) {
 			this.props.loader.load(chan.setParent(null))
-				.then((c: GuildChannel) => {
+				.then((c: Discord.GuildChannel) => {
 					this.updateChannels();
 					this.props.logger.success(`Successfully removed selected channel from category`);
 					this.props.reporter.reportGuildAction(`Moved ${this.props.reporter.formatChannel(c)} out of ${this.props.reporter.formatChannel(this.category)}`, this.category.guild);
@@ -232,12 +233,12 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		if (!this.chanIdToAdd) return;
 		if (!this.isCurrentChannelValid()) return;
 
-		let chan: GuildChannel = this.category.guild.channels.find((c: GuildChannel) => c.id === this.chanIdToAdd);
+		let chan: Discord.GuildChannel = this.category.guild.channels.find((c: Discord.GuildChannel) => c.id === this.chanIdToAdd);
 		if (!chan) return;
 
 		if (chan.manageable) {
 			this.props.loader.load(chan.setParent(this.category))
-				.then((c: GuildChannel) => {
+				.then((c: Discord.GuildChannel) => {
 					this.updateChannels();
 					this.props.logger.success(`Successfully added selected channel to category`);
 					this.props.reporter.reportGuildAction(`Moved ${this.props.reporter.formatChannel(c)} to ${this.props.reporter.formatChannel(this.category)}`, this.category.guild);

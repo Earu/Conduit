@@ -1,19 +1,20 @@
 import * as React from 'react';
+import * as Discord from 'discord.js';
+
 import { ConduitProps } from "../../../utils/conduitProps";
 import { EmojiSelector } from '../../controls/emojiSelector';
-import { Guild, Emoji } from 'discord.js';
 import { Input } from '../../controls/input';
 import { ActionReporter } from '../../../utils/actionReporter';
 
 export interface DashboardEmojisProps extends ConduitProps {
-	guild: Guild;
+	guild: Discord.Guild;
 	reporter: ActionReporter;
 }
 
 export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
-	private selectedEmoji: Emoji;
+	private selectedEmoji: Discord.Emoji;
 
-	private onEmojiChange(emoji: Emoji): void {
+	private onEmojiChange(emoji: Discord.Emoji): void {
 		if (!emoji) return;
 
 		this.selectedEmoji = emoji;
@@ -31,7 +32,7 @@ export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
 			if (this.selectedEmoji.deletable) {
 				let oldName: string = this.selectedEmoji.name;
 				this.props.loader.load(this.selectedEmoji.setName(input.value))
-					.then((e: Emoji) => {
+					.then((e: Discord.Emoji) => {
 						input.value = e.name;
 						this.props.logger.success('Successfully changed the name of the selected emoji');
 						this.props.reporter.reportGuildAction(`Changed emoji \`${e.name}\` (**${e.id}**)'s name [ \`${oldName}\` -> \`${e.name}]\``, this.props.guild);

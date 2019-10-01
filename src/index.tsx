@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as Discord from 'discord.js';
 
-import { Client } from 'discord.js';
 import { Login } from './components/login';
 import { Loader } from './components/loader';
 import { Logger } from './utils/logger';
@@ -10,7 +10,7 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { Header } from './components/header';
 import { EventEmitter } from 'events';
 
-const client: Client = new Client();
+const client: Discord.Client = new Discord.Client();
 const logger: Logger = new Logger();
 const loader: LoaderHelper = new LoaderHelper(logger);
 

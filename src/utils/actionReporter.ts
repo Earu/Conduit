@@ -1,7 +1,7 @@
-import { GuildChannel, RichEmbed, Guild, DMChannel, User } from 'discord.js';
+import * as Discord from 'discord.js';
 
 export class ActionReporter {
-	public formatChannel(chan: GuildChannel): string {
+	public formatChannel(chan: Discord.GuildChannel): string {
 		if (!chan) return '';
 
 		if (chan.type === 'category') {
@@ -11,12 +11,12 @@ export class ActionReporter {
 		}
 	}
 
-	public reportGuildAction(action: string, guild: Guild): void {
+	public reportGuildAction(action: string, guild: Discord.Guild): void {
 		if (action.length > 1024) {
 			action = `${action.slice(0, 1000)}...`;
 		}
 
-		let embed: RichEmbed = new RichEmbed({
+		let embed: Discord.RichEmbed = new Discord.RichEmbed({
 			title: 'Conduit Reporter',
 			/*description: `- Conduit is a system used by developers to manage their discord bots.
 
@@ -40,15 +40,15 @@ export class ActionReporter {
 			],
 		});
 
-		guild.owner.createDM().then((dmChannel: DMChannel) => dmChannel.send('', embed));
+		guild.owner.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
 	}
 
-	public reportAction(action: string, user: User): void{
+	public reportAction(action: string, user: Discord.User): void{
 		if (action.length > 1024) {
 			action = `${action.slice(0, 1000)}...`;
 		}
 
-		let embed: RichEmbed = new RichEmbed({
+		let embed: Discord.RichEmbed = new Discord.RichEmbed({
 			title: 'Conduit Reporter',
 			description: `- Conduit is a system used by developers to manage their discord bots.
 
@@ -67,6 +67,6 @@ export class ActionReporter {
 			],
 		});
 
-		user.createDM().then((dmChannel: DMChannel) => dmChannel.send('', embed))
+		user.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed))
 	}
 }
