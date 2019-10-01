@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { ConduitProps } from '../../utils/conduitProps';
-import { Guild, Emoji } from 'discord.js';
+import * as Discord from 'discord.js';
 
+import { ConduitProps } from '../../utils/conduitProps';
 
 export interface EmojiSelectorProps extends ConduitProps {
 	id: string;
-	guild: Guild;
-	onEmojiSelectedUpdate?: (emoji: Emoji) => void;
+	guild: Discord.Guild;
+	onEmojiSelectedUpdate?: (emoji: Discord.Emoji) => void;
 	hideSelected?: boolean;
-	onSelected: (emoji: Emoji) => void;
+	onSelected: (emoji: Discord.Emoji) => void;
 }
 
 export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
-	private selectedEmoji: Emoji;
+	private selectedEmoji: Discord.Emoji;
 
 	constructor (props: EmojiSelectorProps) {
 		super(props);
@@ -20,12 +20,12 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		this.selectedEmoji = null;
 		props.client
 			.on('emojiCreate', this.onEmojiCreate.bind(this))
-			.on('emojiUpdate', (_, emoji: Emoji) => this.onEmojiUpdate(emoji))
+			.on('emojiUpdate', (_, emoji: Discord.Emoji) => this.onEmojiUpdate(emoji))
 			.on('emojiDelete', this.onEmojiDelete.bind(this));
 
 	}
 
-	private onEmojiCreate(emoji: Emoji): void {
+	private onEmojiCreate(emoji: Discord.Emoji): void {
 		if (!this.isValidEmoji(emoji)) return;
 
 		let img: HTMLImageElement = this.findEmojiImage(emoji.id);
@@ -38,10 +38,12 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		img.title = emoji.toString();
 		img.id = emoji.id;
 		img.onclick = _ => {
-			if (!this.props.hideSelected){
-				let oldImg: HTMLImageElement = this.findEmojiImage(this.selectedEmoji.id);
-				if (oldImg) {
-					oldImg.style.border = 'none';
+			if (!this.props.hideSelected) {
+				if (this.selectedEmoji) {
+					let oldImg: HTMLImageElement = this.findEmojiImage(this.selectedEmoji.id);
+					if (oldImg) {
+						oldImg.style.border = 'none';
+					}
 				}
 
 				img.style.border = '3px solid #677bc4';
@@ -53,7 +55,7 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		selector.appendChild(img);
 	}
 
-	private onEmojiUpdate(emoji: Emoji): void {
+	private onEmojiUpdate(emoji: Discord.Emoji): void {
 		if (!this.isValidEmoji(emoji)) return;
 
 		let img: HTMLImageElement = this.findEmojiImage(emoji.id);
@@ -71,7 +73,7 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		}
 	}
 
-	private onEmojiDelete(emoji: Emoji): void {
+	private onEmojiDelete(emoji: Discord.Emoji): void {
 		if (!this.isValidEmoji(emoji)) return;
 
 		let img: HTMLImageElement = this.findEmojiImage(emoji.id);
@@ -81,7 +83,7 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		selector.removeChild(img);
 	}
 
-	private isValidEmoji(emoji: Emoji): boolean {
+	private isValidEmoji(emoji: Discord.Emoji): boolean {
 		return this.isVisible() && emoji.guild.id === this.props.guild.id;
 	}
 
@@ -104,7 +106,7 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 
 	private onClick(e: React.MouseEvent<HTMLImageElement, MouseEvent>): void {
 		let emojiId: string = e.currentTarget.id;
-		let emoji: Emoji = this.props.guild.emojis.find((e: Emoji) => e.id === emojiId);
+		let emoji: Discord.Emoji = this.props.guild.emojis.find((e: Discord.Emoji) => e.id === emojiId);
 		if (!emoji) return;
 
 		if (!this.props.hideSelected) {
@@ -126,7 +128,7 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 		let res: Array<JSX.Element> = [];
 		let selectedFirst: boolean = false;
 		for (let item of this.props.guild.emojis) {
-			let emoji: Emoji = item[1];
+			let emoji: Discord.Emoji = item[1];
 			if (emoji.deleted) continue;
 
 			let style: React.CSSProperties = {};

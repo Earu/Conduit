@@ -1,10 +1,11 @@
+import * as Discord from 'discord.js';
+
 import { Avatar, AvatarProps } from './avatar';
 import { HttpClient, HttpResult } from '../../../utils/httpClient';
-import { Guild, GuildMember } from 'discord.js';
 import { ActionReporter } from '../../../utils/actionReporter';
 
 export interface GuildAvatarProps extends AvatarProps {
-    guild: Guild;
+    guild: Discord.Guild;
     reporter: ActionReporter;
 }
 
@@ -15,13 +16,13 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         super(props);
 
         this.httpClient = new HttpClient();
-        this.props.client.on('guildUpdate', (_, guild: Guild) => {
+        this.props.client.on('guildUpdate', (_, guild: Discord.Guild) => {
             if (guild.id !== this.props.guild.id) return;
             this.updateAvatar(guild);
         });
     }
 
-    private updateAvatar(guild: Guild): void {
+    private updateAvatar(guild: Discord.Guild): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
         let img: HTMLImageElement = avatar.children[0] as HTMLImageElement;
         if (guild.iconURL) {
@@ -34,7 +35,7 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
     }
 
     protected onValidated(fileType: string, base64: string): void {
-        let botMember: GuildMember = this.props.guild.member(this.props.client.user);
+        let botMember: Discord.GuildMember = this.props.guild.member(this.props.client.user);
         if (!botMember.hasPermission('MANAGE_GUILD')) {
             this.props.logger.error(`You do not have the 'MANAGE_GUILD' permission for the guild [ ${this.props.guild.id} ]`);
             return;

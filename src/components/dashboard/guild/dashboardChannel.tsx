@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as Discord from 'discord.js';
+
 import { ConduitProps } from '../../../utils/conduitProps';
-import { GuildChannel, CategoryChannel, TextChannel, VoiceChannel, Guild, Collection, Channel } from 'discord.js';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { DashboardTextChannel } from './dashboardTextChannel';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
@@ -10,7 +11,7 @@ import { ActionReporter } from '../../../utils/actionReporter';
 import { SelectHelper } from '../../../utils/selectHelper';
 
 export interface DashboardChannelProps extends ConduitProps {
-	guild: Guild;
+	guild: Discord.Guild;
 	reporter: ActionReporter;
 	onUpdateRequested: () => void;
 }
@@ -22,26 +23,26 @@ export class DashboardChannel extends React.Component<DashboardChannelProps, {}>
 		this.props.client
 			.on('channelCreate', this.onChannelCreate.bind(this))
 			.on('channelDelete', this.onChannelDelete.bind(this))
-			.on('channelUpdate', (_, c: Channel) => this.onChannelUpdate(c));
+			.on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c));
 	}
 
-	private onChannelX(chan: Channel, callback: (guildChan: GuildChannel) => void): void {
+	private onChannelX(chan: Discord.Channel, callback: (guildChan: Discord.GuildChannel) => void): void {
 		if (!this.props.guild) return;
 		if (chan.type === 'dm' || chan.type === 'group') return;
-		let guildChan: GuildChannel = chan as GuildChannel;
+		let guildChan: Discord.GuildChannel = chan as Discord.GuildChannel;
 		if (guildChan.guild.id === this.props.guild.id) {
 			callback(guildChan);
 		}
 	}
 
-	private onChannelUpdate(chan: Channel): void {
-		this.onChannelX(chan, (guildChan: GuildChannel) => {
+	private onChannelUpdate(chan: Discord.Channel): void {
+		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
 		});
 	}
 
-	private onChannelCreate(chan: Channel): void {
-		this.onChannelX(chan, (guildChan: GuildChannel) => {
+	private onChannelCreate(chan: Discord.Channel): void {
+		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			if (this.props.guild.channels.size === 1) {
 				this.props.onUpdateRequested();
 			} else {
@@ -50,8 +51,8 @@ export class DashboardChannel extends React.Component<DashboardChannelProps, {}>
 		});
 	}
 
-	private onChannelDelete(chan: Channel): void {
-		this.onChannelX(chan, (guildChan: GuildChannel) => {
+	private onChannelDelete(chan: Discord.Channel): void {
+		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			if (this.props.guild.channels.size < 1) {
 				this.props.onUpdateRequested();
 			} else {
@@ -61,26 +62,26 @@ export class DashboardChannel extends React.Component<DashboardChannelProps, {}>
 	}
 
 	private loadChannel(chanId: string): JSX.Element {
-		let chan: GuildChannel = this.props.guild.channels.find((c: GuildChannel) => c.id === chanId);
+		let chan: Discord.GuildChannel = this.props.guild.channels.find((c: Discord.GuildChannel) => c.id === chanId);
 		if (!chan) return;
 		if (chan.deleted) return;
 
 		let jsx: JSX.Element = <div>UNKNOWN</div>;
 		switch (chan.type) {
 			case 'category':
-				let catChan: CategoryChannel = chan as CategoryChannel;
+				let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
 				jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
 					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
 				break;
 			case 'store':
 			case 'news':
 			case 'text':
-				let txtChan: TextChannel = chan as TextChannel;
+				let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
 				jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
 					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
 				break;
 			case 'voice':
-				let voiceChan: VoiceChannel = chan as VoiceChannel;
+				let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
 				jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
 					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
 				break;
@@ -93,10 +94,10 @@ export class DashboardChannel extends React.Component<DashboardChannelProps, {}>
 	}
 
 	private renderChannels(): JSX.Element {
-		let chans: Collection<string, GuildChannel> = this.props.guild.channels.filter((c: GuildChannel) => !c.deleted);
+		let chans: Discord.Collection<string, Discord.GuildChannel> = this.props.guild.channels.filter((c: Discord.GuildChannel) => !c.deleted);
 		if (chans.size > 0) {
 			let chanId: string = chans.first().id;
-			let opts: Array<JSX.Element> = chans.map((c: GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = chans.map((c: Discord.GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
 
 			return <div>
 				<Select id='guild-channel' defaultValue={chanId} onSelected={this.loadChannel.bind(this)}>{opts}</Select>

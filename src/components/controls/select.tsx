@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { SelectHelper } from '../../utils/selectHelper';
 
 export interface SelectProps {

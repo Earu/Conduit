@@ -1,7 +1,8 @@
-import { ConduitProps } from '../../../utils/conduitProps';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Guild, Collection, GuildMember, PermissionResolvable, VoiceRegion, GuildChannel, Channel } from 'discord.js';
+import * as Discord from 'discord.js';
+
+import { ConduitProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Select } from '../../controls/select';
 import { GuildAvatar } from '../../controls/avatar/guildAvatar';
@@ -12,7 +13,7 @@ import { DashboardEmojis } from './dashboardEmojis';
 import { DashboardChannel } from './dashboardChannel';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
-    private selectedGuild: Guild;
+    private selectedGuild: Discord.Guild;
     private reporter: ActionReporter;
 
     constructor(props: any) {
@@ -24,14 +25,14 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
-            .on('guildUpdate', (_, g: Guild) => this.onGuildUpdate(g))
+            .on('guildUpdate', (_, g: Discord.Guild) => this.onGuildUpdate(g))
             .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this));
     }
 
     private loadRegionSelect(): void {
         this.props.loader.load(this.props.client.fetchVoiceRegions())
-            .then((regions: Collection<string, VoiceRegion>) => {
-                let opts: Array<JSX.Element> = regions.map((region: VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
+            .then((regions: Discord.Collection<string, Discord.VoiceRegion>) => {
+                let opts: Array<JSX.Element> = regions.map((region: Discord.VoiceRegion) => <option key={region.id} value={region.id}>{region.name}</option>);
                 ReactDOM.render(<Select id='guild-region'
                     defaultValue={this.selectedGuild ? this.selectedGuild.region : null}
                     onSelected={this.onGuildRegionChange.bind(this)}>
@@ -43,19 +44,19 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private addGuildsToDatalist(guilds: Array<Guild>): void {
-        let opts: Array<JSX.Element> = guilds.map((g: Guild) => <option key={g.id} value={g.id}>{g.name} [ {g.id} ]</option>);
+    private addGuildsToDatalist(guilds: Array<Discord.Guild>): void {
+        let opts: Array<JSX.Element> = guilds.map((g: Discord.Guild) => <option key={g.id} value={g.id}>{g.name} [ {g.id} ]</option>);
         ReactDOM.render(opts, document.getElementById('guilds'));
     }
 
     private onReady(): void {
-        let guilds: Array<Guild> = [];
+        let guilds: Array<Discord.Guild> = [];
         if (this.props.client.shard) {
             this.props.client.shard.broadcastEval('this.guilds')
                 .then((res: any) => {
                     for (let i = 0; i < res.length; i++) {
-                        let gs: Collection<string, Guild> = res[i] as Collection<string, Guild>;
-                        guilds = guilds.concat(gs.map((g: Guild) => g));
+                        let gs: Discord.Collection<string, Discord.Guild> = res[i] as Discord.Collection<string, Discord.Guild>;
+                        guilds = guilds.concat(gs.map((g: Discord.Guild) => g));
                     }
                     this.props.logger.success('Fetched all guilds');
                     this.selectedGuild = guilds[0];
@@ -65,7 +66,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 })
                 .catch((err: Error) => this.props.logger.error(err.message));
         } else {
-            guilds = this.props.client.guilds.map((g: Guild) => g);
+            guilds = this.props.client.guilds.map((g: Discord.Guild) => g);
             this.props.logger.success('Fetched all guilds');
             this.selectedGuild = guilds[0];
             this.updateGuildInfo();
@@ -74,7 +75,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onGuildCreate(guild: Guild): void {
+    private onGuildCreate(guild: Discord.Guild): void {
         let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
         let opt: HTMLOptionElement = document.createElement('option');
         opt.value = guild.id;
@@ -82,7 +83,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         guilds.appendChild(opt);
     }
 
-    private onGuildDelete(guild: Guild): void {
+    private onGuildDelete(guild: Discord.Guild): void {
         let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
         let node: Node = null;
         for (let child of guilds.childNodes) {
@@ -103,7 +104,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private onGuildUpdate(guild: Guild): void {
+    private onGuildUpdate(guild: Discord.Guild): void {
         if (!this.selectedGuild) return;
         if (guild.id === this.selectedGuild.id) {
             this.selectedGuild = guild;
@@ -111,17 +112,17 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private async tryFindGuild(id: string): Promise<Guild> {
+    private async tryFindGuild(id: string): Promise<Discord.Guild> {
         if (!id) return null;
 
         if (this.props.client.shard) {
             let res: any = await this.props.client.shard.broadcastEval('this.guilds');
             for (let i = 0; i < res.length; i++) {
-                let gs: Collection<string, Guild> = res[i] as Collection<string, Guild>;
-                return gs.find((_: Guild, guildId: string) => guildId === id);
+                let gs: Discord.Collection<string, Discord.Guild> = res[i] as Discord.Collection<string, Discord.Guild>;
+                return gs.find((_: Discord.Guild, guildId: string) => guildId === id);
             }
         } else {
-            return this.props.client.guilds.find((_: Guild, guildId: string) => guildId == id);
+            return this.props.client.guilds.find((_: Discord.Guild, guildId: string) => guildId == id);
         }
 
         return null;
@@ -159,7 +160,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private onGuildSelected(): void {
         let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
-            .then((guild: Guild) => {
+            .then((guild: Discord.Guild) => {
                 if (!guild) return;
                 this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
@@ -167,9 +168,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private hasPermissions(...perms: Array<PermissionResolvable>): boolean {
+    private hasPermissions(...perms: Array<Discord.PermissionResolvable>): boolean {
         if (this.selectedGuild) {
-            let botMember: GuildMember = this.selectedGuild.member(this.props.client.user);
+            let botMember: Discord.GuildMember = this.selectedGuild.member(this.props.client.user);
             for (let perm of perms) {
                 if (!botMember.hasPermission(perm)) {
                     this.props.logger.error(`You do not have the '${perm}' permission for the selected guild`);
@@ -191,7 +192,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         if (guildName.value && this.hasPermissions('MANAGE_GUILD')) {
             let oldName: string = this.selectedGuild.name;
             this.props.loader.load(this.selectedGuild.setName(guildName.value))
-                .then((g: Guild) => {
+                .then((g: Discord.Guild) => {
                     this.props.logger.success(`Changed selected guild's name to ${g.name}`);
                     this.reporter.reportGuildAction(`Changed guild\'s name [ \`${oldName}\` -> \`${g.name}\` ]`, this.selectedGuild);
                 })
@@ -208,7 +209,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         if (guildRegion.value && this.hasPermissions('MANAGE_GUILD')) {
             let oldRegion: string = this.selectedGuild.region;
             this.props.loader.load(this.selectedGuild.setRegion(guildRegion.value))
-                .then((g: Guild) => {
+                .then((g: Discord.Guild) => {
                     this.props.logger.success(`Changed selected guild's region to ${g.region}`);
                     this.reporter.reportGuildAction(`Changed guild\'s voice region [ \`${oldRegion}\` -> \`${g.region}\` ]`, this.selectedGuild);
                 })
