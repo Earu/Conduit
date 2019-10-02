@@ -10,7 +10,7 @@ import { ActionReporter } from '../../../utils/actionReporter';
 import { DashboardPanel } from '../dashboardPanel';
 import { SelectHelper } from '../../../utils/selectHelper';
 import { DashboardEmojis } from './dashboardEmojis';
-import { DashboardChannel } from './dashboardChannel';
+import { DashboardChannels } from './dashboardChannels';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Discord.Guild;
@@ -149,7 +149,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
 
         if (updateChannels) {
-            ReactDOM.render(<DashboardChannel guild={this.selectedGuild} reporter={this.reporter} onUpdateRequested={this.updateGuildInfo.bind(this)}
+            ReactDOM.render(<DashboardChannels guild={this.selectedGuild} reporter={this.reporter} onUpdateRequested={this.updateGuildInfo.bind(this)}
                 client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildChannelContainer);
         }
 
