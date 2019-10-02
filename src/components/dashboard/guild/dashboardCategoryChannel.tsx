@@ -24,8 +24,8 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 		this.onChannelDeletion = new ConduitEvent();
 		this.category = props.channel;
 
-		if (props.onUpdateRequested) {
-			this.onChannelDeletion.on(props.onUpdateRequested);
+		if (props.onLayoutInvalidated) {
+			this.onChannelDeletion.on(props.onLayoutInvalidated);
 		}
 
 		if (!DashboardCategoryChannel.registeredEvents) {

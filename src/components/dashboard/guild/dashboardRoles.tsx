@@ -1,18 +1,24 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import * as Discord from 'discord.js';
 
-import { ConduitProps } from '../../../utils/conduitProps';
+import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
 import { Select } from '../../controls/select';
-import { ActionReporter } from '../../../utils/actionReporter';
+import { Input } from '../../controls/input';
 
-export interface DashboardRolesProps extends ConduitProps {
-	guild: Discord.Guild;
-	reporter: ActionReporter;
-}
-
-export class DashboardRoles extends React.Component<DashboardRolesProps, {}> {
+export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {}> {
 	private loadRole(roleId: string): void {
+		let roleContainer: HTMLElement = document.getElementById('role');
+		if (!roleContainer) return;
 
+		let role: Discord.Role = this.props.guild.roles.find((r: Discord.Role) => r.id === roleId && !r.deleted);
+		if (role) {
+			ReactDOM.render(<div className='row'>
+				<Input id='role-name' placeholder='name...' />
+			</div>, roleContainer);
+		} else {
+			ReactDOM.render(<div />, roleContainer);
+		}
 	}
 
 	private renderRoles(): JSX.Element {
@@ -28,6 +34,18 @@ export class DashboardRoles extends React.Component<DashboardRolesProps, {}> {
 		} else {
 			return <div />
 		}
+	}
+
+	private postRender(): void {
+
+	}
+
+	componentDidMount(): void {
+		this.postRender();
+	}
+
+	componentDidUpdate(): void {
+		this.postRender();
 	}
 
 	render(): JSX.Element {

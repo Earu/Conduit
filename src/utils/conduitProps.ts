@@ -10,8 +10,14 @@ export interface ConduitProps {
     loader: Loader;
 }
 
+export interface ConduitGuildSubPanelProps extends ConduitProps {
+	guild: Discord.Guild;
+	reporter: ActionReporter;
+	onLayoutInvalidated?: () => void;
+}
+
 export interface ConduitChannelProps<T extends Discord.GuildChannel> extends ConduitProps {
     channel: T;
     reporter: ActionReporter;
-    onUpdateRequested?: () => void;
+    onLayoutInvalidated?: () => void;
 }

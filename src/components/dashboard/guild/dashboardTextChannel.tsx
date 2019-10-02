@@ -23,8 +23,8 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
         this.onChannelDeletion = new ConduitEvent();
         this.httpClient = new HttpClient();
         this.channel = props.channel;
-        if (props.onUpdateRequested) {
-            this.onChannelDeletion.on(props.onUpdateRequested);
+        if (props.onLayoutInvalidated) {
+            this.onChannelDeletion.on(props.onLayoutInvalidated);
         }
 
         if (!DashboardTextChannel.registeredEvents) {

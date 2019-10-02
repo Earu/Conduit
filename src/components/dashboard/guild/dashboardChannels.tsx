@@ -2,21 +2,14 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as Discord from 'discord.js';
 
-import { ConduitProps } from '../../../utils/conduitProps';
+import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
 import { DashboardCategoryChannel } from './dashboardCategoryChannel';
 import { DashboardTextChannel } from './dashboardTextChannel';
 import { DashboardVoiceChannel } from './dashboardVoiceChannel';
 import { Select } from '../../controls/select';
-import { ActionReporter } from '../../../utils/actionReporter';
 import { SelectHelper } from '../../../utils/selectHelper';
 
-export interface DashboardChannelsProps extends ConduitProps {
-	guild: Discord.Guild;
-	reporter: ActionReporter;
-	onUpdateRequested: () => void;
-}
-
-export class DashboardChannels extends React.Component<DashboardChannelsProps, {}> {
+export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps, {}> {
 	constructor(props: any) {
 		super(props);
 
@@ -44,7 +37,7 @@ export class DashboardChannels extends React.Component<DashboardChannelsProps, {
 	private onChannelCreate(chan: Discord.Channel): void {
 		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			if (this.props.guild.channels.size === 1) {
-				this.props.onUpdateRequested();
+				this.props.onLayoutInvalidated();
 			} else {
 				SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`, this.loadChannel.bind(this));
 			}
@@ -54,7 +47,7 @@ export class DashboardChannels extends React.Component<DashboardChannelsProps, {
 	private onChannelDelete(chan: Discord.Channel): void {
 		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			if (this.props.guild.channels.size < 1) {
-				this.props.onUpdateRequested();
+				this.props.onLayoutInvalidated();
 			} else {
 				SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
 			}
@@ -71,19 +64,19 @@ export class DashboardChannels extends React.Component<DashboardChannelsProps, {
 			case 'category':
 				let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
 				jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
 				break;
 			case 'store':
 			case 'news':
 			case 'text':
 				let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
 				jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
 				break;
 			case 'voice':
 				let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
 				jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onUpdateRequested={this.props.onUpdateRequested.bind(this)} />;
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
 				break;
 			default:
 				// unknown channel type, typically new or unexpected channel types

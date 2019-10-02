@@ -1,17 +1,11 @@
 import * as React from 'react';
 import * as Discord from 'discord.js';
 
-import { ConduitProps } from "../../../utils/conduitProps";
+import { ConduitGuildSubPanelProps } from "../../../utils/conduitProps";
 import { EmojiSelector } from '../../controls/emojiSelector';
 import { Input } from '../../controls/input';
-import { ActionReporter } from '../../../utils/actionReporter';
 
-export interface DashboardEmojisProps extends ConduitProps {
-	guild: Discord.Guild;
-	reporter: ActionReporter;
-}
-
-export class DashboardEmojis extends React.Component<DashboardEmojisProps, {}> {
+export class DashboardEmojis extends React.Component<ConduitGuildSubPanelProps, {}> {
 	private selectedEmoji: Discord.Emoji;
 
 	private onEmojiChange(emoji: Discord.Emoji): void {
