@@ -149,7 +149,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
 
         if (updateChannels) {
-            ReactDOM.render(<DashboardChannels guild={this.selectedGuild} reporter={this.reporter} onUpdateRequested={this.updateGuildInfo.bind(this)}
+            ReactDOM.render(<DashboardChannels guild={this.selectedGuild} reporter={this.reporter} onLayoutInvalidated={this.updateGuildInfo.bind(this)}
                 client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildChannelContainer);
         }
 

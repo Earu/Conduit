@@ -19,8 +19,8 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 
 		this.onChannelDeletion = new ConduitEvent();
 		this.channel = props.channel;
-		if (props.onUpdateRequested) {
-			this.onChannelDeletion.on(props.onUpdateRequested);
+		if (props.onLayoutInvalidated) {
+			this.onChannelDeletion.on(props.onLayoutInvalidated);
 		}
 
 		if (!DashboardVoiceChannel.registeredEvents) {
