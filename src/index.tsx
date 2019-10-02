@@ -34,6 +34,10 @@ declare module 'discord.js' {
     interface Emoji {
         deleted: boolean;
     }
+
+    interface Role {
+        deleted: boolean;
+    }
 }
 
 ReactDOM.render(

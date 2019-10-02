@@ -10,13 +10,13 @@ import { Select } from '../../controls/select';
 import { ActionReporter } from '../../../utils/actionReporter';
 import { SelectHelper } from '../../../utils/selectHelper';
 
-export interface DashboardChannelProps extends ConduitProps {
+export interface DashboardChannelsProps extends ConduitProps {
 	guild: Discord.Guild;
 	reporter: ActionReporter;
 	onUpdateRequested: () => void;
 }
 
-export class DashboardChannel extends React.Component<DashboardChannelProps, {}> {
+export class DashboardChannels extends React.Component<DashboardChannelsProps, {}> {
 	constructor(props: any) {
 		super(props);
 
