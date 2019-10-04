@@ -3,9 +3,9 @@ import * as ReactDOM from 'react-dom';
 import * as Discord from 'discord.js';
 
 import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
-import { DashboardCategoryChannel } from './dashboardCategoryChannel';
-import { DashboardTextChannel } from './dashboardTextChannel';
-import { DashboardVoiceChannel } from './dashboardVoiceChannel';
+import { DashboardCategoryChannel } from '../channel/dashboardCategoryChannel';
+import { DashboardTextChannel } from '../channel/dashboardTextChannel';
+import { DashboardVoiceChannel } from '../channel/dashboardVoiceChannel';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
 
@@ -54,12 +54,14 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 		});
 	}
 
-	private loadChannel(chanId: string): JSX.Element {
+	private loadChannel(chanId: string): void {
 		let chan: Discord.GuildChannel = this.props.guild.channels.find((c: Discord.GuildChannel) => c.id === chanId);
-		if (!chan) return;
-		if (chan.deleted) return;
+		let jsx: JSX.Element = <div/>;
+		if (!chan || chan && chan.deleted) {
+			ReactDOM.render(jsx, document.getElementById('channel'));
+			return;
+		}
 
-		let jsx: JSX.Element = <div>UNKNOWN</div>;
 		switch (chan.type) {
 			case 'category':
 				let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;

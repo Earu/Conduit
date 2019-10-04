@@ -62,7 +62,7 @@ export class DashboardEmojis extends React.Component<ConduitGuildSubPanelProps, 
 	}
 
 	render(): JSX.Element {
-		return <div>
+		return <div style={{ padding: '10px', paddingBottom: '5px' }}>
 			<div className='row'>
 				<div className='col-md-12'>
 					<EmojiSelector id='guild-emojis' guild={this.props.guild} onEmojiSelectedUpdate={this.onEmojiChange.bind(this)}
