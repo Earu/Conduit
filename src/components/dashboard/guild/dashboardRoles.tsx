@@ -7,15 +7,29 @@ import { Select } from '../../controls/select';
 import { Input } from '../../controls/input';
 
 export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {}> {
+	private initializeRole(role: Discord.Role): void {
+		role.color
+	}
+
 	private loadRole(roleId: string): void {
 		let roleContainer: HTMLElement = document.getElementById('role');
-		if (!roleContainer) return;
-
 		let role: Discord.Role = this.props.guild.roles.find((r: Discord.Role) => r.id === roleId && !r.deleted);
 		if (role) {
 			ReactDOM.render(<div className='row'>
-				<Input id='role-name' placeholder='name...' />
+				<div className='col-md-3'>
+					<Input id='role-name' placeholder='name...' />
+					<input id='role-color' type='color' className='color-picker' />
+				</div>
+				<div className='col-md-3' />
+				<div className='col-md-3'>
+					<button className='purple-btn large-btn'>Permissions</button>
+				</div>
+				<div className='col-md-3'>
+					<button className='red-btn large-btn'>Delete</button>
+				</div>
 			</div>, roleContainer);
+
+			this.initializeRole(role);
 		} else {
 			ReactDOM.render(<div />, roleContainer);
 		}
@@ -37,7 +51,12 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 	}
 
 	private postRender(): void {
-
+		let select: HTMLSelectElement = document.getElementById('guild-role') as HTMLSelectElement;
+		if (select) {
+			this.loadRole(select.value);
+		} else {
+			ReactDOM.render(<div />, document.getElementById('role'));
+		}
 	}
 
 	componentDidMount(): void {
@@ -57,7 +76,7 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 					</div>
 				</div>
 			</div>
-			<div id='role' style={{ padding: '5px', paddingBottom: '0px' }} />
+			<div id='role' style={{ padding: '10px', paddingBottom: '5px' }} />
 		</div>;
 	}
 }
