@@ -7,18 +7,21 @@ import { Input } from '../../controls/input';
 import { ConduitEvent } from '../../../utils/conduitEvent';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
+import { VoiceClient } from '../../../voice/voiceClient';
 
 export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<Discord.VoiceChannel>, {}> {
 	private static registeredEvents: boolean = false;
 
 	private onChannelDeletion: ConduitEvent<void>;
 	private channel: Discord.VoiceChannel;
+	private voiceClient: VoiceClient;
 
 	constructor(props: ConduitChannelProps<Discord.VoiceChannel>) {
 		super(props);
 
 		this.onChannelDeletion = new ConduitEvent();
 		this.channel = props.channel;
+		this.voiceClient = null;
 		if (props.onLayoutInvalidated) {
 			this.onChannelDeletion.on(props.onLayoutInvalidated);
 		}
@@ -28,6 +31,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 				.on('channelCreate', this.onChannelCreate.bind(this))
 				.on('channelDelete', this.onChannelDelete.bind(this))
 				.on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c));
+			//.on('voiceStateUpdate', console.log);
 
 			DashboardVoiceChannel.registeredEvents = true;
 		}
@@ -169,22 +173,29 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 		}
 	}
 
-	/*private onJoinLeaveClick(): void {
-		let vcon: VoiceConnection = this.channel.guild.voiceConnection;
-		if (vcon && vcon.channel.id === this.channel.id) {
-			this.channel.leave();
-			this.props.logger.success(`Disconnected from voice channel \`${this.channel.name} [ ${this.channel.type} ]\` (**${this.channel.id}**)`);
-		} else {
-			if (this.channel.joinable) {
-				this.props.loader.load(this.channel.join())
-					.then((con: VoiceConnection) => {
-						this.props.logger.success(`Connected to voice channel \`${con.channel.name} [ ${con.channel.type} ]\` (**${con.channel.id}**)`);
-					});
-			} else {
-				this.props.logger.error('You cannot join this voice channel');
+	private connect(): void {
+		this.voiceClient = new VoiceClient(this.channel);
+		this.props.loader.load(this.voiceClient.connect())
+			.then((success: boolean) => {
+				let msg: string = success
+					? 'Connected to selected voice channel'
+					: 'Could not connect to selected voice channel';
+				this.props.logger.success(msg);
+				console.debug(this.props.client.voiceConnections);
+			});
+	}
+
+	private onJoinLeaveClick(): void {
+		if (this.voiceClient && this.voiceClient.isConnected) {
+			this.voiceClient.disconnect();
+			this.props.logger.success('Should disconnect');
+			if (this.voiceClient.channel.id != this.channel.id) {
+				this.connect();
 			}
+		} else {
+			this.connect();
 		}
-	}*/
+	}
 
 	private onParentSelected(value: string): void {
 		if (!this.isCurrentChannelValid()) return;
@@ -216,11 +227,11 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 	}
 
 	private isCurrentChannelValid(): boolean {
-        if (!this.channel) return false;
-        if (this.channel.deleted) return false;
+		if (!this.channel) return false;
+		if (this.channel.deleted) return false;
 
-        return true;
-    }
+		return true;
+	}
 
 	private onInitialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
@@ -281,20 +292,18 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 					<button className='red-btn large-btn' onClick={this.onChannelDeleted.bind(this)}>Delete</button>
 				</div>
 			</div>
-			{/*
 			<div className='row' style={{ padding: '5px' }}>
-                <div className='col-md-3'>
-					<button style={{ height: '68px', width: '100%' }} className='purple-btn' onClick={this.onJoinLeaveClick.bind(this)}>Join / Leave</button>
-                </div>
 				<div className='col-md-3'>
-					<Input id='channel-tts' placeholder='tts message...' multiline={true} style={{ height: '68px', width: '100%' }}/>
+					<button style={{ height: '68px', width: '100%' }} className='purple-btn' onClick={this.onJoinLeaveClick.bind(this)}>Join / Leave</button>
+				</div>
+				<div className='col-md-3'>
+					<Input id='channel-tts' placeholder='tts message...' multiline={true} style={{ height: '68px', width: '100%' }} />
 				</div>
 				<div className='col-md-6'>
 					<Input id='channel-url' placeholder='file url...' />
 					<input id='channel-file' type='file' />
 				</div>
-            </div>
-			*/}
+			</div>
 		</div>;
 	}
 }

@@ -437,7 +437,6 @@ hr {
 
 .color-picker {
     content: "";
-    width: 100%;
     border: 1px solid black;
     background: none;
     padding: 0px;
