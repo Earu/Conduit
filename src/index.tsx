@@ -40,12 +40,9 @@ declare module 'discord.js' {
     }
 }
 
-ReactDOM.render(
-    <div>
-        <Header/>
-        <Login client={client} logger={logger} loader={loader}/>
-        <Dashboard client={client} logger={logger} loader={loader}/>
-        <Loader />
-    </div>,
-    document.getElementById('root')
-);
+ReactDOM.render(<div>
+    <Header />
+    <Login client={client} logger={logger} loader={loader} />
+    <Dashboard client={client} logger={logger} loader={loader} />
+    <Loader />
+</div>, document.getElementById('root'));
