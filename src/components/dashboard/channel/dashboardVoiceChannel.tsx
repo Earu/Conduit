@@ -181,7 +181,6 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 					? 'Connected to selected voice channel'
 					: 'Could not connect to selected voice channel';
 				this.props.logger.success(msg);
-				console.debug(this.props.client.voiceConnections);
 			});
 	}
 

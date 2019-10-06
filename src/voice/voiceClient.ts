@@ -15,7 +15,9 @@ enum OpCode {
 }
 
 export class VoiceClient {
-	private ws: WebSocket;
+	private gatewayWs: WebSocket;
+	private voiceWs: WebSocket;
+
 	private token: string;
 	private endpoint: string;
 
@@ -23,7 +25,7 @@ export class VoiceClient {
 		this.channel = vc;
 
 		let obj = this.channel.client as any;
-		this.ws = obj.ws.connection.ws;
+		this.gatewayWs = obj.ws.connection.ws;
 
 		this.isConnected = false;
 	}
@@ -31,7 +33,7 @@ export class VoiceClient {
 	public isConnected: boolean;
 	public channel: Discord.VoiceChannel;
 
-	public connect(): Promise<boolean> {
+	public initializeConnection(): Promise<boolean> {
 		return new Promise<boolean>((resolve, _) => {
 			if (this.isConnected) {
 				resolve(false);
@@ -56,16 +58,30 @@ export class VoiceClient {
 						this.token = data.d.token;
 						this.endpoint = data.d.endpoint;
 
-						this.ws.removeEventListener('message', listener);
+						this.gatewayWs.removeEventListener('message', listener);
 						resolve(true);
 					}
 				}
 			};
 
-			this.ws.send(payload);
+			this.gatewayWs.send(payload);
 			setTimeout(() => resolve(false), 5000);
-			this.ws.addEventListener('message', listener);
+			this.gatewayWs.addEventListener('message', listener);
 		});
+	}
+
+	public async connect(): Promise<boolean> {
+		let success: boolean = await this.initializeConnection();
+		if (!success) {
+			return false;
+		}
+
+		this.voiceWs = new WebSocket(`wss://${this.endpoint}?v=3`);
+
+		this.voiceWs.addEventListener('message', console.debug);
+		this.voiceWs.addEventListener('open', console.debug);
+		this.voiceWs.addEventListener('close', console.debug);
+		console.debug(this.voiceWs);
 	}
 
 	public disconnect(): void {
