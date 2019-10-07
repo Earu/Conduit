@@ -24,13 +24,17 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
 
     private updateAvatar(guild: Discord.Guild): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
-        let img: HTMLImageElement = avatar.children[0] as HTMLImageElement;
+        let img: HTMLImageElement = avatar.getElementsByTagName('img')[0];
+        let alt: HTMLSpanElement = avatar.getElementsByTagName('span')[0];
+
         if (guild.iconURL) {
+            img.style.display = 'block';
             img.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
+            alt.textContent = '';
         } else {
-            img.src = '';
+            img.style.display = 'none';
             let parts: Array<string> = guild.name.split(' ');
-            img.alt = parts.map((p: string) => p[0]).join('');
+            alt.textContent = parts.map((p: string) => p[0]).join('');
         }
     }
 

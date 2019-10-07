@@ -320,7 +320,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
                     <button className='red-btn large-btn' onClick={this.onChannelDeleted.bind(this)}>Delete</button>
                 </div>
             </div>
-            <div className='row' style={{ padding: '5px' }}>
+            <div className='row' style={{ padding: '5px', paddingBottom: '10px' }}>
                 <div className='col-md-12'>
                     <Input id='channel-message' onValidated={this.onChannelMessageSent.bind(this)} placeholder='message...' />
                     <input id='channel-file' type='file' />

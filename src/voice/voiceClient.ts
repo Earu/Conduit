@@ -76,12 +76,17 @@ export class VoiceClient {
 			return false;
 		}
 
-		this.voiceWs = new WebSocket(`wss://${this.endpoint}?v=3`);
+		this.voiceWs = new WebSocket(`wss://${this.endpoint}?v=3&encoding=json`);
+		this.voiceWs.binaryType = 'arraybuffer';
+		this.voiceWs.onopen = console.debug;
+		this.voiceWs.onmessage = console.debug;
+		this.voiceWs.onclose = console.debug;
+		this.voiceWs.onerror = console.debug;
 
-		this.voiceWs.addEventListener('message', console.debug);
-		this.voiceWs.addEventListener('open', console.debug);
-		this.voiceWs.addEventListener('close', console.debug);
+		console.debug(this.gatewayWs);
 		console.debug(this.voiceWs);
+
+		return true;
 	}
 
 	public disconnect(): void {
