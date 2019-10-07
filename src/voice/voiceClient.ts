@@ -34,9 +34,22 @@ export class VoiceClient {
 	public isConnected: boolean;
 	public channel: Discord.VoiceChannel;
 
-	public prepareConnection(): Promise<boolean> {
+	private canConnect(): boolean {
+		if (this.isConnected) return false;
+		let client: Discord.Client = this.channel.client;
+		if (client.user.id === this.channel.guild.ownerID) return true;
+
+		let permissions: Discord.Permissions = this.channel.permissionsFor(client.user);
+		if (!permissions) return false;
+		if (!permissions.hasPermissions(['VIEW_CHANNEL', 'CONNECT'])) return false;
+		if (this.channel.full && !permissions.hasPermission('MANAGE_CHANNELS')) return false;
+
+		return true;
+	}
+
+	private prepareConnection(): Promise<boolean> {
 		return new Promise<boolean>((resolve, _) => {
-			if (this.isConnected) {
+			if (!this.canConnect()) {
 				resolve(false);
 				return;
 			}
