@@ -20,6 +20,7 @@ export class VoiceClient {
 
 	private token: string;
 	private endpoint: string;
+	private sessionId: string;
 
 	constructor(vc: Discord.VoiceChannel) {
 		this.channel = vc;
@@ -33,14 +34,44 @@ export class VoiceClient {
 	public isConnected: boolean;
 	public channel: Discord.VoiceChannel;
 
-	public initializeConnection(): Promise<boolean> {
+	public prepareConnection(): Promise<boolean> {
 		return new Promise<boolean>((resolve, _) => {
 			if (this.isConnected) {
 				resolve(false);
 				return;
 			}
 
-			let payload: string = JSON.stringify({
+			let phase: number = 0;
+			let listener = (e: MessageEvent) => {
+				let data = JSON.parse(e.data);
+				if (data.d && data.d.guild_id === this.channel.guild.id && data.t) {
+					switch (data.t) {
+						case 'VOICE_SERVER_UPDATE':
+							this.token = data.d.token;
+							this.endpoint = data.d.endpoint;
+
+							if (++phase >= 2) {
+								this.isConnected = true;
+								this.gatewayWs.removeEventListener('message', listener);
+								resolve(true);
+							}
+							break;
+						case 'VOICE_STATE_UPDATE':
+							this.sessionId = data.d.session_id;
+
+							if (++phase >= 2) {
+								this.isConnected = true;
+								this.gatewayWs.removeEventListener('message', listener);
+								resolve(true);
+							}
+							break;
+					}
+				}
+			};
+
+			setTimeout(() => resolve(false), 5000);
+			this.gatewayWs.addEventListener('message', listener);
+			this.gatewayWs.send(JSON.stringify({
 				op: OpCode.VoiceStateUpdate,
 				d: {
 					guild_id: this.channel.guild.id,
@@ -48,43 +79,30 @@ export class VoiceClient {
 					self_mute: false,
 					self_deaf: false,
 				}
-			});
-
-			let listener = (e: MessageEvent) => {
-				let data = JSON.parse(e.data);
-				if (data.t === 'VOICE_SERVER_UPDATE') {
-					if (data.d.guild_id === this.channel.guild.id) {
-						this.isConnected = true;
-						this.token = data.d.token;
-						this.endpoint = data.d.endpoint;
-
-						this.gatewayWs.removeEventListener('message', listener);
-						resolve(true);
-					}
-				}
-			};
-
-			this.gatewayWs.send(payload);
-			setTimeout(() => resolve(false), 5000);
-			this.gatewayWs.addEventListener('message', listener);
+			}));
 		});
 	}
 
 	public async connect(): Promise<boolean> {
-		let success: boolean = await this.initializeConnection();
+		let success: boolean = await this.prepareConnection();
 		if (!success) {
 			return false;
 		}
 
-		this.voiceWs = new WebSocket(`wss://${this.endpoint}?v=3&encoding=json`);
-		this.voiceWs.binaryType = 'arraybuffer';
-		this.voiceWs.onopen = console.debug;
+		this.voiceWs = new WebSocket(`ws://${this.endpoint}?v=3&encoding=json`);
 		this.voiceWs.onmessage = console.debug;
 		this.voiceWs.onclose = console.debug;
-		this.voiceWs.onerror = console.debug;
+		this.voiceWs.onopen = console.debug;
 
-		console.debug(this.gatewayWs);
-		console.debug(this.voiceWs);
+		this.voiceWs.send(JSON.stringify({
+			op: OpCode.Dispatch,
+			d: {
+				server_id: this.channel.guild.id,
+				user_id: this.channel.client.user.id,
+				session_id: this.sessionId,
+				token: this.token,
+			}
+		}));
 
 		return true;
 	}
