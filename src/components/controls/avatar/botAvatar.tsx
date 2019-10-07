@@ -17,14 +17,18 @@ export class BotAvatar extends Avatar<AvatarProps> {
 
     private updateAvatar(): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
-        let img: HTMLImageElement = avatar.children[0] as HTMLImageElement;
+        let img: HTMLImageElement = avatar.getElementsByTagName('img')[0];
+        let alt: HTMLSpanElement = avatar.getElementsByTagName('span')[0];
+
         let url = this.props.client.user.avatarURL;
         if (url) {
+            img.style.display = 'block';
             img.src = url;
+            alt.textContent = '';
         } else {
-            img.src = '';
+            img.style.display = 'none';
             let parts: Array<string> = this.props.client.user.username.split(' ');
-            img.alt = parts.map((p: string) => p[0]).join('');
+            alt.textContent = parts.map((p: string) => p[0]).join('');
         }
     }
 

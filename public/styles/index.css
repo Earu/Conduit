@@ -298,6 +298,12 @@ hr {
 
 .avatar-control>img {
     position: absolute;
+    width: 64px;
+    height: 64px;
+}
+
+.avatar-control>span {
+    position: absolute;
     line-height: 64px;
     text-align: center;
     color: white;

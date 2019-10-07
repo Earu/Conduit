@@ -13,7 +13,7 @@ export class Avatar<T extends AvatarProps> extends React.Component<T, {}> {
 
     private onClick(_: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         let avatar: HTMLElement = document.getElementById(this.props.id);
-        let fileInput: HTMLInputElement = avatar.children[2] as HTMLInputElement;
+        let fileInput: HTMLInputElement = avatar.getElementsByTagName('input')[0];
         fileInput.click();
     }
 
@@ -33,8 +33,9 @@ export class Avatar<T extends AvatarProps> extends React.Component<T, {}> {
     render(): JSX.Element {
         return <div id={this.props.id} className='avatar-control'>
             <img alt='avatar' />
+            <span />
             <button onClick={this.onClick.bind(this)}>Change Avatar</button>
-            <input onChange={this.onChange.bind(this)} type='file' accept='image/png,image/jpeg'/>
+            <input onChange={this.onChange.bind(this)} type='file' accept='image/png,image/jpeg' />
         </div>
     }
 }
