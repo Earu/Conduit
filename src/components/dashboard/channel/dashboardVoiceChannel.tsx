@@ -173,7 +173,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 		}
 	}
 
-	private connect(): void {
+	/*private connect(): void {
 		this.voiceClient = new VoiceClient(this.channel);
 		this.props.loader.load(this.voiceClient.connect())
 			.then((success: boolean) => {
@@ -194,7 +194,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 		} else {
 			this.connect();
 		}
-	}
+	}*/
 
 	private onParentSelected(value: string): void {
 		if (!this.isCurrentChannelValid()) return;
@@ -291,7 +291,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 					<button className='red-btn large-btn' onClick={this.onChannelDeleted.bind(this)}>Delete</button>
 				</div>
 			</div>
-			<div className='row' style={{ padding: '5px' }}>
+			{/*<div className='row' style={{ padding: '5px' }}>
 				<div className='col-md-3'>
 					<button style={{ height: '68px', width: '100%' }} className='purple-btn' onClick={this.onJoinLeaveClick.bind(this)}>Join / Leave</button>
 				</div>
@@ -302,7 +302,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 					<Input id='channel-url' placeholder='file url...' />
 					<input id='channel-file' type='file' />
 				</div>
-			</div>
+			</div>*/}
 		</div>;
 	}
 }

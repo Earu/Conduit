@@ -85,6 +85,9 @@ export class VoiceConnection {
 			case VoiceOpCodes.Ready:
 				data.d.port;
 				data.d.ip;
+				let rtc = new RTCPeerConnection({
+
+				});
 				break;
 		}
 	}

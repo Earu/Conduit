@@ -71,10 +71,10 @@ export class DashboardEmojis extends React.Component<ConduitGuildSubPanelProps, 
 				</div>
 			</div>
 			<div className='row'>
-				<div className='col-md-6'>
+				<div className='col-md-9'>
 					<Input id='emoji-name' onValidated={this.onEmojiNameChange.bind(this)} placeholder='name...' />
 				</div>
-				<div className='col-md-6'>
+				<div className='col-md-3'>
 					<button className='red-btn small-btn' onClick={this.onEmojiDelete.bind(this)}>Delete</button>
 				</div>
 			</div>
