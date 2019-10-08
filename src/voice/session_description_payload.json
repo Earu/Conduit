@@ -1,9 +1,0 @@
-{
-	"op": 4,
-	"d": {
-		"video_codec": null,
-		"sdp": "m=audio 48008 ICE/SDP\na=fingerprint:sha-256 A5:3C:43:B7:C5:75:73:37:7A:65:AD:3B:C0:7A:BB:D0:7C:9D:62:51:67:E4:32:9A:5C:15:8C:C3:B7:6F:24:F1\nc=IN IP4 109.200.204.47\na=rtcp:48008\na=ice-ufrag:crOq\na=ice-pwd:xhu1QRjKpgh6N4xk2nbYSH\na=fingerprint:sha-256 A5:3C:43:B7:C5:75:73:37:7A:65:AD:3B:C0:7A:BB:D0:7C:9D:62:51:67:E4:32:9A:5C:15:8C:C3:B7:6F:24:F1\na=candidate:1 1 UDP 4261412862 109.200.204.47 48008 typ host\n",
-		"media_session_id": "91e2e009133fc41ccfa1ee59c418f1bd",
-		"audio_codec": "opus"
-	}
-}
