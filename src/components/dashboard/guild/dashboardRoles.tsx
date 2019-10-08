@@ -17,7 +17,6 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 		if (role) {
 			ReactDOM.render(<div className='row'>
 				<div className='col-md-3'>
-					<input id='role-color' type='color' className='color-picker' style={{ display: 'inline-block', width: '20%' }} />
 					<Input id='role-name' placeholder='name...' style={{ display: 'inline-block', width: '75%', marginLeft: '5%' }} />
 				</div>
 				<div className='col-md-3' />
