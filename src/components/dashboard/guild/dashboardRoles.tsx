@@ -1,15 +1,17 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as Discord from 'discord.js';
+import * as ColorPicker from 'rc-color-picker';
 
 import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
 import { Select } from '../../controls/select';
 import { Input } from '../../controls/input';
 
 export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {}> {
-	private initializeRole(role: Discord.Role): void {
-		role.color
+	private onRoleColorChanged(): void {
+
 	}
+
 
 	private loadRole(roleId: string): void {
 		let roleContainer: HTMLElement = document.getElementById('role');
@@ -17,7 +19,10 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 		if (role) {
 			ReactDOM.render(<div className='row'>
 				<div className='col-md-3'>
-					<Input id='role-name' placeholder='name...' style={{ display: 'inline-block', width: '75%', marginLeft: '5%' }} />
+					<div id='role-color' onChange={console.log} style={{ width: '20%', display: 'inline-block' }}>
+						<ColorPicker color={role.color.toString(16)} enableAlpha={false} />
+					</div>
+					<Input id='role-name' value={role.name} placeholder='name...' style={{ display: 'inline-block', width: '75%', marginLeft: '5%' }} />
 				</div>
 				<div className='col-md-3' />
 				<div className='col-md-3'>
@@ -27,8 +32,6 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 					<button className='red-btn small-btn'>Delete</button>
 				</div>
 			</div>, roleContainer);
-
-			this.initializeRole(role);
 		} else {
 			ReactDOM.render(<div />, roleContainer);
 		}
@@ -45,7 +48,7 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 				<hr style={{ marginBottom: '0px' }} />
 			</div>;
 		} else {
-			return <div />
+			return <div />;
 		}
 	}
 
