@@ -28,13 +28,11 @@
     "webpack-cli": "^3.3.9"
   },
   "dependencies": {
-    "@types/react-router": "^5.1.1",
     "discord.js": "^11.5.1",
-    "history": "^4.10.1",
     "notyf": "^3.0.4",
     "pretty-checkbox": "^3.0.3",
+    "rc-color-picker": "^1.2.6",
     "react": "^16.10.1",
-    "react-dom": "^16.10.1",
-    "react-router": "^5.1.1"
+    "react-dom": "^16.10.1"
   }
 }

@@ -7,6 +7,7 @@ export interface InputProps {
     onChange?: (value: string) => void;
     multiline?: boolean;
     list?: string;
+    value?: string;
     style?: React.CSSProperties;
 }
 
@@ -53,6 +54,7 @@ export class Input extends React.Component<InputProps, {}> {
                 id={this.props.id}
                 onKeyPress={this.onKeyPress.bind(this)}
                 placeholder={this.props.placeholder}
+                value={this.props.value}
                 style={this.style} />;
         } else {
             return <input onChange={this.onInputChange}
@@ -62,6 +64,7 @@ export class Input extends React.Component<InputProps, {}> {
                 onKeyPress={this.onKeyPress.bind(this)}
                 placeholder={this.props.placeholder}
                 list={this.props.list}
+                value={this.props.value}
                 style={this.style} />;
         }
     }
