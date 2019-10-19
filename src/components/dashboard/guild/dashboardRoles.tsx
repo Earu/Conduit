@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as Discord from 'discord.js';
-import * as ColorPicker from 'rc-color-picker';
 
 import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
 import { Select } from '../../controls/select';
 import { Input } from '../../controls/input';
+import { ColorPicker } from '../../controls/colorPicker';
 
 export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {}> {
 	private onRoleColorChanged(): void {
@@ -19,9 +19,7 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 		if (role) {
 			ReactDOM.render(<div className='row'>
 				<div className='col-md-3'>
-					<div id='role-color' onChange={console.log} style={{ width: '20%', display: 'inline-block' }}>
-						<ColorPicker color={role.color.toString(16)} enableAlpha={false} />
-					</div>
+					<ColorPicker id='role-color' color={role.color.toString(16)} />
 					<Input id='role-name' value={role.name} placeholder='name...' style={{ display: 'inline-block', width: '75%', marginLeft: '5%' }} />
 				</div>
 				<div className='col-md-3' />

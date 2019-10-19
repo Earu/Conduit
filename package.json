@@ -31,8 +31,8 @@
     "discord.js": "^11.5.1",
     "notyf": "^3.0.4",
     "pretty-checkbox": "^3.0.3",
-    "rc-color-picker": "^1.2.6",
     "react": "^16.10.1",
+    "react-color": "^2.17.3",
     "react-dom": "^16.10.1"
   }
 }
