@@ -11,7 +11,8 @@ export class BotAvatar extends Avatar<AvatarProps> {
 
         this.httpClient = new HttpClient();
         this.props.client
-            .on('ready', this.onReady.bind(this))
+            .on('ready', this.initialize.bind(this))
+            .on('loggedIn', this.initialize.bind(this))
             .on('userUpdate', this.onUserUpdate.bind(this));
     }
 
@@ -32,7 +33,7 @@ export class BotAvatar extends Avatar<AvatarProps> {
         }
     }
 
-    private onReady(): void {
+    private initialize(): void {
         this.updateAvatar();
     }
 

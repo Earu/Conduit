@@ -51,6 +51,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onReady(): void {
+        this.initialize();
         let guilds: Array<Discord.Guild> = [];
         if (this.props.client.shard) {
             this.props.client.shard.broadcastEval('this.guilds')
@@ -247,8 +248,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    render(): JSX.Element {
-        return <div>
+    private initialize(): void {
+        let jsx: JSX.Element = <div>
             <div style={{ padding: '10px', paddingBottom: '0' }}>
                 <div className='row'>
                     <div className='col-md-12'>
@@ -272,10 +273,10 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                     <div className='col-md-3'>
                         <button className='red-btn small-btn' onClick={this.onLeaveGuild.bind(this)} style={{ marginBottom: '5px' }}>
                             Leave
-                        </button>
+                </button>
                         <button className='red-btn small-btn' onClick={this.onDeleteGuild.bind(this)}>
                             Delete
-                        </button>
+                </button>
                     </div>
                 </div>
             </div>
@@ -289,5 +290,11 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 <div id='container-guild-roles' />
             </DashboardPanel>
         </div>;
+
+        ReactDOM.render(jsx, document.getElementById('guild-panel'));
+    }
+
+    render(): JSX.Element {
+        return <div id='guild-panel'/>;
     }
 }

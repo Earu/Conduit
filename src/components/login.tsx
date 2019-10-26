@@ -41,9 +41,9 @@ export class Login extends React.Component<ConduitProps, {}> {
     
                 let readyCallback = (ev: MessageEvent) => {
                     let data = JSON.parse(ev.data);
-                    console.debug(data);
                     if (data.t === 'GUILD_CREATE') { // We wait for the first guild because READY is too early for d.js
                         ws.removeEventListener('message', readyCallback);
+                        this.props.client.emit('loggedIn');
                         resolve(true);
                     }
                 };

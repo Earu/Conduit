@@ -33,8 +33,12 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
             alt.textContent = '';
         } else {
             img.style.display = 'none';
-            let parts: Array<string> = guild.name.split(' ');
-            alt.textContent = parts.map((p: string) => p[0]).join('');
+            if (guild.name) {
+                let parts: Array<string> = guild.name.split(' ');
+                alt.textContent = parts.map((p: string) => p[0]).join('');
+            } else {
+                alt.textContent = '?';
+            }
         }
     }
 

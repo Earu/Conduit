@@ -126,6 +126,10 @@ export class EmojiSelector extends React.Component<EmojiSelectorProps, {}> {
 
 	private renderEmojis(): Array<JSX.Element> {
 		let res: Array<JSX.Element> = [];
+		if (!this.props.guild.emojis) {
+			return res;
+		}
+
 		let selectedFirst: boolean = false;
 		for (let item of this.props.guild.emojis) {
 			let emoji: Discord.Emoji = item[1];

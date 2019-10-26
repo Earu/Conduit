@@ -77,7 +77,10 @@ export class SelectHelper {
 
         let select: HTMLSelectElement = resSelect.toNode();
         select.value = value;
-        select.nextSibling.textContent = select.options[select.selectedIndex].textContent;
+
+        let selectedIndex: number = select.selectedIndex > -1 ? select.selectedIndex : 0;
+        select.nextSibling.textContent = select.options[selectedIndex].textContent;
+        
         return true;
     }
 
