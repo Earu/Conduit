@@ -15,6 +15,10 @@ const logger: Logger = new Logger();
 const loader: LoaderHelper = new LoaderHelper(logger);
 
 EventEmitter.defaultMaxListeners = 20;
+client.options.messageCacheMaxSize = 1;
+client.options.messageCacheLifetime = 1;
+client.options.ws.large_threshold = 1;
+client.options.fetchAllMembers = false;
 
 // forgotten discord.js typings
 declare module 'discord.js' {

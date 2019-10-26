@@ -31,7 +31,7 @@ export class Login extends React.Component<ConduitProps, {}> {
 
     private async createReadyPromise(): Promise<boolean> {
         return new Promise<boolean>((resolve, _) => {
-            setTimeout(() => resolve(false), 5000);
+            setTimeout(() => resolve(false), 10000);
 
             this.getGatewayWS().then((ws: WebSocket) => {
                 if (!ws) {
@@ -41,7 +41,16 @@ export class Login extends React.Component<ConduitProps, {}> {
     
                 let readyCallback = (ev: MessageEvent) => {
                     let data = JSON.parse(ev.data);
-                    if (data.t === 'GUILD_CREATE') { // We wait for the first guild because READY is too early for d.js
+                    if (!data) {
+                        ws.removeEventListener('message', readyCallback);
+                        resolve(false);
+                    } else if (data.t === 'READY' && data.d.guilds && data.d.guilds.length < 1) {
+                        ws.removeEventListener('message', readyCallback);
+                        setTimeout(() => { // wait for d.js to process the msg
+                            this.props.client.emit('loggedIn');
+                            resolve(true);
+                        }, 2000);
+                    } else if (data.t === 'GUILD_CREATE') { // If we have more than 1 guild wait for first guild
                         ws.removeEventListener('message', readyCallback);
                         this.props.client.emit('loggedIn');
                         resolve(true);
@@ -65,7 +74,16 @@ export class Login extends React.Component<ConduitProps, {}> {
 
             this.createReadyPromise()
                 .then((succ: boolean) => {
-                    if (!succ) return;
+                    if (!succ) {
+                        this.props.loader.load(this.props.client.destroy())
+                            .then(_ => {
+                                input.style.border = '2px solid red';
+                                input.disabled = false;
+                                this.props.logger.error('Connection timed out or failed');
+                            });
+                        return;
+                    }
+
                     if (!this.props.client.user.bot) { // we do NOT endorse user bots
                         this.props.loader.load(this.props.client.destroy())
                             .then(_ => {
