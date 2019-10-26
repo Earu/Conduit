@@ -11,13 +11,14 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         super(props);
 
         this.props.client
-            .on('ready', this.onReady.bind(this))
+            .on('ready', this.initialize.bind(this))
+            .on('loggedIn', this.initialize.bind(this))
             .on('userUpdate', this.onUserUpdate.bind(this))
             .on('guildCreate', this.onGuildX.bind(this))
             .on('guildDelete', this.onGuildX.bind(this));
     }
 
-    private onReady(): void {
+    private initialize(): void {
         let user: Discord.ClientUser = this.props.client.user;
         let name: HTMLInputElement = document.getElementById('bot-tag') as HTMLInputElement;
         let game: HTMLInputElement = document.getElementById('bot-game') as HTMLInputElement;
