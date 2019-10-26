@@ -12,14 +12,13 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 
 	}
 
-
 	private loadRole(roleId: string): void {
 		let roleContainer: HTMLElement = document.getElementById('role');
 		let role: Discord.Role = this.props.guild.roles.find((r: Discord.Role) => r.id === roleId && !r.deleted);
 		if (role) {
 			ReactDOM.render(<div className='row'>
 				<div className='col-md-3'>
-					<ColorPicker id='role-color' color={role.color.toString(16)} />
+					{/*<ColorPicker id='role-color' color={role.color.toString(16)} />*/}
 					<Input id='role-name' value={role.name} placeholder='name...' style={{ display: 'inline-block', width: '75%', marginLeft: '5%' }} />
 				</div>
 				<div className='col-md-3' />
