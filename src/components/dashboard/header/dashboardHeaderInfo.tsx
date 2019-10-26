@@ -26,13 +26,11 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         let guilds: HTMLElement = document.getElementById('guild-count');
         let users: HTMLElement = document.getElementById('user-count');
         let botId: HTMLElement = document.getElementById('bot-id');
-        let botInvite: HTMLLinkElement = document.getElementById('bot-invite') as HTMLLinkElement;
 
         name.value = user.username;
         guilds.innerText = this.props.client.guilds.size.toString();
         users.innerText = this.props.client.users.size.toString();
         botId.innerText = user.id;
-        botInvite.href = `https://discordapp.com/oauth2/authorize?client_id=${user.id}&scope=bot&permissions=0`;
 
         if (user.presence.game) {
             game.value = user.presence.game.name;
@@ -191,6 +189,10 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
         location.reload();
     }
 
+    private onInviteClick(): void {
+        window.open(`https://discordapp.com/oauth2/authorize?client_id=${this.props.client.user.id}&scope=bot&permissions=0`);
+    }
+
     render(): JSX.Element {
         return <div className='row dashboard-info '>
             <div className='col-md-1'>
@@ -224,7 +226,11 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             <div className='bot-stats col-md-3'>
                 <div style={{ height: '5px' }} />
                 ID: <span id='bot-id'>0</span><br />
-                <a id='bot-invite' className='purple-btn'>Bot Invite Link</a>
+                <button className='purple-btn small-btn'
+                    style={{ marginTop: '5px' }}
+                    onClick={this.onInviteClick.bind(this)}>
+                    Bot Invite Link
+                </button>
             </div>
             <div className='col-md-2'>
                 <div style={{ height: '5px' }} />
