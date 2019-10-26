@@ -291,10 +291,10 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             </DashboardPanel>
         </div>;
 
-        ReactDOM.render(jsx, document.getElementById('guild-panel'));
+        ReactDOM.render(jsx, document.getElementById('guild-panel-sub'));
     }
 
     render(): JSX.Element {
-        return <div id='guild-panel'/>;
+        return <div id='guild-panel-sub'/>;
     }
 }

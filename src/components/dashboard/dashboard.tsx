@@ -7,12 +7,40 @@ import { DashboardConsole } from './dashboardConsole';
 import { DashboardGuilds } from './guild/dashboardGuilds';
 
 export class Dashboard extends React.Component<ConduitProps, {}> {
+    constructor(props: ConduitProps) {
+        super(props);
+
+        this.props.client.on('loggedIn', () => {
+            let obj: any = this.props.client as any;
+            let ws: WebSocket = obj.ws.connection.ws;
+            let count: number = 0;
+            let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
+            let guildCallback = (ev: MessageEvent) => {
+                let data = JSON.parse(ev.data);
+                if (data.t != 'GUILD_CREATE') return;
+
+                count++;
+                title.textContent = `GUILDS ${Math.ceil(count / this.props.client.guilds.size * 100)}%`;
+                if (count >= this.props.client.guilds.size - 5) { // aprox
+                    ws.removeEventListener('message', guildCallback);
+                    title.textContent = 'GUILDS';
+                }
+            };
+            ws.addEventListener('message', guildCallback);
+        });
+    }
+
+    private getPanelTitle(id: string): HTMLSpanElement {
+        let panel: HTMLElement = document.getElementById(id);
+        return panel.getElementsByClassName('title')[0] as HTMLSpanElement;
+    }
+
     render(): JSX.Element {
         return <div id='dashboard'>
             <DashboardHeader client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
             <div className='row' style={{ paddingBottom: '400px' }}>
                 <div className='col-md-6'>
-                    <DashboardPanel title='GUILDS' foldable={true}>
+                    <DashboardPanel id='guild-panel' title='GUILDS' foldable={true}>
                         <DashboardGuilds client={this.props.client} logger={this.props.logger} loader={this.props.loader} />
                     </DashboardPanel>
                 </div>
