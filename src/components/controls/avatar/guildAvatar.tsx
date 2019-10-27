@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 
 import { Avatar, AvatarProps } from './avatar';
-import { HttpClient, HttpResult } from '../../../utils/httpClient';
+import { HttpClient, HttpResult } from '../../../http/httpclient';
 import { ActionReporter } from '../../../utils/actionReporter';
 
 export interface GuildAvatarProps extends AvatarProps {

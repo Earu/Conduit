@@ -12,19 +12,20 @@ import { SelectHelper } from '../../../utils/selectHelper';
 import { DashboardEmojis } from './dashboardEmojis';
 import { DashboardChannels } from './dashboardChannels';
 import { DashboardRoles } from './dashboardRoles';
-import { HttpClient, HttpResult } from '../../../utils/httpClient';
+import { HttpClient, HttpResult } from '../../../http/httpclient';
+import { RestClient } from '../../../http/restClient';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Discord.Guild;
     private reporter: ActionReporter;
-    private httpClient: HttpClient;
+    private restClient: RestClient;
 
     constructor(props: any) {
         super(props);
 
         this.selectedGuild = null;
         this.reporter = new ActionReporter();
-        this.httpClient = new HttpClient();
+        this.restClient = new RestClient(this.props.client.token);
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
@@ -131,21 +132,15 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             guild = this.props.client.guilds.find((_: Discord.Guild, guildId: string) => guildId == id);
         }
 
-        if (!guild || (guild && !guild.available)) { //fallback on http REST
+        if (!guild || (guild && !guild.available)) { //fallback on REST API
             try {
-                let res: HttpResult = await this.httpClient.get(`https://discordapp.com/api/guilds/${id}`, {
-                    'Authorization': `Bot ${this.props.client.token}`,
-                    'Content-Type': 'application/json',
-                });
-
-                return res.isSuccess() ? res.asObject<Discord.Guild>() : guild;
+                guild = await this.restClient.fetchGuild(id);
             } catch (err) {
                 this.props.logger.error(err);
-                return null;
             }
-        } else {
-            return guild;
         }
+        
+        return guild;
     }
 
     private updateGuildInfo(updateSubPanels: boolean = true): void {

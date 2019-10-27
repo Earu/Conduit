@@ -89,8 +89,6 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 	}
 
 	private renderChannels(): JSX.Element {
-		if (!this.props.guild.channels) return <div />;
-
 		let chans: Discord.Collection<string, Discord.GuildChannel> = this.props.guild.channels.filter((c: Discord.GuildChannel) => !c.deleted);
 		if (chans.size > 0) {
 			let chanId: string = chans.first().id;
