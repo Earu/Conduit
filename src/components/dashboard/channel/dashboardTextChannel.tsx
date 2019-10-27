@@ -6,7 +6,7 @@ import { ConduitChannelProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { ConduitEvent } from '../../../utils/conduitEvent';
-import { HttpClient, HttpResult } from '../../../utils/httpClient';
+import { HttpClient, HttpResult } from '../../../http/httpclient';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
 
