@@ -3,12 +3,14 @@ import * as React from 'react';
 import { ConduitProps } from '../utils/conduitProps';
 
 export class Login extends React.Component<ConduitProps, {}> {
+    private readonly timeout: number = 10000;
+    
     private waitGatewayWS(wsObject: any): Promise<WebSocket> {
         return new Promise<WebSocket>((resolve, _) => {
-            let wsHandle: number = -1;
+            let wsHandle: number = null;
             let checkWs = () => { 
                 if (wsObject.connection && wsObject.connection.ws) {
-                    if (wsHandle != -1) {
+                    if (wsHandle) {
                         clearInterval(wsHandle);
                     }
 
@@ -20,7 +22,7 @@ export class Login extends React.Component<ConduitProps, {}> {
             setTimeout(() => {
                 clearInterval(wsHandle);
                 resolve(null);
-            }, 5000)
+            }, this.timeout)
         });
     }
 
@@ -31,7 +33,7 @@ export class Login extends React.Component<ConduitProps, {}> {
 
     private async createReadyPromise(): Promise<boolean> {
         return new Promise<boolean>((resolve, _) => {
-            setTimeout(() => resolve(false), 10000);
+            setTimeout(() => resolve(false), this.timeout);
 
             this.getGatewayWS().then((ws: WebSocket) => {
                 if (!ws) {
