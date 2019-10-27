@@ -75,7 +75,7 @@ hr {
     color: white;
     font-size: 18px;
     display: block;
-    font-family: 'Comfortaa', cursive;
+    font-family: 'Comfortaa', sans-serif;
 }
 
 #token-input {

@@ -12,16 +12,19 @@ import { SelectHelper } from '../../../utils/selectHelper';
 import { DashboardEmojis } from './dashboardEmojis';
 import { DashboardChannels } from './dashboardChannels';
 import { DashboardRoles } from './dashboardRoles';
+import { HttpClient, HttpResult } from '../../../utils/httpClient';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private selectedGuild: Discord.Guild;
     private reporter: ActionReporter;
+    private httpClient: HttpClient;
 
     constructor(props: any) {
         super(props);
 
         this.selectedGuild = null;
         this.reporter = new ActionReporter();
+        this.httpClient = new HttpClient();
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
@@ -51,7 +54,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onReady(): void {
-        this.initialize();
         let guilds: Array<Discord.Guild> = [];
         if (this.props.client.shard) {
             this.props.client.shard.broadcastEval('this.guilds')
@@ -117,17 +119,33 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     private async tryFindGuild(id: string): Promise<Discord.Guild> {
         if (!id) return null;
 
+        let guild: Discord.Guild = null;
         if (this.props.client.shard) {
             let res: any = await this.props.client.shard.broadcastEval('this.guilds');
             for (let i = 0; i < res.length; i++) {
                 let gs: Discord.Collection<string, Discord.Guild> = res[i] as Discord.Collection<string, Discord.Guild>;
-                return gs.find((_: Discord.Guild, guildId: string) => guildId === id);
+                guild = gs.find((_: Discord.Guild, guildId: string) => guildId === id);
+                if (guild) break;
             }
         } else {
-            return this.props.client.guilds.find((_: Discord.Guild, guildId: string) => guildId == id);
+            guild = this.props.client.guilds.find((_: Discord.Guild, guildId: string) => guildId == id);
         }
 
-        return null;
+        if (!guild || (guild && !guild.available)) { //fallback on http REST
+            try {
+                let res: HttpResult = await this.httpClient.get(`https://discordapp.com/api/guilds/${id}`, {
+                    'Authorization': `Bot ${this.props.client.token}`,
+                    'Content-Type': 'application/json',
+                });
+
+                return res.isSuccess() ? res.asObject<Discord.Guild>() : guild;
+            } catch (err) {
+                this.props.logger.error(err);
+                return null;
+            }
+        } else {
+            return guild;
+        }
     }
 
     private updateGuildInfo(updateSubPanels: boolean = true): void {
@@ -167,6 +185,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Discord.Guild) => {
+                console.debug(guild);
                 if (!guild) return;
                 this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
@@ -248,8 +267,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             });
     }
 
-    private initialize(): void {
-        let jsx: JSX.Element = <div>
+    render(): JSX.Element {
+        return <div>
             <div style={{ padding: '10px', paddingBottom: '0' }}>
                 <div className='row'>
                     <div className='col-md-12'>
@@ -290,11 +309,5 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 <div id='container-guild-roles' />
             </DashboardPanel>
         </div>;
-
-        ReactDOM.render(jsx, document.getElementById('guild-panel-sub'));
-    }
-
-    render(): JSX.Element {
-        return <div id='guild-panel-sub'/>;
     }
 }
