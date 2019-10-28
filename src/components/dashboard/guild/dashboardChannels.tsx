@@ -109,7 +109,7 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 	private renderChannels(): JSX.Element {
 		let chans: Discord.Collection<string, Discord.GuildChannel> = this.props.guild.channels.filter((c: Discord.GuildChannel) => !c.deleted);
 		if (chans.size > 0) {
-			let opts: Array<JSX.Element> = chans.map((c: Discord.GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.id} ]</option>);
+			let opts: Array<JSX.Element> = chans.map((c: Discord.GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} | {c.id} ]</option>);
 
 			return <div>
 				<Input id='guild-channel' onValidated={this.onChannelSelected.bind(this)} placeholder='channel name or id...' list='guild-channels'/>
