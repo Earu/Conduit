@@ -58,7 +58,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 		if (this.isValidChannel(c)) {
 			if (c.id === this.channel.id) {
 				this.channel = c as Discord.VoiceChannel;
-				this.onInitialize();
+				this.initialize();
 			} else if (c.type === 'category') {
 				let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
 				SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.id} ]`);
@@ -232,7 +232,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 		return true;
 	}
 
-	private onInitialize(): void {
+	private initialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
 		let userLimitInput: HTMLInputElement = document.getElementById('channel-user-limit') as HTMLInputElement;
 		let bitrateInput: HTMLInputElement = document.getElementById('channel-bitrate') as HTMLInputElement;
@@ -261,12 +261,12 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 
 	componentDidMount(): void {
 		this.channel = this.props.channel;
-		this.onInitialize();
+		this.initialize();
 	}
 
 	componentDidUpdate(): void {
 		this.channel = this.props.channel;
-		this.onInitialize();
+		this.initialize();
 	}
 
 	render(): JSX.Element {

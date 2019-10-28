@@ -57,7 +57,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
         if (this.isValidChannel(c)) {
             if (c.id === this.channel.id) {
                 this.channel = c as Discord.TextChannel;
-                this.onInitialize();
+                this.initialize();
             } else if (c.type === 'category') {
                 let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
                 SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.id} ]`);
@@ -263,7 +263,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
         return true;
     }
 
-    private onInitialize(): void {
+    private initialize(): void {
         let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         let topicInput: HTMLInputElement = document.getElementById('channel-topic') as HTMLInputElement;
         let rtInput: HTMLInputElement = document.getElementById('channel-rate-limit') as HTMLInputElement;
@@ -292,12 +292,12 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
 
     componentDidMount(): void {
         this.channel = this.props.channel;
-        this.onInitialize();
+        this.initialize();
     }
 
     componentDidUpdate(): void {
         this.channel = this.props.channel;
-        this.onInitialize();
+        this.initialize();
     }
 
     render(): JSX.Element {
