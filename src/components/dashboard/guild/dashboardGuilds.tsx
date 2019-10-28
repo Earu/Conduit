@@ -12,7 +12,6 @@ import { SelectHelper } from '../../../utils/selectHelper';
 import { DashboardEmojis } from './dashboardEmojis';
 import { DashboardChannels } from './dashboardChannels';
 import { DashboardRoles } from './dashboardRoles';
-import { HttpClient, HttpResult } from '../../../http/httpclient';
 import { RestClient } from '../../../http/restClient';
 
 export class DashboardGuilds extends React.Component<ConduitProps, {}> {
@@ -25,7 +24,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
 
         this.selectedGuild = null;
         this.reporter = new ActionReporter();
-        this.restClient = new RestClient(this.props.client.token);
+        this.restClient = new RestClient(this.props.client);
         this.props.client
             .on('ready', this.onReady.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
@@ -89,18 +88,20 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onGuildDelete(guild: Discord.Guild): void {
-        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
-        let node: Node = null;
-        for (let child of guilds.childNodes) {
-            let opt: HTMLOptionElement = child as HTMLOptionElement;
-            if (opt.value === guild.id) {
-                node = opt;
-                break;
+        if (this.props.client.guilds.size < 2500) { // This operation is too laggy for over 2500 guilds bots
+            let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+            let node: Node = null;
+            for (let child of guilds.childNodes) {
+                let opt: HTMLOptionElement = child as HTMLOptionElement;
+                if (opt.value === guild.id) {
+                    node = opt;
+                    break;
+                }
             }
-        }
 
-        if (node) {
-            guilds.removeChild(node);
+            if (node) {
+                guilds.removeChild(node);
+            }
         }
 
         if (this.selectedGuild && guild.id === this.selectedGuild.id) {
@@ -117,30 +118,8 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private async tryFindGuild(id: string): Promise<Discord.Guild> {
-        if (!id) return null;
-
-        let guild: Discord.Guild = null;
-        if (this.props.client.shard) {
-            let res: any = await this.props.client.shard.broadcastEval('this.guilds');
-            for (let i = 0; i < res.length; i++) {
-                let gs: Discord.Collection<string, Discord.Guild> = res[i] as Discord.Collection<string, Discord.Guild>;
-                guild = gs.find((_: Discord.Guild, guildId: string) => guildId === id);
-                if (guild) break;
-            }
-        } else {
-            guild = this.props.client.guilds.find((_: Discord.Guild, guildId: string) => guildId == id);
-        }
-
-        if (!guild || (guild && !guild.available)) { //fallback on REST API
-            try {
-                guild = await this.restClient.fetchGuild(id);
-            } catch (err) {
-                this.props.logger.error(err);
-            }
-        }
-        
-        return guild;
+    private tryFindGuild(id: string): Promise<Discord.Guild> {
+        return this.restClient.fetchGuild(id);
     }
 
     private updateGuildInfo(updateSubPanels: boolean = true): void {
@@ -161,18 +140,18 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         guildName.value = this.selectedGuild.name;
         SelectHelper.trySetValue('guild-region', this.selectedGuild.region);
 
-        ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild}
-            client={this.props.client} logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
+        ReactDOM.render(<GuildAvatar id='guild-avatar' reporter={this.reporter} guild={this.selectedGuild} client={this.props.client}
+            logger={this.props.logger} loader={this.props.loader} />, guildAvatar);
 
         if (updateSubPanels) {
-            ReactDOM.render(<DashboardChannels guild={this.selectedGuild} client={this.props.client} onLayoutInvalidated={this.updateGuildInfo.bind(this)}
-                logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildChannelContainer);
+            ReactDOM.render(<DashboardChannels guild={this.selectedGuild} client={this.props.client} restClient={this.restClient}
+                onLayoutInvalidated={this.updateGuildInfo.bind(this)} logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildChannelContainer);
 
-            ReactDOM.render(<DashboardEmojis guild={this.selectedGuild} client={this.props.client} onLayoutInvalidated={this.updateGuildInfo.bind(this)}
-                logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildEmojisContainer);
+            ReactDOM.render(<DashboardEmojis guild={this.selectedGuild} client={this.props.client} restClient={this.restClient}
+                onLayoutInvalidated={this.updateGuildInfo.bind(this)} logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildEmojisContainer);
 
-            ReactDOM.render(<DashboardRoles guild={this.selectedGuild} client={this.props.client} onLayoutInvalidated={this.updateGuildInfo.bind(this)}
-                logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildRolesContainer);
+            ReactDOM.render(<DashboardRoles guild={this.selectedGuild} client={this.props.client} restClient={this.restClient}
+                onLayoutInvalidated={this.updateGuildInfo.bind(this)} logger={this.props.logger} loader={this.props.loader} reporter={this.reporter} />, guildRolesContainer);
         }
     }
 
@@ -180,7 +159,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Discord.Guild) => {
-                console.debug(guild);
                 if (!guild) return;
                 this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
