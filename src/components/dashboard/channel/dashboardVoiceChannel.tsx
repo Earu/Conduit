@@ -40,7 +40,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 	private onChannelCreate(c: Discord.Channel): void {
 		if (this.isValidChannel(c) && c.type === 'category') {
 			let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
-			SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`, this.onParentSelected.bind(this));
+			SelectHelper.tryAddValue('channel-parent', cat.id, `${cat.name} [ ${cat.id} ]`, this.onParentSelected.bind(this));
 		}
 	}
 
@@ -61,7 +61,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 				this.onInitialize();
 			} else if (c.type === 'category') {
 				let cat: Discord.CategoryChannel = c as Discord.CategoryChannel;
-				SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.type} ]`);
+				SelectHelper.tryChangeOptionText('channel-parent', cat.id, `${cat.name} [ ${cat.id} ]`);
 			}
 		}
 	}
@@ -250,7 +250,7 @@ export class DashboardVoiceChannel extends React.Component<ConduitChannelProps<D
 			for (let item of chans) {
 				let c: Discord.GuildChannel = item[1];
 				if (c.deleted) continue;
-				categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+				categories.push(<option key={`${this.channel.id}_${c.id}`} value={c.id}>{c.name} [ {c.id} ]</option>);
 			}
 		}
 
