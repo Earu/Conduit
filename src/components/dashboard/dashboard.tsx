@@ -20,7 +20,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                 if (data.t != 'GUILD_CREATE') return;
 
                 count++;
-                title.textContent = `GUILDS ${Math.ceil(count / this.props.client.guilds.size * 100)}%`;
+                title.textContent = `GUILDS (caching: ${Math.ceil(count / this.props.client.guilds.size * 100)}%)`;
                 if (count >= this.props.client.guilds.size - 5) { // aprox
                     ws.removeEventListener('message', guildCallback);
                     title.textContent = 'GUILDS';

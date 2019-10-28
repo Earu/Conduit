@@ -6,8 +6,7 @@ import { ConduitGuildSubPanelProps } from '../../../utils/conduitProps';
 import { DashboardCategoryChannel } from '../channel/dashboardCategoryChannel';
 import { DashboardTextChannel } from '../channel/dashboardTextChannel';
 import { DashboardVoiceChannel } from '../channel/dashboardVoiceChannel';
-import { Select } from '../../controls/select';
-import { SelectHelper } from '../../../utils/selectHelper';
+import { Input } from '../../controls/input';
 
 export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps, {}> {
 	constructor(props: any) {
@@ -15,8 +14,7 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 
 		this.props.client
 			.on('channelCreate', this.onChannelCreate.bind(this))
-			.on('channelDelete', this.onChannelDelete.bind(this))
-			.on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c));
+			.on('channelDelete', this.onChannelDelete.bind(this));
 	}
 
 	private onChannelX(chan: Discord.Channel, callback: (guildChan: Discord.GuildChannel) => void): void {
@@ -28,18 +26,17 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 		}
 	}
 
-	private onChannelUpdate(chan: Discord.Channel): void {
-		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
-			SelectHelper.tryChangeOptionText('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`);
-		});
-	}
-
 	private onChannelCreate(chan: Discord.Channel): void {
 		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
 			if (this.props.guild.channels.size === 1) {
 				this.props.onLayoutInvalidated();
 			} else {
-				SelectHelper.tryAddValue('guild-channel', guildChan.id, `${guildChan.name} [ ${guildChan.type} ]`, this.loadChannel.bind(this));
+				let opt: HTMLOptionElement = document.createElement('option');
+				opt.value = guildChan.id;
+				opt.textContent = `${guildChan.name} [ ${guildChan.id} ]`;
+
+				let datalist: HTMLElement = document.getElementById('guild-channels');
+				datalist.appendChild(opt);
 			}
 		});
 	}
@@ -49,60 +46,74 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 			if (this.props.guild.channels.size < 1) {
 				this.props.onLayoutInvalidated();
 			} else {
-				SelectHelper.tryRemoveValue('guild-channel', guildChan.id);
+				let channels: HTMLDataListElement = document.getElementById('guild-channels') as HTMLDataListElement;
+				let node: Node = null;
+				for (let child of channels.childNodes) {
+					let opt: HTMLOptionElement = child as HTMLOptionElement;
+					if (opt.value === guildChan.id) {
+						node = opt;
+						break;
+					}
+				}
+
+				if (node) {
+					channels.removeChild(node);
+				}
 			}
 		});
 	}
 
 	private loadChannel(chanId: string): void {
+		let chan: Discord.GuildChannel = this.props.guild.channels.get(chanId);
 		let container: HTMLElement = document.getElementById('channel');
 		let jsx: JSX.Element = <div />;
-		this.props.loader.load(this.props.restClient.fetchChannel(chanId))
-			.then((unknownChan: Discord.Channel) => {
-				if (!unknownChan || (unknownChan && unknownChan.deleted)) {
-					ReactDOM.render(jsx, container);
-					return;
-				}
 
-				let chan: Discord.GuildChannel = unknownChan as Discord.GuildChannel;
-				switch (chan.type) {
-					case 'category':
-						let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
-						jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
-							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-						break;
-					case 'store':
-					case 'news':
-					case 'text':
-						let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
-						jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
-							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-						break;
-					case 'voice':
-						let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
-						jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
-							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-						break;
-					default:
-						// unknown channel type, typically new or unexpected channel types
-						break;
-				}
+		if (!chan || (chan && chan.deleted)) {
+			ReactDOM.render(jsx, container);
+			return;
+		}
 
-				ReactDOM.render(jsx, container);
-			})
-			.catch(_ => {
-				ReactDOM.render(jsx, container);
-			});
+		switch (chan.type) {
+			case 'category':
+				let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
+				jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+				break;
+			case 'store':
+			case 'news':
+			case 'text':
+				let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
+				jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+				break;
+			case 'voice':
+				let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
+				jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
+					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+				break;
+			default:
+				// unknown channel type, typically new or unexpected channel types
+				break;
+		}
+
+		ReactDOM.render(jsx, container);
+	}
+
+	private onChannelSelected(): void {
+		let input: HTMLInputElement = document.getElementById('guild-channel') as HTMLInputElement;
+		if (input.value) {
+			this.loadChannel(input.value);
+		}
 	}
 
 	private renderChannels(): JSX.Element {
 		let chans: Discord.Collection<string, Discord.GuildChannel> = this.props.guild.channels.filter((c: Discord.GuildChannel) => !c.deleted);
 		if (chans.size > 0) {
-			let chanId: string = chans.first().id;
-			let opts: Array<JSX.Element> = chans.map((c: Discord.GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = chans.map((c: Discord.GuildChannel) => <option key={`${this.props.guild.id}_${c.id}`} value={c.id}>{c.name} [ {c.id} ]</option>);
 
 			return <div>
-				<Select id='guild-channel' defaultValue={chanId} onSelected={this.loadChannel.bind(this)}>{opts}</Select>
+				<Input id='guild-channel' onValidated={this.onChannelSelected.bind(this)} placeholder='channel name or id...' list='guild-channels'/>
+				<datalist id='guild-channels' >{opts}</datalist>
 				<hr style={{ marginBottom: '0px' }} />
 			</div>;
 		} else {
@@ -111,9 +122,12 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 	}
 
 	private postRender(): void {
-		let select: HTMLSelectElement = document.getElementById('guild-channel') as HTMLSelectElement;
-		if (select) {
-			this.loadChannel(select.value);
+		let input: HTMLInputElement = document.getElementById('guild-channel') as HTMLInputElement;
+		if (input) {
+			let chans: Discord.Collection<string, Discord.GuildChannel> = this.props.guild.channels.filter((c: Discord.GuildChannel) => !c.deleted);
+			if (chans.size > 0) {
+				this.loadChannel(chans.first().id);
+			}
 		} else {
 			ReactDOM.render(<div />, document.getElementById('channel'));
 		}

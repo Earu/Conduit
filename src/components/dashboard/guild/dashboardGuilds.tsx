@@ -53,6 +53,17 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         ReactDOM.render(opts, document.getElementById('guilds'));
     }
 
+    private initialize(guilds: Array<Discord.Guild>): void {
+        this.props.logger.success('Cached all guilds');
+        if (!this.selectedGuild) {
+            this.selectedGuild = guilds[0];
+            this.updateGuildInfo();
+        }
+
+        this.addGuildsToDatalist(guilds);
+        this.loadRegionSelect();
+    }
+
     private onReady(): void {
         let guilds: Array<Discord.Guild> = [];
         if (this.props.client.shard) {
@@ -62,20 +73,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                         let gs: Discord.Collection<string, Discord.Guild> = res[i] as Discord.Collection<string, Discord.Guild>;
                         guilds = guilds.concat(gs.map((g: Discord.Guild) => g));
                     }
-                    this.props.logger.success('Fetched all guilds');
-                    this.selectedGuild = guilds[0];
-                    this.updateGuildInfo();
-                    this.addGuildsToDatalist(guilds);
-                    this.loadRegionSelect();
+                    this.initialize(guilds);
                 })
                 .catch((err: Error) => this.props.logger.error(err.message));
         } else {
             guilds = this.props.client.guilds.map((g: Discord.Guild) => g);
-            this.props.logger.success('Fetched all guilds');
-            this.selectedGuild = guilds[0];
-            this.updateGuildInfo();
-            this.addGuildsToDatalist(guilds);
-            this.loadRegionSelect();
+            this.initialize(guilds);
         }
     }
 

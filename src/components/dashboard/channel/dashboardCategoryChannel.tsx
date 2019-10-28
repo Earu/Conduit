@@ -85,7 +85,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 		if (chanToAdd) {
 			this.chanIdToAdd = chanToAdd.id;
-			let opts: Array<JSX.Element> = this.nonChildrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = this.nonChildrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.id} ]</option>);
 
 			ReactDOM.render(<div>
 				<Select id='channel-not-children' onSelected={this.onChannelNotChildrenSelected.bind(this)}>{opts}</Select>
@@ -101,7 +101,7 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 
 		if (chanToRemove) {
 			this.chanIdToRemove = chanToRemove.id;
-			let opts: Array<JSX.Element> = this.childrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.type} ]</option>);
+			let opts: Array<JSX.Element> = this.childrenChannels.map((c: Discord.GuildChannel) => <option key={`${this.category.id}_${c.id}`} value={c.id}>{c.name} [ {c.id} ]</option>);
 
 			ReactDOM.render(<div>
 				<Select id='channel-children' onSelected={this.onChannelChildrenSelected.bind(this)}>{opts}</Select>
