@@ -2,43 +2,51 @@ import * as Discord from 'discord.js';
 
 import { HttpClient, HttpResult } from './httpclient';
 
-interface RestObject<T> {
-    toWSObject(): T;
-}
-
-export class RestGuild implements RestObject<Discord.Guild> {
-    public id: string;
-    public name: string;
-    public channels: Discord.Collection<string, Discord.GuildChannel>;
-    public roles: Discord.Collection<string, Discord.Role>;
-    public members: Discord.Collection<string, Discord.GuildMember>;
-
-    public toWSObject(): Discord.Guild {
-        // TODO: fill in fields not handled by REST objects
-
-        return null;
-    }
-}
-
 export class RestClient {
     private httpClient: HttpClient;
-    private token: string;
+    private client: Discord.Client;
 
-    constructor(token: string) {
+    constructor(client: Discord.Client) {
+        this.client = client;
         this.httpClient = new HttpClient();
-        this.token = token;
+    }
+
+    private defaultFetchAPI(path: string): Promise<HttpResult> {
+        return this.httpClient.get(`https://discordapp.com/api/` + path, {
+            'Authorization': `Bot ${this.client.token}`,
+            'Content-Type': 'application/json',
+        });
+    }
+
+    private async fetchGuildChannels(guild: Discord.Guild): Promise<void> {
+        let res: HttpResult = await this.defaultFetchAPI(`guilds/${guild.id}/channels`);
+        if (res.isSuccess()) {
+            let dataArray: Array<object> = res.asObject<Array<object>>();
+            for (let data of dataArray) {
+                let chan: Discord.GuildChannel = new Discord.GuildChannel(guild, data);
+                guild.channels.set(chan.id, chan);
+            }
+        }
     }
 
     public async fetchGuild(guildId: string): Promise<Discord.Guild> {
-        let res: HttpResult = await this.httpClient.get(`https://discordapp.com/api/guilds/${guildId}`, {
-            'Authorization': `Bot ${this.token}`,
-            'Content-Type': 'application/json',
-        });
-
+        let res: HttpResult = await this.defaultFetchAPI(`guilds/${guildId}`);
         if (res.isSuccess()) {
-            let restGuild: RestGuild = res.asObject<RestGuild>();
-            return restGuild.toWSObject();
-        } 
+            let data: object = res.asObject<object>();
+            let guild = new Discord.Guild(this.client, data);
+            await this.fetchGuildChannels(guild);
+            return guild;
+        }
+
+        return null;
+    }
+
+    public async fetchChannel(chanId: string): Promise<Discord.Channel> {
+        let res: HttpResult = await this.defaultFetchAPI(`channels/${chanId}`);
+        if (res.isSuccess()) {
+            let data: object = res.asObject<object>();
+            return new Discord.Channel(this.client, data);
+        }
 
         return null;
     }

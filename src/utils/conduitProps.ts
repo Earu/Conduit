@@ -3,6 +3,7 @@ import * as Discord from 'discord.js';
 import { Logger } from './logger';
 import { Loader } from './loader';
 import { ActionReporter } from './actionReporter';
+import { RestClient } from '../http/restClient';
 
 export interface ConduitProps {
     client: Discord.Client;
@@ -12,7 +13,8 @@ export interface ConduitProps {
 
 export interface ConduitGuildSubPanelProps extends ConduitProps {
 	guild: Discord.Guild;
-	reporter: ActionReporter;
+    reporter: ActionReporter;
+    restClient: RestClient;
 	onLayoutInvalidated?: () => void;
 }
 

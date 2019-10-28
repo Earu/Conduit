@@ -55,37 +55,44 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 	}
 
 	private loadChannel(chanId: string): void {
-		let chan: Discord.GuildChannel = this.props.guild.channels.find((c: Discord.GuildChannel) => c.id === chanId);
-		let jsx: JSX.Element = <div/>;
-		if (!chan || chan && chan.deleted) {
-			ReactDOM.render(jsx, document.getElementById('channel'));
-			return;
-		}
+		let container: HTMLElement = document.getElementById('channel');
+		let jsx: JSX.Element = <div />;
+		this.props.loader.load(this.props.restClient.fetchChannel(chanId))
+			.then((unknownChan: Discord.Channel) => {
+				if (!unknownChan || (unknownChan && unknownChan.deleted)) {
+					ReactDOM.render(jsx, container);
+					return;
+				}
 
-		switch (chan.type) {
-			case 'category':
-				let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
-				jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-				break;
-			case 'store':
-			case 'news':
-			case 'text':
-				let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
-				jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-				break;
-			case 'voice':
-				let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
-				jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
-					logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
-				break;
-			default:
-				// unknown channel type, typically new or unexpected channel types
-				break;
-		}
+				let chan: Discord.GuildChannel = unknownChan as Discord.GuildChannel;
+				switch (chan.type) {
+					case 'category':
+						let catChan: Discord.CategoryChannel = chan as Discord.CategoryChannel;
+						jsx = <DashboardCategoryChannel reporter={this.props.reporter} channel={catChan} client={this.props.client}
+							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+						break;
+					case 'store':
+					case 'news':
+					case 'text':
+						let txtChan: Discord.TextChannel = chan as Discord.TextChannel;
+						jsx = <DashboardTextChannel reporter={this.props.reporter} channel={txtChan} client={this.props.client}
+							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+						break;
+					case 'voice':
+						let voiceChan: Discord.VoiceChannel = chan as Discord.VoiceChannel;
+						jsx = <DashboardVoiceChannel reporter={this.props.reporter} channel={voiceChan} client={this.props.client}
+							logger={this.props.logger} loader={this.props.loader} onLayoutInvalidated={this.props.onLayoutInvalidated.bind(this)} />;
+						break;
+					default:
+						// unknown channel type, typically new or unexpected channel types
+						break;
+				}
 
-		ReactDOM.render(jsx, document.getElementById('channel'));
+				ReactDOM.render(jsx, container);
+			})
+			.catch(_ => {
+				ReactDOM.render(jsx, container);
+			});
 	}
 
 	private renderChannels(): JSX.Element {
