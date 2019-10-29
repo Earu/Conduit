@@ -15,6 +15,7 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             .on('loggedIn', this.initialize.bind(this))
             .on('userUpdate', this.onUserUpdate.bind(this))
             .on('guildCreate', this.onGuildX.bind(this))
+            .on('guildCached', this.onGuildX.bind(this))
             .on('guildDelete', this.onGuildX.bind(this));
     }
 

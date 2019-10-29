@@ -29,7 +29,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             .on('ready', this.onReady.bind(this))
             .on('loggedIn', this.loadRegionSelect.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
-            .on('cachedGuild', this.onGuildCached.bind(this))
+            .on('guildCached', this.onGuildCached.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
             .on('guildUpdate', (_, g: Discord.Guild) => this.onGuildUpdate(g))
             .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this));
@@ -129,9 +129,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private async tryFindGuild(id: string): Promise<Discord.Guild> {
-        if (this.props.client.guilds.has(id)) {
-            return this.props.client.guilds.get(id);
-        }
+        //if (this.props.client.guilds.has(id)) {
+        //    return this.props.client.guilds.get(id);
+        //}
 
         let guild: Discord.Guild = await this.restClient.fetchGuild(id);
         if (guild) {
@@ -180,10 +180,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Discord.Guild) => {
                 if (!guild || (guild && guild.deleted)) return;
-                if (!guild.available) {
-                    this.props.logger.error(`Selected guild [ ${guild.id} ] is currently unavailable, try again later`);
-                    return;
-                }
 
                 this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
