@@ -23,7 +23,7 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         super(props);
 
         this.selectedGuild = null;
-        this.reporter = new ActionReporter();
+        this.reporter = new ActionReporter(this.props.client);
         this.restClient = new RestClient(this.props.client);
         this.props.client
             .on('ready', this.onReady.bind(this))
