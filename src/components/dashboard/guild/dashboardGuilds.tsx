@@ -97,21 +97,24 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         guilds.appendChild(opt);
     }
 
-    private onGuildDelete(guild: Discord.Guild): void {
+    private getGuildOptionNode(datalist: HTMLDataListElement, guildId: string): Node {
         if (this.props.client.guilds.size < 2500) { // This operation is too laggy for over 2500 guilds bots
-            let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
-            let node: Node = null;
-            for (let child of guilds.childNodes) {
+            for (let child of datalist.childNodes) {
                 let opt: HTMLOptionElement = child as HTMLOptionElement;
-                if (opt.value === guild.id) {
-                    node = opt;
-                    break;
+                if (opt.value === guildId) {
+                    return opt;
                 }
             }
+        }
 
-            if (node) {
-                guilds.removeChild(node);
-            }
+        return null;
+    }
+
+    private onGuildDelete(guild: Discord.Guild): void {
+        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+        let node: Node = this.getGuildOptionNode(guilds, guild.id);
+        if (node) {
+            guilds.removeChild(node);
         }
 
         if (this.selectedGuild && guild.id === this.selectedGuild.id) {
@@ -121,8 +124,13 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private onGuildUpdate(guild: Discord.Guild): void {
-        if (!this.selectedGuild) return;
-        if (guild.id === this.selectedGuild.id) {
+        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+        let node: Node = this.getGuildOptionNode(guilds, guild.id);
+        if (node) {
+            node.textContent = `${guild.name} [ ${guild.id} ]`;
+        }
+
+        if (this.selectedGuild && guild.id === this.selectedGuild.id) {
             this.selectedGuild = guild;
             this.updateGuildInfo(false);
         }

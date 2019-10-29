@@ -24,7 +24,7 @@ export class ActionReporter {
 		} else {
 			try {
 				owner = await guild.fetchMember(guild.ownerID, true);
-			} catch (err) {
+			} catch {
 				owner = null;
 			}
 		}
@@ -47,6 +47,35 @@ export class ActionReporter {
 		return user;
 	}
 
+	private notifyGuild(guild: Discord.Guild, embed: Discord.RichEmbed): void {
+		this.getGuildOwner(guild)
+			.then((owner: Discord.GuildMember) => {
+				if (!owner) {
+					if (guild.systemChannel && guild.systemChannel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
+						let chan: Discord.TextChannel = guild.systemChannel as Discord.TextChannel;
+						chan.send('', embed);
+					}
+				}
+
+				owner.createDM()
+					.then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed))
+					.catch(_ => {
+						if (guild.systemChannel && guild.systemChannel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
+							let chan: Discord.TextChannel = guild.systemChannel as Discord.TextChannel;
+							chan.send('', embed);
+						}
+					});
+			});
+	}
+
+	private notifyUser(userId: string, embed: Discord.RichEmbed): void {
+		this.getUser(userId)
+			.then((user: Discord.User) => {
+				if (!user) return;
+				user.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
+			});
+	}
+
 	public reportGuildAction(action: string, guild: Discord.Guild): void {
 		if (action.length > 1024) {
 			action = `${action.slice(0, 1000)}...`;
@@ -61,7 +90,8 @@ export class ActionReporter {
 			- You will receive this kind of message each time a server belonging to you is modified from our service, if you wish not to receive these messages anymore type \`conduit-stop\` in this channel.
 
 			- If you have reasons to believe that someone is using **this bot** in a malicious way, we recommend you get rid of it in all of your servers / guilds and that you report it to our service / administrators.`,
-			*/color: 0xB51235,
+			*/
+			color: 0xB51235,
 			fields: [
 				{
 					name: 'Action performed',
@@ -76,11 +106,7 @@ export class ActionReporter {
 			],
 		});
 
-		this.getGuildOwner(guild)
-			.then((owner: Discord.GuildMember) => {
-				if (!owner) return;
-				owner.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
-			});
+		this.notifyGuild(guild, embed);
 	}
 
 	public reportAction(action: string, userId: string): void{
@@ -107,10 +133,6 @@ export class ActionReporter {
 			],
 		});
 
-		this.getUser(userId)
-			.then((user: Discord.User) => {
-				if (!user) return;
-				user.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
-			});
+		this.notifyUser(userId, embed);
 	}
 }

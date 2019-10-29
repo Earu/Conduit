@@ -31,7 +31,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                 this.props.client.emit('guildCached', data.d.id, data.d.name);
             }
 
-            if (count >= this.props.client.guilds.size - 1) { // aprox
+            if (count >= this.props.client.guilds.size - 1) {
                 ws.removeEventListener('message', guildCallback);
                 title.textContent = 'GUILDS';
             }
