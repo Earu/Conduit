@@ -149,7 +149,7 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
 
     private onChannelMessageSent(): void {
         if (!this.isCurrentChannelValid()) return;
-        if (!this.channel.permissionsFor(this.props.client.user).has('SEND_MESSAGES')) {
+        if (!this.channel.memberPermissions(this.props.client.user).has('SEND_MESSAGES')) {
             this.props.logger.error(`You do not have the \'SEND_MESSAGE\' permission for the selected channel`);
             return;
         }

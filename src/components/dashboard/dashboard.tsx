@@ -28,7 +28,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
             count++;
             title.textContent = `GUILDS (caching: ${Math.ceil(count / this.props.client.guilds.size * 100)}%)`;
             if (data.d) {
-                this.props.client.emit('cachedGuild', data.d.id, data.d.name);
+                this.props.client.emit('guildCached', data.d.id, data.d.name);
             }
 
             if (count >= this.props.client.guilds.size - 1) { // aprox

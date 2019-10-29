@@ -89,8 +89,12 @@ export class RestClient {
         let res: HttpResult = await this.defaultFetchAPI(`guilds/${guildId}`);
         if (res.isSuccess()) {
             let data: object = res.asObject<object>();
-            let guild = new Discord.Guild(this.client, data);
+            let guild: Discord.Guild = new Discord.Guild(this.client, data);
+
             await this.fetchGuildChannels(guild);
+            let me: Discord.GuildMember = await guild.fetchMember(this.client.user, true);
+            guild.members.set(me.id, me);
+            guild.available = true;
 
             this.cache.guilds.cache(guild.id, guild);
             return guild;
