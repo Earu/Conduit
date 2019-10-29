@@ -27,7 +27,9 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         this.restClient = new RestClient(this.props.client);
         this.props.client
             .on('ready', this.onReady.bind(this))
+            .on('loggedIn', this.loadRegionSelect.bind(this))
             .on('guildCreate', this.onGuildCreate.bind(this))
+            .on('cachedGuild', this.onGuildCached.bind(this))
             .on('guildDelete', this.onGuildDelete.bind(this))
             .on('guildUpdate', (_, g: Discord.Guild) => this.onGuildUpdate(g))
             .on('guildIntegrationsUpdate', this.onGuildUpdate.bind(this));
@@ -44,7 +46,6 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
                 </Select>, document.getElementById('container-guild-region'));
                 let select: HTMLElement = document.getElementById('parent-guild-region');
                 select.style.marginBottom = '0px';
-                this.updateGuildInfo();
             });
     }
 
@@ -54,14 +55,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private initialize(guilds: Array<Discord.Guild>): void {
+        this.addGuildsToDatalist(guilds);
         this.props.logger.success('Cached all guilds');
         if (!this.selectedGuild) {
             this.selectedGuild = guilds[0];
             this.updateGuildInfo();
         }
-
-        this.addGuildsToDatalist(guilds);
-        this.loadRegionSelect();
     }
 
     private onReady(): void {
@@ -86,7 +85,15 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
         let opt: HTMLOptionElement = document.createElement('option');
         opt.value = guild.id;
-        opt.text = guild.name;
+        opt.text = `${guild.name} [ ${guild.id} ]`;
+        guilds.appendChild(opt);
+    }
+
+    private onGuildCached(guildId: string, guildName: string): void {
+        let guilds: HTMLDataListElement = document.getElementById('guilds') as HTMLDataListElement;
+        let opt: HTMLOptionElement = document.createElement('option');
+        opt.value = guildId;
+        opt.text = `${guildName} [ ${guildId} ]`;
         guilds.appendChild(opt);
     }
 
@@ -121,8 +128,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         }
     }
 
-    private tryFindGuild(id: string): Promise<Discord.Guild> {
-        return this.restClient.fetchGuild(id);
+    private async tryFindGuild(id: string): Promise<Discord.Guild> {
+        if (this.props.client.guilds.has(id)) {
+            return this.props.client.guilds.get(id);
+        }
+
+        return await this.restClient.fetchGuild(id);
     }
 
     private updateGuildInfo(updateSubPanels: boolean = true): void {
