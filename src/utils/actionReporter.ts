@@ -1,6 +1,12 @@
 import * as Discord from 'discord.js';
 
 export class ActionReporter {
+	private client: Discord.Client;
+
+	constructor (client: Discord.Client) {
+		this.client = client;
+	}
+
 	public formatChannel(chan: Discord.GuildChannel): string {
 		if (!chan) return '';
 
@@ -9,6 +15,36 @@ export class ActionReporter {
 		} else {
 			return `channel \`${chan.name} [ ${chan.type} ]\` (**${chan.id}**)`;
 		}
+	}
+
+	private async getGuildOwner(guild: Discord.Guild): Promise<Discord.GuildMember> {
+		let owner: Discord.GuildMember = null;
+		if (guild.members.has(guild.ownerID)) {
+			owner = guild.members.get(guild.ownerID);
+		} else {
+			try {
+				owner = await guild.fetchMember(guild.ownerID, true);
+			} catch (err) {
+				owner = null;
+			}
+		}
+
+		return owner;
+	}
+
+	private async getUser(userId: string): Promise<Discord.User> {
+		let user: Discord.User = null;
+		if (this.client.users.has(userId)) {
+			user = this.client.users.get(userId);
+		} else {
+			try {
+				user = await this.client.fetchUser(userId, true);
+			} catch {
+				user = null;
+			}
+		}
+
+		return user;
 	}
 
 	public reportGuildAction(action: string, guild: Discord.Guild): void {
@@ -40,10 +76,14 @@ export class ActionReporter {
 			],
 		});
 
-		guild.owner.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
+		this.getGuildOwner(guild)
+			.then((owner: Discord.GuildMember) => {
+				if (!owner) return;
+				owner.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
+			});
 	}
 
-	public reportAction(action: string, user: Discord.User): void{
+	public reportAction(action: string, userId: string): void{
 		if (action.length > 1024) {
 			action = `${action.slice(0, 1000)}...`;
 		}
@@ -67,6 +107,10 @@ export class ActionReporter {
 			],
 		});
 
-		user.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed))
+		this.getUser(userId)
+			.then((user: Discord.User) => {
+				if (!user) return;
+				user.createDM().then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed));
+			});
 	}
 }
