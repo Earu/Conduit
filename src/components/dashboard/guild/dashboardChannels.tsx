@@ -14,53 +14,68 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 
 		this.props.client
 			.on('channelCreate', this.onChannelCreate.bind(this))
-			.on('channelDelete', this.onChannelDelete.bind(this));
+			.on('channelDelete', this.onChannelDelete.bind(this))
+			.on('channelUpdate', (_, c: Discord.Channel) => this.onChannelUpdate(c));
 	}
 
-	private onChannelX(chan: Discord.Channel, callback: (guildChan: Discord.GuildChannel) => void): void {
-		if (!this.props.guild) return;
-		if (chan.type === 'dm' || chan.type === 'group') return;
+	private isValidChannel(chan: Discord.Channel): boolean {
+		if (!this.props.guild) return false;
+		if (chan.type === 'dm' || chan.type === 'group') return false;
 		let guildChan: Discord.GuildChannel = chan as Discord.GuildChannel;
-		if (guildChan.guild.id === this.props.guild.id) {
-			callback(guildChan);
-		}
+		return guildChan.guild.id === this.props.guild.id;
 	}
 
 	private onChannelCreate(chan: Discord.Channel): void {
-		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
-			if (this.props.guild.channels.size === 1) {
-				this.props.onLayoutInvalidated();
-			} else {
-				let opt: HTMLOptionElement = document.createElement('option');
-				opt.value = guildChan.id;
-				opt.textContent = `${guildChan.name} [ ${guildChan.id} ]`;
+		if (!this.isValidChannel(chan)) return;
 
-				let datalist: HTMLElement = document.getElementById('guild-channels');
-				datalist.appendChild(opt);
+		if (this.props.guild.channels.size === 1) {
+			this.props.onLayoutInvalidated();
+		} else {
+			let guildChan: Discord.GuildChannel = chan as Discord.GuildChannel;
+			let opt: HTMLOptionElement = document.createElement('option');
+			opt.value = guildChan.id;
+			opt.textContent = `${guildChan.name} [ ${guildChan.id} ]`;
+
+			let datalist: HTMLElement = document.getElementById('guild-channels');
+			datalist.appendChild(opt);
+		}
+	}
+
+	private getChannelOptionNode(datalist: HTMLDataListElement, chanId: string): Node {
+		for (let child of datalist.childNodes) {
+			let opt: HTMLOptionElement = child as HTMLOptionElement;
+			if (opt.value === chanId) {
+				return opt;
 			}
-		});
+		}
+
+		return null;
 	}
 
 	private onChannelDelete(chan: Discord.Channel): void {
-		this.onChannelX(chan, (guildChan: Discord.GuildChannel) => {
-			if (this.props.guild.channels.size < 1) {
-				this.props.onLayoutInvalidated();
-			} else {
-				let channels: HTMLDataListElement = document.getElementById('guild-channels') as HTMLDataListElement;
-				let node: Node = null;
-				for (let child of channels.childNodes) {
-					let opt: HTMLOptionElement = child as HTMLOptionElement;
-					if (opt.value === guildChan.id) {
-						node = opt;
-						break;
-					}
-				}
+		if (!this.isValidChannel(chan)) return;
 
-				if (node) {
-					channels.removeChild(node);
-				}
+		if (this.props.guild.channels.size < 1) {
+			this.props.onLayoutInvalidated();
+		} else {
+			let guildChan: Discord.GuildChannel = chan as Discord.GuildChannel;
+			let channels: HTMLDataListElement = document.getElementById('guild-channels') as HTMLDataListElement;
+			let node: Node = this.getChannelOptionNode(channels, guildChan.id);
+			if (node) {
+				channels.removeChild(node);
 			}
-		});
+		}
+	}
+
+	private onChannelUpdate(chan: Discord.Channel): void {
+		if (!this.isValidChannel(chan)) return;
+
+		let guildChan: Discord.GuildChannel = chan as Discord.GuildChannel;
+		let channels: HTMLDataListElement = document.getElementById('guild-channels') as HTMLDataListElement;
+		let node: Node = this.getChannelOptionNode(channels, guildChan.id);
+		if (node) {
+			node.textContent = `${guildChan.name} [ ${guildChan.type} | ${guildChan.id} ]`;
+		}
 	}
 
 	private loadChannel(chanId: string): void {
