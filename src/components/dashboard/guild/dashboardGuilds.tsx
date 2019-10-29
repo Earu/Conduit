@@ -133,7 +133,13 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
             return this.props.client.guilds.get(id);
         }
 
-        return await this.restClient.fetchGuild(id);
+        let guild: Discord.Guild = await this.restClient.fetchGuild(id);
+        if (guild) {
+            this.props.client.guilds.set(guild.id, guild);
+            return guild;
+        }
+
+        return null;
     }
 
     private updateGuildInfo(updateSubPanels: boolean = true): void {
@@ -173,7 +179,12 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
         let guildSelect: HTMLInputElement = document.getElementById('guild-select') as HTMLInputElement;
         this.props.loader.load(this.tryFindGuild(guildSelect.value))
             .then((guild: Discord.Guild) => {
-                if (!guild) return;
+                if (!guild || (guild && guild.deleted)) return;
+                if (!guild.available) {
+                    this.props.logger.error(`Selected guild [ ${guild.id} ] is currently unavailable, try again later`);
+                    return;
+                }
+
                 this.props.logger.success(`Selected guild [ ${guild.id} ]`);
                 this.selectedGuild = guild;
                 this.updateGuildInfo();

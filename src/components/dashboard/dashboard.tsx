@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as Discord from 'discord.js';
 
 import { ConduitProps } from '../../utils/conduitProps';
 import { DashboardHeader } from './header/dashboardHeader';
