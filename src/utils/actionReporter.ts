@@ -3,7 +3,7 @@ import * as Discord from 'discord.js';
 export class ActionReporter {
 	private client: Discord.Client;
 
-	constructor (client: Discord.Client) {
+	constructor(client: Discord.Client) {
 		this.client = client;
 	}
 
@@ -18,53 +18,42 @@ export class ActionReporter {
 	}
 
 	private async getGuildOwner(guild: Discord.Guild): Promise<Discord.GuildMember> {
-		let owner: Discord.GuildMember = null;
 		if (guild.members.has(guild.ownerID)) {
-			owner = guild.members.get(guild.ownerID);
-		} else {
-			try {
-				owner = await guild.fetchMember(guild.ownerID, true);
-			} catch {
-				owner = null;
-			}
+			return guild.members.get(guild.ownerID);
 		}
 
-		return owner;
+		return await guild.fetchMember(guild.ownerID, true);
 	}
 
 	private async getUser(userId: string): Promise<Discord.User> {
-		let user: Discord.User = null;
 		if (this.client.users.has(userId)) {
-			user = this.client.users.get(userId);
-		} else {
-			try {
-				user = await this.client.fetchUser(userId, true);
-			} catch {
-				user = null;
-			}
+			return this.client.users.get(userId);
 		}
 
-		return user;
+		return await this.client.fetchUser(userId, true);
 	}
 
 	private notifyGuild(guild: Discord.Guild, embed: Discord.RichEmbed): void {
+		if (guild.systemChannel && guild.systemChannel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
+			let chan: Discord.TextChannel = guild.systemChannel as Discord.TextChannel;
+			chan.send(`<@!${guild.ownerID}>`, embed);
+		}
+	}
+
+	private notifyGuildOwner(guild: Discord.Guild, embed: Discord.RichEmbed): void {
 		this.getGuildOwner(guild)
 			.then((owner: Discord.GuildMember) => {
 				if (!owner) {
-					if (guild.systemChannel && guild.systemChannel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
-						let chan: Discord.TextChannel = guild.systemChannel as Discord.TextChannel;
-						chan.send('', embed);
-					}
+					this.notifyGuild(guild, embed);
 				}
 
 				owner.createDM()
-					.then((dmChannel: Discord.DMChannel) => dmChannel.send('', embed))
-					.catch(_ => {
-						if (guild.systemChannel && guild.systemChannel.permissionsFor(this.client.user).has('SEND_MESSAGES')) {
-							let chan: Discord.TextChannel = guild.systemChannel as Discord.TextChannel;
-							chan.send('', embed);
-						}
-					});
+					.then((dmChannel: Discord.DMChannel) => {
+						embed.addField('Guild', `\`${guild.name}\` (**${guild.id}**)`, false);
+						dmChannel.send('', embed)
+							.catch(_ => this.notifyGuild(guild, this.createEmbed(embed.fields[0].value)));
+					})
+					.catch(_ => this.notifyGuild(guild, embed));
 			});
 	}
 
@@ -76,63 +65,40 @@ export class ActionReporter {
 			});
 	}
 
-	public reportGuildAction(action: string, guild: Discord.Guild): void {
-		if (action.length > 1024) {
-			action = `${action.slice(0, 1000)}...`;
-		}
+	private createEmbed(action: string, addDescription = false): Discord.RichEmbed {
+		let embed: Discord.RichEmbed = new Discord.RichEmbed()
+			.setTitle('Conduit Reporter')
+			.setColor(0xB51235)
+			.addField('Action Performed', action, true);
 
-		let embed: Discord.RichEmbed = new Discord.RichEmbed({
-			title: 'Conduit Reporter',
-			/*description: `- Conduit is a system used by developers to manage their discord bots.
+		if (addDescription) {
+			embed.setDescription(`- Conduit is a system used by developers to manage their discord bots.
 
 			- This message has been sent to you because changes were made to one of the servers / guilds you own.
 
 			- You will receive this kind of message each time a server belonging to you is modified from our service, if you wish not to receive these messages anymore type \`conduit-stop\` in this channel.
 
-			- If you have reasons to believe that someone is using **this bot** in a malicious way, we recommend you get rid of it in all of your servers / guilds and that you report it to our service / administrators.`,
-			*/
-			color: 0xB51235,
-			fields: [
-				{
-					name: 'Action performed',
-					value: action,
-					inline: true,
-				},
-				{
-					name: 'Guild',
-					value: `\`${guild.name}\` (**${guild.id}**)`,
-					inline: false,
-				}
-			],
-		});
+			- If you have reasons to believe that someone is using **this bot** in a malicious way, we recommend you get rid of it in all of your servers / guilds and that you report it to our service / administrators.`);
+		}
 
-		this.notifyGuild(guild, embed);
+		return embed;
 	}
 
-	public reportAction(action: string, userId: string): void{
+	public reportGuildAction(action: string, guild: Discord.Guild): void {
 		if (action.length > 1024) {
 			action = `${action.slice(0, 1000)}...`;
 		}
 
-		let embed: Discord.RichEmbed = new Discord.RichEmbed({
-			title: 'Conduit Reporter',
-			description: `- Conduit is a system used by developers to manage their discord bots.
+		let embed: Discord.RichEmbed = this.createEmbed(action);
+		this.notifyGuildOwner(guild, embed);
+	}
 
-			- This message has been sent to you because you are concerned by the data accessed / modified.
+	public reportAction(action: string, userId: string): void {
+		if (action.length > 1024) {
+			action = `${action.slice(0, 1000)}...`;
+		}
 
-			- You will receive this kind of message each time data belonging to you is accessed / modified from our service, if you wish not to receive these messages anymore type \`conduit-stop\` in this channel.
-
-			- If you have reasons to believe that someone is using **this bot** in a malicious way, we recommend you get rid of it in all of your servers / guilds and that you report it to our service / administrators.`,
-			color: 0xB51235,
-			fields: [
-				{
-					name: 'Action performed',
-					value: action,
-					inline: true,
-				},
-			],
-		});
-
+		let embed: Discord.RichEmbed = this.createEmbed(action);
 		this.notifyUser(userId, embed);
 	}
 }
