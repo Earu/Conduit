@@ -1,46 +1,27 @@
 import * as React from 'react';
 
 import { ConduitProps } from '../utils/conduitProps';
+import { ClientHelper } from '../utils/clientHelper';
 
 export class Login extends React.Component<ConduitProps, {}> {
-    private readonly timeout: number = 10000;
-    
-    private waitGatewayWS(wsObject: any): Promise<WebSocket> {
-        return new Promise<WebSocket>((resolve, _) => {
-            let wsHandle: number = null;
-            let checkWs = () => { 
-                if (wsObject.connection && wsObject.connection.ws) {
-                    if (wsHandle) {
-                        clearInterval(wsHandle);
-                    }
+    private clientHelper: ClientHelper;
 
-                    resolve(wsObject.connection.ws);
-                } 
-            };
+    constructor (props: ConduitProps) {
+        super(props);
 
-            wsHandle = setInterval(checkWs, 250);
-            setTimeout(() => {
-                clearInterval(wsHandle);
-                resolve(null);
-            }, this.timeout)
-        });
-    }
-
-    private async getGatewayWS(): Promise<WebSocket> {
-        let obj: any = this.props.client as any;
-        return await this.waitGatewayWS(obj.ws);
+        this.clientHelper = new ClientHelper(this.props.client);
     }
 
     private async createReadyPromise(): Promise<boolean> {
         return new Promise<boolean>((resolve, _) => {
-            setTimeout(() => resolve(false), this.timeout);
+            setTimeout(() => resolve(false), 30000); // 30s
 
-            this.getGatewayWS().then((ws: WebSocket) => {
+            this.clientHelper.getGatewayWS().then((ws: WebSocket) => {
                 if (!ws) {
                     resolve(false);
                     return;
                 }
-    
+
                 let readyCallback = (ev: MessageEvent) => {
                     let data = JSON.parse(ev.data);
                     if (!data) {

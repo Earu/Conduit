@@ -1,32 +1,49 @@
 import * as React from 'react';
+import * as Discord from 'discord.js';
 
 import { ConduitProps } from '../../utils/conduitProps';
 import { DashboardHeader } from './header/dashboardHeader';
 import { DashboardPanel } from './dashboardPanel';
 import { DashboardConsole } from './dashboardConsole';
 import { DashboardGuilds } from './guild/dashboardGuilds';
+import { ClientHelper } from '../../utils/clientHelper';
 
 export class Dashboard extends React.Component<ConduitProps, {}> {
+    private clientHelper: ClientHelper;
+
     constructor(props: ConduitProps) {
         super(props);
+        this.clientHelper = new ClientHelper(this.props.client);
+        this.props.client.on('loggedIn', this.onLoggedIn.bind(this));
+    }
 
-        this.props.client.on('loggedIn', () => {
-            let obj: any = this.props.client as any;
-            let ws: WebSocket = obj.ws.connection.ws;
-            let count: number = 0;
-            let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
-            let guildCallback = (ev: MessageEvent) => {
-                let data = JSON.parse(ev.data);
-                if (data.t != 'GUILD_CREATE') return;
+    private onLoggedIn(): void {
+        let obj: any = this.props.client as any;
+        let ws: WebSocket = obj.ws.connection.ws;
+        let count: number = 0;
+        let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
+        let guildCallback = (ev: MessageEvent) => {
+            let data = JSON.parse(ev.data);
+            if (data.t != 'GUILD_CREATE') return;
 
-                count++;
-                title.textContent = `GUILDS (caching: ${Math.ceil(count / this.props.client.guilds.size * 100)}%)`;
-                if (count >= this.props.client.guilds.size - 5) { // aprox
-                    ws.removeEventListener('message', guildCallback);
-                    title.textContent = 'GUILDS';
-                }
-            };
-            ws.addEventListener('message', guildCallback);
+            count++;
+            title.textContent = `GUILDS (caching: ${Math.ceil(count / this.props.client.guilds.size * 100)}%)`;
+            if (data.d) {
+                this.props.client.emit('cachedGuild', data.d.id, data.d.name);
+            }
+
+            if (count >= this.props.client.guilds.size - 1) { // aprox
+                ws.removeEventListener('message', guildCallback);
+                title.textContent = 'GUILDS';
+            }
+        };
+        ws.addEventListener('message', guildCallback);
+        ws.addEventListener('close', _ => { // try to switch to new gateway ws
+            ws.removeEventListener('message', guildCallback);
+            this.clientHelper.getGatewayWS().then((newWs: WebSocket) => {
+                ws = newWs;
+                ws.addEventListener('message', guildCallback);
+            })
         });
     }
 
