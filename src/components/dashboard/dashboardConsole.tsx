@@ -45,6 +45,7 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
             .on('guildBanAdd', (guild: Discord.Guild, user: Discord.User) => this.logMessage(`Guild [ ${guild.id}} ] banned user [ ${user.id} ]`, DiscordEventType.Guild))
             .on('guildBanRemove', (guild: Discord.Guild, user: Discord.User) => this.logMessage(`Guild [ ${guild.id}} ] unbanned user [ ${user.id} ]`, DiscordEventType.Guild))
             .on('guildCreate', (guild: Discord.Guild) => this.logMessage(`Joined guild [ ${guild.id} ]`, DiscordEventType.Guild))
+            .on('guildCached', (guildId: string, _: string) => this.logMessage(`Cached guild [ ${guildId} ]`, DiscordEventType.Emoji))
             .on('guildDelete', (guild: Discord.Guild) => this.logMessage(`Left guild [ ${guild.id} ]`, DiscordEventType.Guild))
             .on('guildUpdate', (_, guild: Discord.Guild) => this.logMessage(`Updated guild [ ${guild.id} ]`, DiscordEventType.Guild))
             .on('guildUnavailable', (guild: Discord.Guild) => this.logMessage(`Guild [ ${guild.id} ] became unavailable`, DiscordEventType.Guild))
@@ -57,6 +58,7 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
             .on('roleUpdate', (role: Discord.Role) => this.logMessage(`Updated role [ ${role.id} ] in guild [ ${role.guild.id} ]`, DiscordEventType.Role))
 
             .on('ready', () => this.logMessage('Ready', DiscordEventType.Global))
+            .on('loggedIn', this.onLoggedIn.bind(this))
             .on('reconnecting', () => this.logMessage('Reconnecting', DiscordEventType.Global, LogType.WARN))
             .on('resume', (n) => this.logMessage(`Resumed websocket connection with ${n} events replayed`, DiscordEventType.Global))
             .on('warn', (msg: string) => this.logMessage(msg, DiscordEventType.Global, LogType.WARN))
@@ -91,6 +93,17 @@ export class DashboardConsole extends React.Component<ConduitProps, {}> {
         let terminal: HTMLElement = document.getElementById('console');
         terminal.appendChild(line);
         terminal.scrollTo(0, terminal.scrollHeight);
+    }
+
+    private onLoggedIn(): void {
+        if (this.props.client.guilds.size >= 2500) { // too many events to log
+            let checkboxeIds: Array<string> = [ 'log-guild', 'log-channel', 'log-role', 'log-emoji' ];
+            for (let id of checkboxeIds) {
+                let checkbox: HTMLInputElement = document.getElementById(id) as HTMLInputElement;
+                if (!checkbox) continue;
+                checkbox.click();
+            }
+        }
     }
 
     private setEvent(eventType: DiscordEventType, state: boolean) {

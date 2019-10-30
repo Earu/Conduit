@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 
 import { Avatar, AvatarProps } from './avatar';
-import { HttpClient, HttpResult } from '../../../http/httpclient';
+import { HttpClient, HttpResult } from '../../../http/httpClient';
 
 export class BotAvatar extends Avatar<AvatarProps> {
     private httpClient: HttpClient;
