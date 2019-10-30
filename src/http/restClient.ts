@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
 
-import { HttpClient, HttpResult } from './httpclient';
+import { HttpClient, HttpResult } from './httpClient';
 
 class Cache<T> {
     private objects: Discord.Collection<string, T>;

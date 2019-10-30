@@ -6,7 +6,7 @@ import { ConduitChannelProps } from '../../../utils/conduitProps';
 import { Input } from '../../controls/input';
 import { Checkbox } from '../../controls/checkbox';
 import { ConduitEvent } from '../../../utils/conduitEvent';
-import { HttpClient, HttpResult } from '../../../http/httpclient';
+import { HttpClient, HttpResult } from '../../../http/httpClient';
 import { Select } from '../../controls/select';
 import { SelectHelper } from '../../../utils/selectHelper';
 
@@ -267,12 +267,14 @@ export class DashboardTextChannel extends React.Component<ConduitChannelProps<Di
         let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;
         let topicInput: HTMLInputElement = document.getElementById('channel-topic') as HTMLInputElement;
         let rtInput: HTMLInputElement = document.getElementById('channel-rate-limit') as HTMLInputElement;
+        let nsfwInput: HTMLInputElement = document.getElementById('channel-nsfw') as HTMLInputElement;
         let chanContainer: HTMLElement = document.getElementById('container-channel-parent');
-        if (!nameInput || !topicInput || !rtInput || !chanContainer) return;
+        if (!nameInput || !topicInput || !rtInput || !nsfwInput || !chanContainer) return;
 
         nameInput.value = this.channel.name;
         topicInput.value = this.channel.topic ? this.channel.topic : '';
         rtInput.value = this.channel.rateLimitPerUser > 0 ? `${this.channel.rateLimitPerUser}s` : '';
+        nsfwInput.checked = this.channel.nsfw;
 
         let chans: Discord.Collection<string, Discord.GuildChannel> = this.channel.guild.channels.filter((c: Discord.GuildChannel) => c.type === 'category');
         let categories: Array<JSX.Element> = [];
