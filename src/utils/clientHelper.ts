@@ -6,7 +6,7 @@ export class ClientHelper {
 	private client: Discord.Client;
 
 	constructor (client: Discord.Client) {
-		this.client = client;
+        this.client = client;
 	}
 
     private waitGatewayWS(wsObject: any): Promise<WebSocket> {
@@ -30,8 +30,23 @@ export class ClientHelper {
         });
     }
 
-    public async getGatewayWS(): Promise<WebSocket> {
-        let obj: any = this.client as any;
-        return await this.waitGatewayWS(obj.ws);
+    public async getGatewayWS(): Promise<Array<WebSocket>> {
+        let shard: Discord.ShardClientUtil = null;//Discord.ShardClientUtil.singleton(this.client);
+        if (!shard || (shard && shard.count === 1)) {
+            let obj: any = this.client as any;
+            let ws: WebSocket = await this.waitGatewayWS(obj.ws);
+            return ws ? [ ws ] : [];
+        }
+
+        let objs: Array<any> = await shard.broadcastEval('this.ws');
+        let wss: Array<WebSocket> = [];
+        for(let obj of objs) {
+            let ws: WebSocket = await this.waitGatewayWS(obj.ws);
+            if (ws) {
+                wss.push(ws);
+            }
+        }
+
+        return wss;
     }
 }

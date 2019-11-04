@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as Discord from 'discord.js';
 
 import { ConduitProps } from '../../utils/conduitProps';
 import { DashboardHeader } from './header/dashboardHeader';
@@ -19,35 +20,44 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
     }
 
     private async onLoggedIn(): Promise<void> {
-        let ws: WebSocket = await this.clientHelper.getGatewayWS();
-        if (!ws) return;
+        let wss: Array<WebSocket> = await this.clientHelper.getGatewayWS();
+        if (wss.length === 0) return;
 
         let count: number = 0;
         let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
-        let guildCallback = (ev: MessageEvent) => {
-            let data = JSON.parse(ev.data);
-            if (data.t != 'GUILD_CREATE') return;
+        let guildCount: number = 0;
+        for (let ws of wss) {
+            let guildCallback = (ev: MessageEvent) => {
+                let data = JSON.parse(ev.data);
+                if (data.t != 'GUILD_CREATE') return;
 
-            count++;
-            let value: number = Math.ceil(count / this.props.client.guilds.size * 100);
-            if (value >= 100) {
-                title.textContent = 'GUILDS';
-                ws.removeEventListener('message', guildCallback);
-            } else {
-                title.textContent = `GUILDS (caching: ${value}%)`;
-            }
+                count++;
+                let value: number = Math.ceil(count / guildCount* 100);
+                if (value >= 100) {
+                    title.textContent = 'GUILDS';
+                    ws.removeEventListener('message', guildCallback);
+                } else {
+                    title.textContent = `GUILDS (caching: ${value}%)`;
+                }
 
-            if (data.d) {
-                this.props.client.emit('guildCached', data.d.id, data.d.name);
-            }
-        };
-        ws.addEventListener('message', guildCallback);
-        ws.addEventListener('close', async _ => { // try to switch to new gateway ws
-            ws.removeEventListener('message', guildCallback);
-            ws = await this.clientHelper.getGatewayWS();
-            if (!ws) return;
+                if (data.d) {
+                    this.props.client.emit('guildCached', data.d.id, data.d.name);
+                }
+            };
             ws.addEventListener('message', guildCallback);
-        });
+            /*ws.addEventListener('close', async _ => { // try to switch to new gateway ws
+                ws.removeEventListener('message', guildCallback);
+                ws = await this.clientHelper.getGatewayWS();
+                if (!ws) return;
+                ws.addEventListener('message', guildCallback);
+            });*/
+        }
+
+        if (!this.props.client.shard) {
+            guildCount = this.props.client.guilds.size;
+        } else {
+            guildCount = (await this.props.client.shard.fetchClientValues('guilds.size')).reduce((a: number, b: number) => a + b, 0);
+        }
     }
 
     private onReady(): void {

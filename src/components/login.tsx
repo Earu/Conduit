@@ -13,15 +13,17 @@ export class Login extends React.Component<ConduitProps, {}> {
     }
 
     private async createReadyPromise(): Promise<boolean> {
-        return new Promise<boolean>((resolve, _) => {
+        return new Promise<boolean>(async (resolve, _) => {
             setTimeout(() => resolve(false), 30000); // 30s
 
-            this.clientHelper.getGatewayWS().then((ws: WebSocket) => {
-                if (!ws) {
-                    resolve(false);
-                    return;
-                }
+            let wss: Array<WebSocket> = await this.clientHelper.getGatewayWS();
+            if (wss.length === 0) {
+                resolve(false);
+                return;
+            }
 
+            let i: number = 0;
+            for (let ws of wss) {
                 let readyCallback = (ev: MessageEvent) => {
                     let data = JSON.parse(ev.data);
                     if (!data) {
@@ -31,16 +33,20 @@ export class Login extends React.Component<ConduitProps, {}> {
                         ws.removeEventListener('message', readyCallback);
                         setTimeout(() => { // wait for d.js to process the msg
                             this.props.client.emit('loggedIn');
-                            resolve(true);
+                            if (++i === wss.length) {
+                                resolve(true);
+                            }
                         }, 2000);
                     } else if (data.t === 'GUILD_CREATE') { // If we have more than 1 guild wait for first guild
                         ws.removeEventListener('message', readyCallback);
                         this.props.client.emit('loggedIn');
-                        resolve(true);
+                        if (++i === wss.length) {
+                            resolve(true);
+                        }
                     }
                 };
                 ws.addEventListener('message', readyCallback);
-            });
+            }
         });
     }
 
