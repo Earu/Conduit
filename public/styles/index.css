@@ -310,6 +310,7 @@ hr {
     font-size: 20px;
     width: 64px;
     height: 64px;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .avatar-control>input {
