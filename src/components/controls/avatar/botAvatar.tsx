@@ -21,15 +21,15 @@ export class BotAvatar extends Avatar<AvatarProps> {
         let img: HTMLImageElement = avatar.getElementsByTagName('img')[0];
         let alt: HTMLSpanElement = avatar.getElementsByTagName('span')[0];
 
-        let url = this.props.client.user.avatarURL;
+        let url: string = this.props.client.user.avatarURL;
+        alt.textContent = this.props.client.user.username.split(' ').map((p: string) => p[0]).join('');
         if (url) {
             img.style.display = 'block';
             img.src = url;
-            alt.textContent = '';
+            alt.style.display = 'none';
         } else {
             img.style.display = 'none';
-            let parts: Array<string> = this.props.client.user.username.split(' ');
-            alt.textContent = parts.map((p: string) => p[0]).join('');
+            alt.style.display = 'block';
         }
     }
 

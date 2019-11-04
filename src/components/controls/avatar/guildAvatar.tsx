@@ -27,18 +27,19 @@ export class GuildAvatar extends Avatar<GuildAvatarProps> {
         let img: HTMLImageElement = avatar.getElementsByTagName('img')[0];
         let alt: HTMLSpanElement = avatar.getElementsByTagName('span')[0];
 
+        if (guild.name) {
+            alt.textContent = guild.name.split(' ').map((p: string) => p[0]).join('');
+        } else {
+            alt.textContent = '?';
+        }
+
         if (guild.iconURL) {
             img.style.display = 'block';
             img.src = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`;
-            alt.textContent = '';
+            alt.style.display = 'none';
         } else {
             img.style.display = 'none';
-            if (guild.name) {
-                let parts: Array<string> = guild.name.split(' ');
-                alt.textContent = parts.map((p: string) => p[0]).join('');
-            } else {
-                alt.textContent = '?';
-            }
+            alt.style.display = 'block';
         }
     }
 

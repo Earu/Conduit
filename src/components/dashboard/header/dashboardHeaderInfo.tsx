@@ -220,9 +220,9 @@ export class DashboardHeaderInfo extends React.Component<ConduitProps, {}> {
             </div>
             <div className='bot-stats col-md-2'>
                 <div style={{ height: '5px' }} />
-                Shards: <span id='shard-count'>0</span><br />
-                Guilds: <span id='guild-count'>0</span><br />
-                Users: <span id='user-count'>0</span>
+                Shards: <span id='shard-count'>>?</span><br />
+                Guilds: <span id='guild-count'>>?</span><br />
+                Users: <span id='user-count'>?</span>
             </div>
             <div className='bot-stats col-md-3'>
                 <div style={{ height: '5px' }} />

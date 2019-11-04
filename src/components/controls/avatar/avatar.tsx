@@ -30,10 +30,19 @@ export class Avatar<T extends AvatarProps> extends React.Component<T, {}> {
         fileReader.readAsArrayBuffer(file);
     }
 
+    private onError(e: React.SyntheticEvent<HTMLImageElement, Event>): void {
+        let avatar: HTMLElement = e.currentTarget.parentElement;
+        let img: HTMLImageElement = avatar.getElementsByTagName('img')[0];
+        let alt: HTMLSpanElement = avatar.getElementsByTagName('span')[0];
+
+        img.style.display = 'none';
+        alt.style.display = 'block';
+    }
+
     render(): JSX.Element {
         return <div id={this.props.id} className='avatar-control'>
-            <img alt='avatar' />
             <span />
+            <img alt='avatar' onError={this.onError.bind(this)} />
             <button onClick={this.onClick.bind(this)}>Change Avatar</button>
             <input onChange={this.onChange.bind(this)} type='file' accept='image/png,image/jpeg' />
         </div>
