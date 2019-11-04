@@ -13,7 +13,9 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
     constructor(props: ConduitProps) {
         super(props);
         this.clientHelper = new ClientHelper(this.props.client);
-        this.props.client.on('loggedIn', this.onLoggedIn.bind(this));
+        this.props.client
+            .on('loggedIn', this.onLoggedIn.bind(this))
+            .on('ready', this.onReady.bind(this));
     }
 
     private onLoggedIn(): void {
@@ -33,7 +35,6 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
 
             if (count >= this.props.client.guilds.size - 1) {
                 ws.removeEventListener('message', guildCallback);
-                title.textContent = 'GUILDS';
             }
         };
         ws.addEventListener('message', guildCallback);
@@ -44,6 +45,11 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                 ws.addEventListener('message', guildCallback);
             })
         });
+    }
+
+    private onReady(): void {
+        let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
+        title.textContent = 'GUILDS';
     }
 
     private getPanelTitle(id: string): HTMLSpanElement {
