@@ -18,9 +18,10 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
             .on('ready', this.onReady.bind(this));
     }
 
-    private onLoggedIn(): void {
-        let obj: any = this.props.client as any;
-        let ws: WebSocket = obj.ws.connection.ws;
+    private async onLoggedIn(): Promise<void> {
+        let ws: WebSocket = await this.clientHelper.getGatewayWS();
+        if (!ws) return;
+
         let count: number = 0;
         let title: HTMLSpanElement = this.getPanelTitle('guild-panel');
         let guildCallback = (ev: MessageEvent) => {
@@ -28,22 +29,24 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
             if (data.t != 'GUILD_CREATE') return;
 
             count++;
-            title.textContent = `GUILDS (caching: ${Math.ceil(count / this.props.client.guilds.size * 100)}%)`;
+            let value: number = Math.ceil(count / this.props.client.guilds.size * 100);
+            if (value >= 100) {
+                title.textContent = 'GUILDS';
+                ws.removeEventListener('message', guildCallback);
+            } else {
+                title.textContent = `GUILDS (caching: ${value}%)`;
+            }
+
             if (data.d) {
                 this.props.client.emit('guildCached', data.d.id, data.d.name);
             }
-
-            if (count >= this.props.client.guilds.size - 1) {
-                ws.removeEventListener('message', guildCallback);
-            }
         };
         ws.addEventListener('message', guildCallback);
-        ws.addEventListener('close', _ => { // try to switch to new gateway ws
+        ws.addEventListener('close', async _ => { // try to switch to new gateway ws
             ws.removeEventListener('message', guildCallback);
-            this.clientHelper.getGatewayWS().then((newWs: WebSocket) => {
-                ws = newWs;
-                ws.addEventListener('message', guildCallback);
-            })
+            ws = await this.clientHelper.getGatewayWS();
+            if (!ws) return;
+            ws.addEventListener('message', guildCallback);
         });
     }
 
