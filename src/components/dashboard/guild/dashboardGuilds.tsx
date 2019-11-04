@@ -137,11 +137,13 @@ export class DashboardGuilds extends React.Component<ConduitProps, {}> {
     }
 
     private async tryFindGuild(id: string): Promise<Discord.Guild> {
+        let guild: Discord.Guild = null;
         if (this.props.client.guilds.has(id)) {
-            return this.props.client.guilds.get(id);
+            guild = this.props.client.guilds.get(id);
+            if (guild.available) return guild;
         }
 
-        let guild: Discord.Guild = await this.restClient.fetchGuild(id);
+        guild = await this.restClient.fetchGuild(id);
         if (guild) {
             this.props.client.guilds.set(guild.id, guild);
             return guild;
