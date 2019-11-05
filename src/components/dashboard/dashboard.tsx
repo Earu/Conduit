@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as Discord from 'discord.js';
 
 import { ConduitProps } from '../../utils/conduitProps';
 import { DashboardHeader } from './header/dashboardHeader';
@@ -20,7 +19,7 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
     }
 
     private async onLoggedIn(): Promise<void> {
-        let wss: Array<WebSocket> = await this.clientHelper.getGatewayWS();
+        let wss: Array<WebSocket> = await this.clientHelper.getAllGatewayWS();
         if (wss.length === 0) return;
 
         let count: number = 0;
@@ -45,12 +44,12 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                 }
             };
             ws.addEventListener('message', guildCallback);
-            /*ws.addEventListener('close', async _ => { // try to switch to new gateway ws
+            ws.addEventListener('close', async _ => { // try to switch to new gateway ws
                 ws.removeEventListener('message', guildCallback);
                 ws = await this.clientHelper.getGatewayWS();
                 if (!ws) return;
                 ws.addEventListener('message', guildCallback);
-            });*/
+            });
         }
 
         if (!this.props.client.shard) {
