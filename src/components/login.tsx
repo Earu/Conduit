@@ -16,7 +16,7 @@ export class Login extends React.Component<ConduitProps, {}> {
         return new Promise<boolean>(async (resolve, _) => {
             setTimeout(() => resolve(false), 30000); // 30s
 
-            let wss: Array<WebSocket> = await this.clientHelper.getGatewayWS();
+            let wss: Array<WebSocket> = await this.clientHelper.getAllGatewayWS();
             if (wss.length === 0) {
                 resolve(false);
                 return;
@@ -55,6 +55,7 @@ export class Login extends React.Component<ConduitProps, {}> {
         if (input.value) {
             let form: HTMLElement = document.getElementById('token-form');
             input.disabled = true;
+
             this.props.loader.load(this.props.client.login(input.value))
                 .catch(_ => {
                     input.style.border = '2px solid red';
