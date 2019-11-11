@@ -1,79 +1,60 @@
 import * as React from 'react'
 
-import { BlockPicker } from 'react-color'
-
 export interface ColorPickerProps {
 	id: string;
 	color: string;
+	validateChange: (color: string) => Promise<boolean>;
+	failedChange: () => string;
+	style?: React.CSSProperties;
 }
 
-export interface ColorPickerState {
-	displayColorPicker: boolean,
-	background: string,
-}
+export class ColorPicker extends React.Component<ColorPickerProps, {}> {
+	private setColor(color: string): void {
+		color = color === '0' ? '99AAB5' : color; // default discord role color
+		let picker: HTMLElement = document.getElementById(this.props.id);
+		let input: HTMLInputElement = picker.getElementsByTagName('input')[0];
+		let display: HTMLDivElement = picker.getElementsByTagName('div')[0];
 
-export class ColorPicker extends React.Component<ColorPickerProps, ColorPickerState> {
-	constructor(props: any){
-		super(props);
-
-		this.state = {
-			displayColorPicker: false,
-			background: '#fff',
-		};
+		input.value = color;
+		display.style.backgroundColor = `#${color}`;
 	}
 
-	private onClick(): void {
-		this.setState({
-			displayColorPicker: !this.state.displayColorPicker,
-			background: this.state.background,
-		});
+	private onClick(_: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
+		let picker: HTMLElement = document.getElementById(this.props.id);
+		let input: HTMLInputElement = picker.getElementsByTagName('input')[0];
+		input.click();
 	}
 
-	private onClose(): void {
-		this.setState({
-			displayColorPicker: false,
-			background: this.state.background,
-		});
+	private async onChange(_: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+		let picker: HTMLElement = document.getElementById(this.props.id);
+		let input: HTMLInputElement = picker.getElementsByTagName('input')[0];
+		let change: boolean = await this.props.validateChange(input.value);
+		if (change) {
+			this.setColor(input.value);
+		} else {
+			let color: string = this.props.failedChange()
+			this.setColor(color);
+		}
 	}
 
-	private onChange(color: any): void {
-		this.setState({
-			displayColorPicker: this.state.displayColorPicker,
-			background: color.hex,
-		});
+	componentDidMount(): void {
+		this.setColor(this.props.color);
 	}
 
 	componentDidUpdate(): void {
-		this.setState({
-			displayColorPicker: false,
-			background: this.props.color,
-		});
+		this.setColor(this.props.color);
 	}
 
 	render(): JSX.Element {
-		let popOver: React.CSSProperties = {
-			position: 'absolute',
-			zIndex: 2,
-		};
-
-		let cover: React.CSSProperties = {
-			position: 'fixed',
-			top: '0px',
-			right: '0px',
-			bottom: '0px',
-			left: '0px',
-		};
-
-		return <div>
-			<button id={this.props.id}
-				onClick={this.onClick.bind(this)}
-				style={{ border: 'none', backgroundColor: this.state.background, color: 'white' }}>
-				{this.state.background}
-			</button>
-			{this.state.displayColorPicker ? <div style={popOver}>
-				<div style={cover} onClick={this.onClose.bind(this)} />
-				<BlockPicker color={this.state.background} onChangeCompleted={this.onChange.bind(this)} />
-			</div> : <div />}
-		</div>
+		return <div id={this.props.id} style={this.props.style}>
+			<input type='color' onChange={this.onChange.bind(this)} style={{ display: 'none' }} />
+			<div onClick={this.onClick.bind(this)} style={{
+				backgroundColor: this.props.color,
+				height: '100%',
+				width: '100%',
+				border: '1px solid black',
+				display: 'inline-block',
+			}} />
+		</div>;
 	}
 }

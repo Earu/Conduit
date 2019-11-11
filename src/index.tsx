@@ -19,6 +19,7 @@ client.options.messageCacheMaxSize = 1;
 client.options.messageCacheLifetime = 1;
 client.options.ws.large_threshold = 1;
 client.options.fetchAllMembers = false;
+client.options.shardCount = 1;
 
 // forgotten discord.js typings
 declare module 'discord.js' {
