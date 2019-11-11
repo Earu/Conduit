@@ -96,6 +96,6 @@ export class Dashboard extends React.Component<ConduitProps, {}> {
                     </DashboardPanel>
                 </div>
             </div>
-        </div>
+        </div>;
     }
 }
