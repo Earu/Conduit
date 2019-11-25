@@ -31,6 +31,7 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 		let role: Discord.Role = this.props.guild.roles.find((r: Discord.Role) => r.id === roleId && !r.deleted);
 		if (role) {
 			this.selectedRole = role;
+			//role.setHoist
 			ReactDOM.render(<div className='row'>
 				<div className='col-md-1'>
 					<ColorPicker id='role-color' color={role.color.toString(16)} validateChange={this.valideColorChange.bind(this)}

@@ -23,31 +23,31 @@ client.options.shardCount = 1;
 
 // forgotten discord.js typings
 declare module 'discord.js' {
-    interface TextChannel {
-        rateLimitPerUser: number;
-        setNSFW(state: boolean, reason?: string): Promise<GuildChannel>;
-    }
+	interface TextChannel {
+		rateLimitPerUser: number;
+		setNSFW(state: boolean, reason?: string): Promise<GuildChannel>;
+	}
 
-    interface Guild {
-        deleted: boolean;
-    }
+	interface Guild {
+		deleted: boolean;
+	}
 
-    interface Channel {
-        deleted: boolean;
-    }
+	interface Channel {
+		deleted: boolean;
+	}
 
-    interface Emoji {
-        deleted: boolean;
-    }
+	interface Emoji {
+		deleted: boolean;
+	}
 
-    interface Role {
-        deleted: boolean;
-    }
+	interface Role {
+		deleted: boolean;
+	}
 }
 
 ReactDOM.render(<div>
-    <Header />
-    <Login client={client} logger={logger} loader={loader} />
-    <Dashboard client={client} logger={logger} loader={loader} />
-    <Loader />
+	<Header />
+	<Login client={client} logger={logger} loader={loader} />
+	<Dashboard client={client} logger={logger} loader={loader} />
+	<Loader />
 </div>, document.getElementById('root'));
