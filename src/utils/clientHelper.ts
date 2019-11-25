@@ -6,39 +6,39 @@ export class ClientHelper {
 	private client: Discord.Client;
 
 	constructor (client: Discord.Client) {
-        this.client = client;
+		this.client = client;
 	}
 
-    private waitGatewayWS(wsObject: any): Promise<WebSocket> {
-        return new Promise<WebSocket>((resolve, _) => {
-            let wsHandle: number = null;
-            let checkWs = () => {
-                if (wsObject.connection && wsObject.connection.ws) {
-                    if (wsHandle) {
-                        clearInterval(wsHandle);
-                    }
+	private waitGatewayWS(wsObject: any): Promise<WebSocket> {
+		return new Promise<WebSocket>((resolve, _) => {
+			let wsHandle: number = null;
+			let checkWs = () => {
+				if (wsObject.connection && wsObject.connection.ws) {
+					if (wsHandle) {
+						clearInterval(wsHandle);
+					}
 
-                    resolve(wsObject.connection.ws);
-                }
-            };
+					resolve(wsObject.connection.ws);
+				}
+			};
 
-            wsHandle = setInterval(checkWs, 250);
-            setTimeout(() => {
-                clearInterval(wsHandle);
-                resolve(null);
-            }, this.timeout)
-        });
-    }
+			wsHandle = setInterval(checkWs, 250);
+			setTimeout(() => {
+				clearInterval(wsHandle);
+				resolve(null);
+			}, this.timeout)
+		});
+	}
 
-    public async getGatewayWS(): Promise<WebSocket> {
-        let obj: any = this.client as any;
-        return await this.waitGatewayWS(obj.ws);
-    }
+	public async getGatewayWS(): Promise<WebSocket> {
+		let obj: any = this.client as any;
+		return await this.waitGatewayWS(obj.ws);
+	}
 
-    // This returns an array for a possible sharding implementation in the future
-    public async getAllGatewayWS(): Promise<Array<WebSocket>> {
-        let obj: any = this.client as any;
-        let ws: WebSocket = await this.waitGatewayWS(obj.ws);
-        return ws ? [ ws ] : [];
-    }
+	// This returns an array for a possible sharding implementation in the future
+	public async getAllGatewayWS(): Promise<Array<WebSocket>> {
+		let obj: any = this.client as any;
+		let ws: WebSocket = await this.waitGatewayWS(obj.ws);
+		return ws ? [ ws ] : [];
+	}
 }

@@ -249,11 +249,11 @@ export class DashboardCategoryChannel extends React.Component<ConduitChannelProp
 	}
 
 	private isCurrentChannelValid(): boolean {
-        if (!this.category) return false;
-        if (this.category.deleted) return false;
+		if (!this.category) return false;
+		if (this.category.deleted) return false;
 
-        return true;
-    }
+		return true;
+	}
 
 	private initialize(): void {
 		let nameInput: HTMLInputElement = document.getElementById('channel-name') as HTMLInputElement;

@@ -1,37 +1,37 @@
 {
-  "name": "Conduit",
-  "version": "1.0.0",
-  "description": "A web panel to administrate, manage and help you maintain your discord bot(s)",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Earu/Conduit.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Earu/Conduit/issues"
-  },
-  "homepage": "https://github.com/Earu/Conduit#readme",
-  "devDependencies": {
-    "@types/events": "^3.0.0",
-    "@types/react": "^16.9.3",
-    "@types/react-dom": "^16.9.1",
-    "source-map-loader": "^0.2.4",
-    "ts-loader": "^6.2.0",
-    "typescript": "^3.6.3",
-    "webpack": "^4.41.0",
-    "webpack-cli": "^3.3.9"
-  },
-  "dependencies": {
-    "discord.js": "^11.5.1",
-    "notyf": "^3.0.4",
-    "pretty-checkbox": "^3.0.3",
-    "react": "^16.10.1",
-    "react-dom": "^16.10.1"
-  }
+ "name": "Conduit",
+ "version": "1.0.0",
+ "description": "A web panel to administrate, manage and help you maintain your discord bot(s)",
+ "main": "index.js",
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/Earu/Conduit.git"
+ },
+ "keywords": [],
+ "author": "",
+ "license": "ISC",
+ "bugs": {
+  "url": "https://github.com/Earu/Conduit/issues"
+ },
+ "homepage": "https://github.com/Earu/Conduit#readme",
+ "devDependencies": {
+  "@types/events": "^3.0.0",
+  "@types/react": "^16.9.3",
+  "@types/react-dom": "^16.9.1",
+  "source-map-loader": "^0.2.4",
+  "ts-loader": "^6.2.0",
+  "typescript": "^3.6.3",
+  "webpack": "^4.41.0",
+  "webpack-cli": "^3.3.9"
+ },
+ "dependencies": {
+  "discord.js": "^11.5.1",
+  "notyf": "^3.0.4",
+  "pretty-checkbox": "^3.0.3",
+  "react": "^16.10.1",
+  "react-dom": "^16.10.1"
+ }
 }
