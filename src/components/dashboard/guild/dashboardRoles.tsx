@@ -13,7 +13,7 @@ export class DashboardRoles extends React.Component<ConduitGuildSubPanelProps, {
 		if (!this.selectedRole) return false;
 
 		try {
-			await this.props.loader.load(this.selectedRole.setColor(color))
+			await this.props.loader.load(this.selectedRole.setColor(color));
 			return true;
 		} catch {
 			return false;
