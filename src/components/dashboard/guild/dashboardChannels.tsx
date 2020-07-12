@@ -112,6 +112,12 @@ export class DashboardChannels extends React.Component<ConduitGuildSubPanelProps
 		}
 
 		ReactDOM.render(jsx, container);
+
+		// we do that so the id is set if the user didnt input anything
+		let input: HTMLInputElement = document.getElementById('guild-channel') as HTMLInputElement;
+		if (input) {
+			input.value = chanId;
+		}
 	}
 
 	private onChannelSelected(): void {
