@@ -63,6 +63,7 @@ hr {
 	margin-left: -175px;
 	margin-top: -75px;
 	padding-bottom: 10px;
+	box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
 }
 
 #token-form>.title {
@@ -372,6 +373,7 @@ hr {
 .dashboard-panel,
 #dashboard-header {
 	padding: 0;
+	box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.75);
 }
 
 .dashboard-info {
